@@ -1,0 +1,11 @@
+---
+layout: default
+---
+<article>
+    <h2 class="post-page-title">{{ page.title }}</h2>
+    <p class="post-date">{{ page.date | date: "%-d %B %Y" }}</p>
+    <div class="post-body">
+        {{ content }}
+    </div>
+    <p class="back-link"><a href="{{ '/blog.html' | relative_url }}">&larr; Back to Blog</a></p>
+</article>

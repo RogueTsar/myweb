@@ -1,0 +1,12 @@
+<header>
+    <h1><a href="{{ '/' | relative_url }}">Vaishnavi Singh</a></h1>
+    <nav>
+        <a href="{{ '/' | relative_url }}" {% if page.url == '/' or page.url == '/index.html' %}class="active"{% endif %}>Home</a>
+        <span class="nav-sep">|</span>
+        <a href="{{ '/work.html' | relative_url }}" {% if page.url == '/work.html' %}class="active"{% endif %}>Work</a>
+        <span class="nav-sep">|</span>
+        <a href="{{ '/music.html' | relative_url }}" {% if page.url == '/music.html' %}class="active"{% endif %}>Music</a>
+        <span class="nav-sep">|</span>
+        <a href="{{ '/blog.html' | relative_url }}" {% if page.url contains '/blog' %}class="active"{% endif %}>Blog</a>
+    </nav>
+</header>

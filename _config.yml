@@ -1,0 +1,22 @@
+title: "Vaishnavi Singh"
+description: "Undergraduate researcher in Technical AI Safety and AI Governance & Policy"
+url: "https://vaishnavisingh.github.io"
+baseurl: ""
+
+markdown: kramdown
+highlighter: rouge
+permalink: /blog/:title/
+
+defaults:
+  - scope:
+      path: "_posts"
+      type: "posts"
+    values:
+      layout: "post"
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - .gitignore
+  - docs/
