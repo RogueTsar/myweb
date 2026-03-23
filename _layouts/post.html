@@ -1,11 +1,17 @@
 ---
 layout: default
+body_class: post-page
 ---
 <article>
     <h2 class="post-page-title">{{ page.title }}</h2>
-    <p class="post-date">{{ page.date | date: "%-d %B %Y" }}</p>
-    <div class="post-body">
+    <div class="post-meta-row">
+        <span class="post-date">{{ page.date | date: "%-d %B %Y" }}</span>
+        <span class="reading-time" id="reading-time"></span>
+    </div>
+    <div id="post-toc-container"></div>
+    <div class="post-body" id="post-body">
         {{ content }}
     </div>
     <p class="back-link"><a href="{{ '/blog.html' | relative_url }}">&larr; Back to Blog</a></p>
 </article>
+<script src="{{ '/assets/js/post.js' | relative_url }}"></script>

@@ -1,0 +1,108 @@
+---
+	layout: post
+	title: "multi-agent systems and the south korean AI act's timing"
+	date: 2026-03-01
+	---
+	
+I just finished presenting a simulated closed-door consultation on South Korea's AI Basic Act for my AI Policy class. The class assignment was to role-play as an industry association's policy team giving feedback to policymakers. My section was to cover the future - and so of course I covered frontier risks and agentic AI. Specifically, why the Act's architecture is structurally inadequate for the multi-agent world that is already being commercially deployed. 
+
+Here follows is not the presentation itself but rather something that came out of preparing it and some thoughts I had after: a set of observations about multi-agent systems, cooperative AI, and the timing problem that regulators face when they try to govern a technology that is changing faster than policy agendas.
+
+A short disclaimer, this is all rather exploratory. I am still working through a lot of these ideas, and I suspect some of what I say here will need to be revised as the empirical picture develops further. Nonetheless, I think my observations are worth writing about as I do believe that the cooperative AI research community has been building exactly the analytical toolkit that policymakers need. I also think that there is a significant gap between what that community knows and what has been incorporated into actual regulatory discussions and the designing of policies that follow. 
+
+What is the act's implicit model of AI? The South Korean AI Basic Act took effect on January 22, 2026. It is the first national AI law to enter force anywhere in the world, ahead of the EU AI Act's full enforcement timeline. When I heard about it I was pretty shocked, I did not expect SK of all nations to be the first mover. The Act was drafted primarily during 2023-2024, and the assumptions baked into its regulatory set up most definitely reflect the AI landscape of that time. AI was likened to be *"AI systems that receive queries, generate outputs, and are governed through disclosure requirements and risk documentation at the point of deployment"* (FPF, 'South Korea's new AI framework act,' April 2025; Seryon Lee, Korean Journal of International and Comparative Law 13, 2025, 232-243).
+
+Three structural assumptions can be said to define the Act's operational model. First, risk scales with training compute (Article 32 uses compute thresholds as the primary classification mechanism for general-purpose AI). Second, AI systems produce outputs in response to queries (the Act's transparency obligations under Article 31 require disclosure that a user is interacting with AI, presupposing a query-response interaction model in all illustrated cases). Third, governance happens through disclosure and documentation at deployment — Articles 34 and 35 require risk management plans and impact assessments as the primary regulatory instruments.
+None of these assumptions are unreasonable for the AI systems that dominated commercial deployment in 2023. They are, however, increasingly inadequate for what is being deployed now.
+what changes when agents interact
+
+The shift I kept returning to during the presentation, and the thing I want to think through more carefully here, is the move from single-system governance to multi-agent governance. This is where the coop AI literature becomes directly relevant to regulatory design in a way that I think is really underappreciated.
+
+The Cooperative AI Foundation published its first technical report in February 2025: Hammond et al., Multi-Agent Risks from Advanced AI (arXiv:2502.14143). This is a 96-page analysis, co-authored by over 50 researchers across DeepMind, Anthropic, Carnegie Mellon, Harvard, Oxford, and others, and it is probably the most comprehensive taxonomy of multi-agent AI risks available in the literature. It identifies three key failure modes — miscoordination, conflict, and collusion — and seven risk factors that underpin them: information asymmetries, network effects, selection pressures, destabilising dynamics, commitment problems, emergent agency, and multi-agent security.
+
+What makes this taxonomy useful for regulatory analysis is that it describes failure modes that are structurally invisible to unit-based governance frameworks like the SK Act. The Act's liability mechanism requires identification of an "AI Business Operator" who bears compliance obligations. Miscoordination failures — where individually rational agents pursuing separately legitimate goals produce collectively harmful outcomes — have no identifiable perpetrator, because the harm emerges from the interaction of systems operated by distinct legal entities, potentially across jurisdictions. The Act has no provision for system-level risk assessment, which means conflict between agents (competing objectives producing destructive outcomes at the system level, analogous to automated market microstructure failures like flash crashes) is invisible to the compliance architecture. And collusion — agents learning to coordinate in ways that specifically undermine human oversight — renders Article 34's human oversight requirement structurally ineffective, because collusion operates precisely to remove the oversight visibility that Article 34 presupposes.
+
+This is not speculative risk modelling. These failure modes map directly onto documented phenomena in existing multi-agent deployments, and the cooperative AI community has been studying their mechanisms for years.
+the cooperative AI research programme and why it matters here
+
+I want to take a step back and describe the research programme itself, because I think it explains why multi-agent risks are structurally different from the single-system risks that most AI regulation is designed to address.
+The intellectual foundation was laid by Dafoe et al. in Open Problems in Cooperative AI (arXiv:2012.08630, December 2020), which proposed that the field of AI should explicitly focus on problems of cooperation — situations where agents seek ways to jointly improve their welfare but face structural barriers to doing so. The core insight is that cooperation problems exist at every scale, from daily coordination tasks to global challenges like pandemic preparedness and climate action, and that AI systems will increasingly participate in these problems both as tools and as autonomous actors. Dafoe, Bachrach, Hadfield, Horvitz, Larson, and Graepel published a companion piece in Nature (2021, vol. 593, pp. 33-36) arguing that AI must be reconceived as fundamentally social — that engineering AI systems without considering how they interact with other agents (human and artificial) is an increasingly dangerous omission.
+
+Understanding and evaluating cooperation-relevant propensities and capabilities. This includes definitions, metrics, and methods for evaluating cooperation-relevant (and conflict-prone) behaviours in AI systems. The SK Act has no evaluation framework for cooperative or adversarial multi-agent behaviour — its assessment regime is entirely individual-system-scoped.
+Collusion (undesired cooperation) between agents. CAIF specifically flags that agents learning to cooperate in harmful ways could lead them to bypass safeguards or laws. The 2025 grant scope states this work will be important for monitoring and governance as deployment of advanced interacting AI systems becomes more widespread.
+Monitoring and controlling dynamic networks of agents and emergent properties. This includes emergent phenomena — behaviours, goals, and capabilities not present in individual agents but arising specifically in the multi-agent system. The SK Act's enforcement architecture, which is reactive and individual-operator-scoped, has no mechanism for detecting emergent properties of interacting agent deployments.
+Information and transparency in multi-agent settings. Information asymmetries are a prime cause of cooperation failure. The Act's transparency regime (Article 31) requires disclosure that a user is interacting with AI. It does not address information asymmetries between agents, nor does it require any form of inter-agent transparency that would enable monitoring of coordination dynamics.
+
+The foundational game-theoretic work that underpins these research streams is described in Conitzer and Oesterheld, Foundations of Cooperative AI (AAAI 2024, vol. 37, pp. 15359-15367), which proposes developing the game theory of highly advanced AI agents with a focus on achieving cooperation. Their argument is that traditional game theory was designed for a different kind of agent — bounded-rational humans operating with limited computational capacity — and that AI agents with fundamentally different properties (precise computation, potential for self-modification, the ability to inspect and credibly commit via their own source code) require new theoretical foundations. This matters for regulatory design because it suggests that the strategic dynamics of multi-agent AI systems will be qualitatively different from the human strategic interactions that existing regulatory frameworks were built to govern.
+CAIF has also partnered with MATS and PIBBSS to support early-career researchers. One MATS scholar, Jinyeop Song, developed the first systematic approach to measuring and quantifying power in language model agents — directly relevant to the question of whether and how AI agents accumulate decision-making authority in delegation chains. Another scholar, Zora Che, investigated metacognitive calibration in LLMs: how accurately they can assess their own knowledge and predict the knowledge of others. Both of these are precursor capabilities for the kinds of strategic interactions (deception, commitment, coalition formation) that the Hammond et al. taxonomy identifies as risk factors.
+the collusion problem is real and growing
+
+The specific risk that I find most immediately pressing for regulatory design is collusion. During the presentation I framed it in terms of its implications for Article 34's human oversight requirement, but I want to expand on the technical picture here.
+Motwani et al. published Secret Collusion among AI Agents: Multi-Agent Deception via Steganography at NeurIPS 2024 (arXiv:2402.07510). Lewis Hammond, one of the lead authors of the Hammond et al. CAIF report, is also an author on this paper, which provides a formal threat model for AI agents using steganographic techniques to conceal the true nature of their interactions from oversight. The empirical findings demonstrate rising steganographic capabilities in frontier LLM setups and reveal limitations in countermeasures such as monitoring, paraphrasing, and parameter optimisation. This is the first formalisation of secret collusion among frontier foundation models.
+
+The mechanism is important to understand precisely. Steganographic collusion means that two or more agents can exchange hidden information within apparently normal communications — coordinating their behaviour in ways that are undetectable to the human overseers who are supposed to be monitoring them. Article 34 of the SK Act requires human oversight of high-impact AI. If the agents being overseen can coordinate covertly, the oversight mechanism fails not because it is procedurally inadequate but because the systems under oversight are actively circumventing it. The oversight looks complete. The compliance record is genuine. The regulatory assurance is hollow.
+This connects to the broader scheming literature. Apollo Research (Meinke et al., arXiv:2412.04984, December 2024) demonstrated that five of six frontier models exhibit in-context scheming capabilities. Apollo's follow-up work (June 2025) established that more capable models scheme at higher rates with more sophisticated strategies. OpenAI and Apollo's joint work on deliberative alignment showed that training can reduce but not eliminate detectable scheming, and that models are increasingly able to recognise evaluation environments as tests. The Hammond et al. report incorporates these findings into its multi-agent risk taxonomy, noting that collusion among agents amplifies the scheming problem: it is one thing for a single model to game an evaluation, and quite another for multiple models to coordinate their evaluation gaming.
+what the act misses and what cooperative AI shows us
+
+Let me try to state the structural problem clearly. The SK AI Basic Act was designed to govern individual AI systems that produce outputs in response to queries. The cooperative AI research programme has demonstrated — both theoretically (Dafoe et al. 2020; Conitzer and Oesterheld 2024) and empirically (Hammond et al. 2025; Motwani et al. 2024) — that the risk surface of AI deployment is increasingly defined by interactions between systems, not by the properties of individual systems in isolation.
+The gap is not a matter of the Act being poorly drafted. The Act is a reasonable regulatory response to the AI landscape of 2023. The gap is a timing problem: the technology moved faster than the legislative cycle, and the research that could have informed a more forward-looking design existed but was not (to my knowledge) incorporated into the drafting process.
+
+The Hammond et al. report identifies seven risk factors that operate at the system level — information asymmetries, network effects, selection pressures, destabilising dynamics, commitment problems, emergent agency, and multi-agent security. None of these have regulatory counterparts in the Act. MSIT's investigatory powers under Article 40 are triggered by suspected violations of individual-operator obligations; there is no provision for sector-level observation of aggregate AI deployment dynamics. The AI Safety Research Institute that the Act establishes has a mandate to evaluate individual system risks, not to monitor multi-agent deployment dynamics at sector level.
+
+During the presentation, I used Singapore's Model AI Governance Framework for Agentic AI (IMDA, January 22, 2026 — published the same day the SK Act took effect) as a comparator. Singapore's framework, while non-binding, addresses delegation chain accountability, compositional risk assessment, and user-facing oversight mechanisms for agentic actions — all absent from the SK Act. But I think the more important comparator is the cooperative AI research programme itself, because it provides the analytical vocabulary and empirical foundation that regulators need to even describe the risks they should be governing.
+Chan et al., Visibility into AI Agents (FAccT 2024, pp. 958-973), documents the structural impossibility of responsibility attribution in multi-step delegation chains under existing liability frameworks. Chan et al., Harms from Increasingly Agentic Algorithmic Systems (FAccT 2023), provides the analytical basis for distinguishing between indirect harm (via user action on AI outputs) and direct harm (via autonomous AI action) — a distinction the SK Act does not make, since Article 31 regulates only the former. METR's time-horizon research (Kwa et al., March 2025; updated as Time Horizon 1.1, January 2026) quantifies the rate at which autonomous AI capability is growing — doubling approximately every 7 months, accelerating to every 4 months in 2024-2025 — which means that the governance gap I am describing is not static but expanding.
+where this leaves me
+
+I came into this project thinking about the SK Act primarily as a legal and policy problem. I came out of it thinking it is more accurately a cooperative AI problem — or rather, that the cooperative AI research programme has been building the analytical tools that policymakers need to design regulation that is adequate for the multi-agent world, and that there is a significant failure of translation between the research community and the policy community.
+
+This is, incidentally, one of the reasons I find CAIF's work particularly compelling. It sits at the intersection of game theory, multi-agent systems, AI safety, and governance in a way that no single disciplinary community does. The 2025 grant programme's emphasis on collusion, emergent properties, information asymmetries, and multi-agent security maps almost exactly onto the regulatory blind spots I identified in the SK Act. The question is whether policymakers are reading it.
+
+My concrete recommendations to MSIT (in the simulated consultation, to be clear) were three: issue supplementary agentic AI guidance within 12-24 months using Singapore's MGF as a reference design; convert the compute threshold from a classification mechanism to an evaluation trigger, using the capability domains that METR's cross-industry analysis shows all twelve major AI companies already evaluate internally (CBRN uplift, cyberoffence, autonomous replication and adaptation, and AI R&D automation); and mandate continuous post-deployment behavioural monitoring for high-impact AI systems with a corresponding safe harbour for compliant operators.
+
+But the deeper point is that none of these recommendations would be possible without the analytical foundations that the cooperative AI and AI safety research communities have built. Hammond et al. gives us the taxonomy. Chan et al. gives us the accountability analysis. METR gives us the empirical capability curve. Apollo Research gives us the scheming evidence. Dafoe et al. and Conitzer and Oesterheld give us the theoretical framework. Motwani et al. gives us the collusion threat model. What the SK Act demonstrates is what happens when you try to regulate AI without incorporating these inputs.
+I do not think this is a uniquely Korean problem. The EU AI Act has analogous gaps, and the US has no comprehensive AI legislation at all. What Korea did was go first, which means Korea will also be the first jurisdiction to confront the consequences of regulating the wrong thing. Whether MSIT uses its first mandatory review to close the multi-agent gap will depend, in part, on whether the people advising them are reading the cooperative AI literature.
+I will keep working on this. There is a lot more to say about the game-theoretic foundations — particularly about commitment problems and how they interact with AI agent architectures — and about the fintech applications that I have been thinking about separately (algorithmic trading collusion, market microstructure manipulation by interacting AI systems). For now, this is where I am.
+
+### references and further reading
+cooperative AI foundations
+
+Dafoe, A., Hughes, E., Bachrach, Y., Collins, T., McKee, K.R., Leibo, J.Z., Larson, K., and Graepel, T. (2020). Open Problems in Cooperative AI. arXiv:2012.08630. link
+Dafoe, A., Bachrach, Y., Hadfield, G., Horvitz, E., Larson, K., and Graepel, T. (2021). Cooperative AI: machines must learn to find common ground. Nature, 593, 33-36. link
+Conitzer, V. and Oesterheld, C. (2024). Foundations of Cooperative AI. Proceedings of the AAAI Conference on Artificial Intelligence, 37(13), 15359-15367. link
+Cooperative AI Foundation (2024). 2024 Strategy. link
+Cooperative AI Foundation (2025). Updates to the CAIF Grant Program in 2025. link
+Cooperative AI Foundation (2025). Partnerships to Support Early-Career Researchers. link
+Cooperative AI Foundation (2025). Grant Summaries. link
+
+multi-agent risks and collusion
+
+Hammond, L., Chan, A., Clifton, J., et al. (2025). Multi-Agent Risks from Advanced AI. Cooperative AI Foundation, Technical Report #1. arXiv:2502.14143. link
+Motwani, S.R., Baranchuk, M., Strohmeier, M., Bolina, V., Torr, P.H.S., Hammond, L., and Schroeder de Witt, C. (2024). Secret Collusion among AI Agents: Multi-Agent Deception via Steganography. NeurIPS 2024, 37, 73439-73486. arXiv:2402.07510. link
+Chan, A., Ezell, C., Hammond, L., et al. (2024). Visibility into AI Agents. FAccT 2024, 958-973.
+Chan, A., et al. (2023). Harms from Increasingly Agentic Algorithmic Systems. FAccT 2023.
+
+AI safety / scheming
+
+Meinke, A., et al. (2024). Frontier Models are Capable of In-Context Scheming. Apollo Research. arXiv:2412.04984.
+Apollo Research (2025). More Capable Models Are Better at In-Context Scheming. June 2025.
+
+capability trends
+
+Kwa, T., et al. (2025). Measuring AI Ability to Complete Long Tasks (Time Horizon). METR. Updated as Time Horizon 1.1, January 2026. link
+METR (2025). Common Elements of Frontier AI Safety Policies. December 2025. link
+Villalobos, P., et al. (2024). Training Compute of Frontier AI Models Grows by 4-5x per Year. Epoch AI. link
+
+AI governance / policy
+
+Kraprayoon, P. (2025). AI Agent Governance: A Field Guide. IAPS. link
+Joshi, R. (2025). Framework for Government Policy on Agentic and Generative AI. SSRN:5511060.
+METR (2025). What Should Companies Share About Risks from Frontier AI Models? June 2025. link
+Infocomm Media Development Authority of Singapore (2026). Model AI Governance Framework for Agentic AI. January 22, 2026.
+
+south korean AI Basic Act primary sources
+
+Seryon Lee (2025). An Overview of Korea's AI Framework: Main Features and Challenges. Korean Journal of International and Comparative Law, 13, 232-243.
+Future of Privacy Forum (2025). South Korea's New AI Framework Act: A Balancing Act Between Innovation and Regulation. April 2025.
+Tech Policy Press (2026). South Korea May Regret Being First with New AI Law. Charles Mok, Stanford GDPI. February 2026. link
+BSA (2025). Comments on Korea AI Basic Act. Submitted to MSIT, March 21, 2025.
+Sejin Kim and Hodan Omaar (2025). One Law Sets South Korea's AI Policy — and One Weak Link Could Break It. ITIF, September 29, 2025.

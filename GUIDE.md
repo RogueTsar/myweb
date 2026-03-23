@@ -1,210 +1,179 @@
-# Site Guide
+# How to edit your website
 
-How to modify, maintain, and deploy this site.
+A plain-English reference for everything you'll commonly want to change.
 
 ---
 
-## Site Structure
+## Publishing a blog post
+
+1. Go to the `_posts/` folder
+2. Create a new file named exactly like: `YYYY-MM-DD-your-title.md`
+   - Example: `2026-04-15-thoughts-on-alignment.md`
+3. Paste this at the top, then write below it:
 
 ```
-.
-├── index.html          # Home page (holographic cards + telescopic bio)
-├── work.html           # Work/research page
-├── music.html          # Spotify dashboard + SoundCloud embed
-├── blog.html           # Blog listing page
-├── _includes/
-│   ├── head.html       # <head> tag (meta, CSS, favicon)
-│   ├── header.html     # Navigation bar
-│   └── footer.html     # Footer with copyright
-├── _layouts/
-│   └── default.html    # Base page layout (wraps all pages)
-├── _posts/             # Blog posts (Markdown files)
-├── assets/
-│   ├── css/styles.css  # All styles (numbered sections)
-│   ├── js/             # JavaScript (holo-cards, telescopic, music)
-│   ├── images/         # Card images, etc.
-│   └── documents/      # PDFs
-├── api/
-│   └── spotify.js      # Vercel serverless function for Spotify API
-├── build-preview.py    # Local build script (assembles Jekyll templates)
-├── vercel.json         # Vercel deployment config
-└── package.json        # Node.js config (for Vercel serverless)
-```
-
----
-
-## Modifying Pages
-
-Each page (`index.html`, `work.html`, `music.html`, `blog.html`) has a front matter block at the top:
-
-```yaml
----
-layout: default
-title: "Page Title"
----
-```
-
-Edit the HTML below the front matter to change page content. The layout wraps your content in the header, footer, and `<head>`.
-
-### Navigation
-
-Edit `_includes/header.html` to change nav links. Each link looks like:
-
-```html
-<a href="{{ '/page.html' | relative_url }}" {% if page.url == '/page.html' %}class="active"{% endif %}>Label</a>
-```
-
-If you add or remove a page, also update `build-preview.py`:
-- Line with `for page in [...]` — add/remove the filename
-- The `set_active` function — add/remove the elif condition
-
----
-
-## Adding Blog Posts
-
-1. Create a file in `_posts/` named `YYYY-MM-DD-your-slug.md`:
-
-```markdown
 ---
 layout: post
-title: "Your Post Title"
-date: 2026-03-15
+title: "Your Post Title Here"
+date: 2026-04-15
 ---
 
-Your post content in Markdown. Paragraphs are separated by blank lines.
-
-Second paragraph here.
+Your writing goes here. Leave a blank line between paragraphs.
 ```
 
-2. The blog listing page auto-generates from all `.md` files in `_posts/`.
-3. Post URLs become `/blog/your-slug.html`.
-4. Rebuild locally to preview: `python3 build-preview.py`
+4. Deploy (see Deployment section below) — it appears on the blog page automatically.
 
----
+### Markdown cheatsheet
 
-## CSS Structure
-
-`assets/css/styles.css` is organized in numbered sections:
-
-1. Base / Reset
-2. Typography
-3. Layout
-4. Header / Nav
-5. Telescopic Text
-6. Holographic Cards (home page)
-7. Work Page
-8. Music Page (bar charts, last-played card, loading skeletons)
-9. Blog
-10. *(deleted — was CV)*
-11. Footer
-12. Responsive (`@media max-width: 600px`)
-
-When editing styles, find the relevant section number. Keep changes within the section to maintain organization.
+| What you want | What to type |
+|---|---|
+| Bold | `**bold**` |
+| Italic | `*italic*` |
+| Link | `[link text](https://url.com)` |
+| Heading | `## Heading` or `### Subheading` |
+| Bullet list | `- item one` |
+| New paragraph | Leave a blank line |
+| Blockquote | `> quoted text` |
 
 ---
 
-## Spotify Configuration
+## Adding a paper or PDF
 
-### How it works
-
-1. The client (`assets/js/music.js`) calls `/api/spotify`
-2. The serverless function (`api/spotify.js`) uses a refresh token to get a fresh Spotify access token
-3. It fetches 3 endpoints in parallel: currently playing, top artists, top tracks
-4. Results are cached for 3 minutes by Vercel's CDN
-
-### Environment Variables (set in Vercel dashboard)
-
-- `SPOTIFY_CLIENT_ID` — from your Spotify Developer app
-- `SPOTIFY_CLIENT_SECRET` — from your Spotify Developer app
-- `SPOTIFY_REFRESH_TOKEN` — obtained via OAuth flow (see below)
-
-### Changing what's displayed
-
-In `api/spotify.js`:
-- Change `time_range=short_term` to `medium_term` (6 months) or `long_term` (all time)
-- Change `limit=10` to show more/fewer items
-
-In `assets/js/music.js`:
-- Modify `renderBarChart()` to change bar chart styling
-- Modify `renderLastPlayed()` to change the now-playing card
-
-### Getting a Spotify Refresh Token
-
-1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and create an app
-2. Set the redirect URI to `http://localhost:3000/callback`
-3. Note your Client ID and Client Secret
-4. Open this URL in your browser (replace `YOUR_CLIENT_ID`):
+1. Drop the PDF into `assets/documents/`
+2. Link to it from a blog post or any page:
 
 ```
-https://accounts.spotify.com/authorize?client_id=YOUR_CLIENT_ID&response_type=code&redirect_uri=http://localhost:3000/callback&scope=user-read-currently-playing%20user-read-recently-played%20user-top-read
+[Read the paper](/assets/documents/my-paper.pdf)
 ```
 
-5. After authorizing, you'll be redirected to `localhost:3000/callback?code=LONG_CODE_HERE`
-6. Copy the `code` parameter and run:
+---
+
+## Editing your bio (home page)
+
+Open `index.html`. The bio is in the `<div class="telescopic-text">` section.
+
+The underlined words that expand when clicked look like this:
+```html
+<span class="telescope">
+  <span class="trigger" onclick="expand(this)">visible text</span>
+  <span class="content">expanded text that appears on click</span>
+</span>
+```
+
+To edit: just change the text inside those spans. The structure stays the same — only edit the words, not the tags.
+
+To add a new sentence, copy a plain `<p>` from an existing paragraph and put it after the others.
+
+---
+
+## Adding work entries
+
+Open `work.html`. Find the `<div class="work-grid">` section. Add a new card inside it:
+
+```html
+<div class="work-card">
+    <span class="work-card__tag tag--research">Research</span>
+    <h3 class="work-card__title">Your Role</h3>
+    <p class="work-card__org">Organisation Name</p>
+    <p class="work-card__date">Jan 2026 &ndash; Present</p>
+    <p class="work-card__desc">What you did.</p>
+</div>
+```
+
+The tag class controls the colour:
+- `tag--research` — for research roles
+- `tag--policy` — for policy roles
+- `tag--industry` — for industry/internships
+- `tag--university` — for university roles
+
+Put the most recent entries at the top.
+
+---
+
+## Changing contact links
+
+Open `index.html`. At the bottom, find:
+
+```html
+<div class="contact-info">
+    <a href="mailto:...">Email</a>
+    <a href="https://linkedin.com/...">LinkedIn</a>
+    <a href="https://github.com/...">GitHub</a>
+</div>
+```
+
+Edit the `href` values.
+
+---
+
+## Changing the navigation
+
+Open `_includes/header.html`. The nav links are listed there. Edit the text or `href` to change what appears in the nav bar.
+
+---
+
+## Deploying (publishing changes live)
+
+From Terminal, in the project folder:
 
 ```bash
-curl -X POST https://accounts.spotify.com/api/token \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "grant_type=authorization_code" \
-  -d "code=YOUR_CODE" \
-  -d "redirect_uri=http://localhost:3000/callback" \
-  -d "client_id=YOUR_CLIENT_ID" \
-  -d "client_secret=YOUR_CLIENT_SECRET"
+vercel --prod
 ```
 
-7. The response contains a `refresh_token`. Save it — this is your `SPOTIFY_REFRESH_TOKEN`.
-8. Add all three env vars in Vercel: Settings > Environment Variables.
+Takes about a minute. Your live site:
 
----
+**https://idk-psi-two.vercel.app**
 
-## Local Development
-
-### Without Spotify (static preview)
+### Preview locally first
 
 ```bash
 python3 build-preview.py
 python3 -m http.server 8000 --directory _site
 ```
 
-Open `http://localhost:8000`. The music page will show loading skeletons then error state (no API available locally).
-
-### With Spotify (full preview via Vercel CLI)
-
-```bash
-npm i -g vercel
-vercel env pull .env.local    # pulls env vars from Vercel
-vercel dev                     # runs dev server with serverless functions
-```
+Then open `http://localhost:8000`. Note: the Spotify music data won't load locally — only on the live site.
 
 ---
 
-## Deployment
+## Custom domain (vaishnavisingh.io)
 
-The site deploys to **Vercel** (free tier).
+Your domain shows "Invalid Configuration" because the DNS A record isn't set yet. To fix:
 
-### Initial setup
+1. Go to wherever you registered `vaishnavisingh.io` (likely Squarespace, GoDaddy, or Namecheap)
+2. Find **DNS Settings** or **DNS Records**
+3. Add (or update) an **A record**:
+   - Name/Host: `@`
+   - Value/Points to: `216.198.79.1`
+   - TTL: leave as default (or 3600)
+4. Wait 10–30 minutes for it to propagate
 
-1. Push repo to GitHub
-2. Go to [vercel.com](https://vercel.com), import the repo
-3. Vercel auto-detects `vercel.json` — no framework, build command is `python3 build-preview.py`, output dir is `_site`
-4. Add Spotify env vars in Settings > Environment Variables
-5. Deploy
-
-### Ongoing
-
-- Push to `main` branch — auto-deploys
-- Or run `vercel --prod` from the command line
-
-### Custom domain
-
-In Vercel dashboard: Settings > Domains > Add your domain.
+Once that's set, `vaishnavisingh.io` will load your site.
 
 ---
 
-## Holographic Cards (Home Page)
+## File map
 
-The three Balatro cards on the home page are in `index.html`. To change:
+| What | Where |
+|---|---|
+| Blog posts | `_posts/YYYY-MM-DD-title.md` |
+| PDFs / documents | `assets/documents/` |
+| Images | `assets/images/` |
+| Home page | `index.html` |
+| Work page | `work.html` |
+| Music page | `music.html` |
+| Blog listing | `blog.html` |
+| Navigation | `_includes/header.html` |
+| All styles | `assets/css/styles.css` |
 
-- **Card images**: Replace files in `assets/images/` (joker.png, canio.png, perkeo.png). Keep them 142x190px for pixel art crispness.
-- **Quotes**: Edit the `.holo-card__quote` and `.holo-card__author` text in `index.html`
-- **Effects**: Edit `assets/js/holo-cards.js` for tilt/shine behavior, `assets/css/styles.css` Section 6 for visual styling
+---
+
+## Spotify
+
+The music page pulls live data from Spotify automatically. If it ever stops working, the three env vars it needs are in Vercel:
+
+vercel.com → your project → Settings → Environment Variables:
+- `SPOTIFY_CLIENT_ID`
+- `SPOTIFY_CLIENT_SECRET`
+- `SPOTIFY_REFRESH_TOKEN`
+
+To update any of these, delete the old value and re-add it there, then redeploy.

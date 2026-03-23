@@ -11,3 +11,4 @@ serve.sh
 .vercel/
 node_modules/
 .env
+.vercel

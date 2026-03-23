@@ -54,10 +54,14 @@ export default async function handler(req, res) {
     try {
         const token = await getAccessToken();
 
-        const [currentlyPlaying, topArtists, topTracks] = await Promise.all([
+        const [currentlyPlaying, topArtists, topTracks, topArtistsLongTerm, recentlyPlayed, playlists, profile] = await Promise.all([
             fetchSpotify(token, '/me/player/currently-playing'),
             fetchSpotify(token, '/me/top/artists?time_range=short_term&limit=10'),
             fetchSpotify(token, '/me/top/tracks?time_range=short_term&limit=10'),
+            fetchSpotify(token, '/me/top/artists?time_range=long_term&limit=50'),
+            fetchSpotify(token, '/me/player/recently-played?limit=10'),
+            fetchSpotify(token, '/me/playlists?limit=20'),
+            fetchSpotify(token, '/me'),
         ]);
 
         // Build last_played from currently-playing or fall back to recently-played
@@ -87,21 +91,76 @@ export default async function handler(req, res) {
             }
         }
 
-        // Map top artists
-        const top_artists = topArtists?.items?.map(a => ({
+        // Map top artists (rank 1 = highest), include genres for tooltip
+        const top_artists = topArtists?.items?.map((a, i) => ({
             name: a.name,
-            popularity: a.popularity,
+            rank: i + 1,
+            genres: (a.genres || []).slice(0, 3),
             image: a.images[2]?.url || a.images[0]?.url,
         })) || [];
 
-        // Map top tracks
-        const top_tracks = topTracks?.items?.map(t => ({
-            name: t.name,
-            artist: t.artists.map(a => a.name).join(', '),
-            popularity: t.popularity,
-        })) || [];
+        // Build a genre lookup by artist name from long_term data (richer genre metadata)
+        const artistGenreMap = {};
+        topArtistsLongTerm?.items?.forEach(a => {
+            if (a.genres && a.genres.length > 0) {
+                artistGenreMap[a.name] = a.genres;
+            }
+        });
+        // Also fill in from short_term
+        topArtists?.items?.forEach(a => {
+            if (a.genres && a.genres.length > 0 && !artistGenreMap[a.name]) {
+                artistGenreMap[a.name] = a.genres;
+            }
+        });
 
-        return res.status(200).json({ last_played, top_artists, top_tracks });
+        // Map top tracks (rank 1 = highest), include artist genres for tooltip
+        const top_tracks = topTracks?.items?.map((t, i) => {
+            const firstArtist = t.artists[0]?.name || '';
+            const genres = (artistGenreMap[firstArtist] || []).slice(0, 3);
+            return {
+                name: t.name,
+                artist: t.artists.map(a => a.name).join(', '),
+                album: t.album?.name || '',
+                rank: i + 1,
+                genres,
+            };
+        }) || [];
+
+        // Aggregate top genres from long_term artists (all-time, richest data)
+        const genreCount = {};
+        topArtistsLongTerm?.items?.forEach(a => {
+            (a.genres || []).forEach(g => {
+                genreCount[g] = (genreCount[g] || 0) + 1;
+            });
+        });
+        const top_genres = Object.entries(genreCount)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 10)
+            .map(([name]) => name);
+
+        // Recent listening history (exclude currently playing if same track)
+        const recent_tracks = (recentlyPlayed?.items || []).map(item => ({
+            track: item.track.name,
+            artist: item.track.artists.map(a => a.name).join(', '),
+            album: item.track.album.name,
+            album_art: item.track.album.images[2]?.url || item.track.album.images[0]?.url,
+            played_at: item.played_at,
+        }));
+
+        // Public playlists (skip empty ones)
+        const playlist_list = (playlists?.items || [])
+            .filter(p => p && p.name && p.tracks.total > 0)
+            .slice(0, 12)
+            .map(p => ({
+                name: p.name,
+                track_count: p.tracks.total,
+                image: p.images?.[0]?.url || null,
+                url: p.external_urls?.spotify || 'https://open.spotify.com/',
+            }));
+
+        const spotify_url = profile?.external_urls?.spotify || 'https://open.spotify.com/';
+
+        return res.status(200).json({ last_played, top_artists, top_tracks, top_genres, recent_tracks, playlists: playlist_list, spotify_url });
     } catch (err) {
         console.error('Spotify API error:', err.message);
         return res.status(500).json({ error: err.message });
