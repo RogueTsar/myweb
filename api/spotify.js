@@ -126,11 +126,14 @@ export default async function handler(req, res) {
             };
         }) || [];
 
-        // Aggregate top genres from long_term artists (all-time, richest data)
+        // Aggregate top genres from all available artist data
         const genreCount = {};
-        topArtistsLongTerm?.items?.forEach(a => {
-            (a.genres || []).forEach(g => {
-                genreCount[g] = (genreCount[g] || 0) + 1;
+        const allArtistSources = [topArtistsLongTerm, topArtists];
+        allArtistSources.forEach(source => {
+            source?.items?.forEach(a => {
+                (a.genres || []).forEach(g => {
+                    genreCount[g] = (genreCount[g] || 0) + 1;
+                });
             });
         });
         const top_genres = Object.entries(genreCount)
@@ -147,13 +150,13 @@ export default async function handler(req, res) {
             played_at: item.played_at,
         }));
 
-        // Public playlists (skip empty ones)
+        // Public playlists
         const playlist_list = (playlists?.items || [])
-            .filter(p => p && p.name && p.tracks.total > 0)
+            .filter(p => p && p.name)
             .slice(0, 12)
             .map(p => ({
                 name: p.name,
-                track_count: p.tracks.total,
+                track_count: p.tracks?.total || 0,
                 image: p.images?.[0]?.url || null,
                 url: p.external_urls?.spotify || 'https://open.spotify.com/',
             }));
