@@ -160,14 +160,32 @@ export default async function handler(req, res) {
             played_at: item.played_at,
         }));
 
-        // Playlists
-        const playlist_list = playlistItems.slice(0, 12).map(p => ({
-            id: p.id,
-            name: p.name,
-            track_count: p.tracks?.total ?? 0,
-            image: p.images?.[0]?.url || null,
-            url: p.external_urls?.spotify || 'https://open.spotify.com/',
-        }));
+        // Playlists — fetch each individually for real track count + description
+        const playlistDetails = await Promise.all(
+            playlistItems.slice(0, 12).map(async (p) => {
+                try {
+                    const detail = await fetchSpotify(token, `/playlists/${p.id}?fields=id,name,description,tracks.total,images,external_urls`);
+                    return {
+                        id: detail.id,
+                        name: detail.name,
+                        description: detail.description || '',
+                        track_count: detail.tracks?.total ?? 0,
+                        image: detail.images?.[0]?.url || p.images?.[0]?.url || null,
+                        url: detail.external_urls?.spotify || 'https://open.spotify.com/',
+                    };
+                } catch (_) {
+                    return {
+                        id: p.id,
+                        name: p.name,
+                        description: '',
+                        track_count: p.tracks?.total ?? 0,
+                        image: p.images?.[0]?.url || null,
+                        url: p.external_urls?.spotify || 'https://open.spotify.com/',
+                    };
+                }
+            })
+        );
+        const playlist_list = playlistDetails;
 
         // Audio features (already fetched above)
         const audio_features = (audioFeaturesData?.audio_features || []).filter(Boolean).map(f => ({

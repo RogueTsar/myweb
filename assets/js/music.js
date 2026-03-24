@@ -82,40 +82,48 @@ function renderRecentHistory(tracks) {
 
 var INSIGHT_LABELS = {
     obscurity: [
-        [20, 'You listen to the radio', '\u{1F4FB}'],
-        [40, 'Spotify Wrapped basic', '\u{1F4F1}'],
-        [60, 'Hipster adjacent', '\u{1F576}\uFE0F'],
-        [80, 'Underground explorer', '\u{1F50E}'],
-        [101, 'Nobody has heard of your artists', '\u{1F47B}']
+        [20, 'You listen to the radio'],
+        [40, 'Spotify Wrapped basic'],
+        [60, 'Hipster adjacent'],
+        [80, 'Underground explorer'],
+        [101, 'Nobody has heard of your artists']
     ],
     loyalty: [
-        [20, 'Genre tourist', '\u{1F30D}'],
-        [40, 'Casual sampler', '\u{1F37D}\uFE0F'],
-        [60, 'Has favorites', '\u2764\uFE0F'],
-        [80, 'Ride or die fan', '\u{1F525}'],
-        [101, 'Obsessive repeater', '\u{1F501}']
+        [20, 'Genre tourist'],
+        [40, 'Casual sampler'],
+        [60, 'Has favorites'],
+        [80, 'Ride or die fan'],
+        [101, 'Obsessive repeater']
     ],
     diversity: [
-        [20, 'Genre monogamist', '\u{1F48D}'],
-        [40, 'Stays in their lane', '\u{1F6E3}\uFE0F'],
-        [60, 'Eclectic dabbler', '\u{1F3B2}'],
-        [80, 'Genre polygamist', '\u{1F308}'],
-        [101, 'Your Wrapped is a crime scene', '\u{1F6A8}']
+        [20, 'Genre monogamist'],
+        [40, 'Stays in their lane'],
+        [60, 'Eclectic dabbler'],
+        [80, 'Genre nomad'],
+        [101, 'Chaotic completionist']
     ],
     mainstream: [
-        [25, 'Deep underground', '\u{1F3DA}\uFE0F'],
-        [50, 'Knows the B-sides', '\u{1F4BF}'],
-        [75, 'Charts-adjacent', '\u{1F4C8}'],
-        [101, 'Main pop girl energy', '\u{1F451}']
+        [25, 'Deep underground'],
+        [50, 'Knows the B-sides'],
+        [75, 'Charts-adjacent'],
+        [101, 'Main pop girl energy']
     ]
+};
+
+/* Icon SVGs — use currentColor so they flip with dark/light mode */
+var INSIGHT_ICONS = {
+    obscurity: '<svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>',
+    mainstream: '<svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
+    loyalty: '<svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>',
+    diversity: '<svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>'
 };
 
 function getLabel(metric, value) {
     var tiers = INSIGHT_LABELS[metric];
     for (var i = 0; i < tiers.length; i++) {
-        if (value < tiers[i][0]) return { text: tiers[i][1], emoji: tiers[i][2] };
+        if (value < tiers[i][0]) return { text: tiers[i][1] };
     }
-    return { text: tiers[tiers.length - 1][1], emoji: tiers[tiers.length - 1][2] };
+    return { text: tiers[tiers.length - 1][1] };
 }
 
 function renderInsights(audioFeatures, topArtists, topTracks, recentTracks) {
@@ -180,17 +188,27 @@ function renderInsights(audioFeatures, topArtists, topTracks, recentTracks) {
         };
     }
 
-    // Build personality headline
-    var traits = [
-        { score: obscurity > 40 ? obscurity : 0, text: getLabel('obscurity', obscurity).text.toLowerCase() },
-        { score: loyalty > 50 ? loyalty : 0, text: getLabel('loyalty', loyalty).text.toLowerCase() },
-        { score: diversity > 50 ? diversity : 0, text: getLabel('diversity', diversity).text.toLowerCase() }
-    ].filter(function (t) { return t.score > 0; })
-     .sort(function (a, b) { return b.score - a.score; })
-     .slice(0, 2);
+    // Build personality headline from the two most distinctive metrics
+    var allMetrics = [
+        { key: 'obscurity', score: obscurity, dist: Math.abs(obscurity - 50) },
+        { key: 'mainstream', score: mainstream, dist: Math.abs(mainstream - 50) },
+        { key: 'loyalty', score: loyalty, dist: Math.abs(loyalty - 50) },
+        { key: 'diversity', score: diversity, dist: Math.abs(diversity - 50) }
+    ];
+    // Sort by distance from 50 (most distinctive first), drop mainstream if obscurity is picked
+    allMetrics.sort(function (a, b) { return b.dist - a.dist; });
+    var headlineTraits = [];
+    var usedKeys = {};
+    for (var hi = 0; hi < allMetrics.length && headlineTraits.length < 2; hi++) {
+        var m = allMetrics[hi];
+        if (m.key === 'mainstream' && usedKeys['obscurity']) continue;
+        if (m.key === 'obscurity' && usedKeys['mainstream']) continue;
+        headlineTraits.push(getLabel(m.key, m.score).text.toLowerCase());
+        usedKeys[m.key] = true;
+    }
 
-    var headline = traits.length > 0
-        ? 'You\'re a <em>' + traits.map(function (t) { return t.text; }).join('</em> with <em>') + '</em> streak.'
+    var headline = headlineTraits.length > 0
+        ? 'You\'re a <em>' + headlineTraits[0] + '</em>' + (headlineTraits[1] ? ' with <em>' + headlineTraits[1] + '</em> streak' : '') + '.'
         : 'Your taste is... <em>eclectic</em>.';
 
     section.style.display = '';
@@ -207,11 +225,12 @@ function renderInsights(audioFeatures, topArtists, topTracks, recentTracks) {
     var html = '<div class="insights-cards">';
     metrics.forEach(function (m) {
         var info = getLabel(m.key, m.value);
+        var icon = INSIGHT_ICONS[m.key] || '';
         var pct = Math.min(Math.round((m.value / m.max) * 100), 100);
         html +=
             '<div class="insight-card">' +
                 '<div class="insight-card__header">' +
-                    '<span class="insight-card__emoji">' + info.emoji + '</span>' +
+                    '<span class="insight-card__icon">' + icon + '</span>' +
                     '<span class="insight-card__label">' + m.label + '</span>' +
                     '<span class="insight-card__value">' + m.value + '%</span>' +
                 '</div>' +
@@ -348,11 +367,13 @@ function renderPlaylists(playlists) {
             ? '<img class="playlist-card__img" src="' + escapeHtml(p.image) + '" alt="" loading="lazy">'
             : '<div class="playlist-card__img playlist-card__img--placeholder"></div>';
         var countText = p.track_count > 0 ? p.track_count + ' tracks' : '';
+        var descHtml = p.description ? '<div class="playlist-card__desc">' + escapeHtml(p.description) + '</div>' : '';
         html +=
             '<a class="playlist-card" href="' + escapeHtml(p.url) + '" target="_blank" rel="noopener">' +
                 imgHtml +
                 '<div class="playlist-card__name">' + escapeHtml(p.name) + '</div>' +
                 (countText ? '<div class="playlist-card__count">' + countText + '</div>' : '') +
+                descHtml +
             '</a>';
     }
     html += '</div>';
