@@ -1,6 +1,6 @@
 ---
 	layout: post
-	title: "multi-agent systems and the south korean AI act's timing"
+	title: "thinking about the interpretive variance problem"
 	date: 2026-03-01
 	---
 
