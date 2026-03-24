@@ -1,5 +1,5 @@
 {
-    "buildCommand": "python3 build-preview.py",
+    "buildCommand": "node build.js",
     "outputDirectory": "_site",
     "framework": null,
     "rewrites": [
