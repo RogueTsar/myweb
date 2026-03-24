@@ -42,7 +42,6 @@ async function fetchSpotify(token, endpoint) {
 }
 
 export default async function handler(req, res) {
-    // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET');
     res.setHeader('Cache-Control', 's-maxage=180, stale-while-revalidate');
@@ -54,19 +53,30 @@ export default async function handler(req, res) {
     try {
         const token = await getAccessToken();
 
-        const [currentlyPlaying, topArtists, topTracks, topArtistsLongTerm, recentlyPlayed, playlists, profile] = await Promise.all([
+        const [currentlyPlaying, topArtists, topTracks, topArtistsLongTerm, recentlyPlayed, playlistsRaw, profile] = await Promise.all([
             fetchSpotify(token, '/me/player/currently-playing'),
             fetchSpotify(token, '/me/top/artists?time_range=short_term&limit=10'),
             fetchSpotify(token, '/me/top/tracks?time_range=short_term&limit=10'),
             fetchSpotify(token, '/me/top/artists?time_range=long_term&limit=50'),
             fetchSpotify(token, '/me/player/recently-played?limit=10'),
-            fetchSpotify(token, '/me/playlists?limit=20'),
+            fetchSpotify(token, '/me/playlists?limit=12'),
             fetchSpotify(token, '/me'),
         ]);
 
-        // Build last_played from currently-playing or fall back to recently-played
-        let last_played = null;
+        // Try to fetch audio features (may fail with 403 if app lacks extended access)
+        const trackIds = (topTracks?.items || []).map(t => t.id).filter(Boolean);
+        let audioFeaturesData = null;
+        if (trackIds.length > 0) {
+            try {
+                audioFeaturesData = await fetchSpotify(token, `/audio-features?ids=${trackIds.join(',')}`);
+            } catch (_) { /* audio-features deprecated for newer apps */ }
+        }
 
+        // Get playlist items
+        const playlistItems = (playlistsRaw?.items || []).filter(p => p && p.name);
+
+        // Build last_played
+        let last_played = null;
         if (currentlyPlaying && currentlyPlaying.item) {
             const track = currentlyPlaying.item;
             last_played = {
@@ -77,7 +87,6 @@ export default async function handler(req, res) {
                 is_playing: currentlyPlaying.is_playing,
             };
         } else {
-            // Fall back to recently played
             const recent = await fetchSpotify(token, '/me/player/recently-played?limit=1');
             if (recent && recent.items && recent.items.length > 0) {
                 const track = recent.items[0].track;
@@ -91,45 +100,46 @@ export default async function handler(req, res) {
             }
         }
 
-        // Map top artists (rank 1 = highest), include genres for tooltip
+        // Top artists with popularity
         const top_artists = topArtists?.items?.map((a, i) => ({
             name: a.name,
             rank: i + 1,
             genres: (a.genres || []).slice(0, 3),
             image: a.images[2]?.url || a.images[0]?.url,
+            popularity: a.popularity || 0,
         })) || [];
 
-        // Build a genre lookup by artist name from long_term data (richer genre metadata)
+        // Genre lookup
         const artistGenreMap = {};
         topArtistsLongTerm?.items?.forEach(a => {
             if (a.genres && a.genres.length > 0) {
                 artistGenreMap[a.name] = a.genres;
             }
         });
-        // Also fill in from short_term
         topArtists?.items?.forEach(a => {
             if (a.genres && a.genres.length > 0 && !artistGenreMap[a.name]) {
                 artistGenreMap[a.name] = a.genres;
             }
         });
 
-        // Map top tracks (rank 1 = highest), include artist genres for tooltip
+        // Top tracks with id and album_art
         const top_tracks = topTracks?.items?.map((t, i) => {
             const firstArtist = t.artists[0]?.name || '';
             const genres = (artistGenreMap[firstArtist] || []).slice(0, 3);
             return {
+                id: t.id,
                 name: t.name,
                 artist: t.artists.map(a => a.name).join(', '),
                 album: t.album?.name || '',
+                album_art: t.album?.images?.[1]?.url || t.album?.images?.[0]?.url || null,
                 rank: i + 1,
                 genres,
             };
         }) || [];
 
-        // Aggregate top genres from all available artist data
+        // Aggregate genres
         const genreCount = {};
-        const allArtistSources = [topArtistsLongTerm, topArtists];
-        allArtistSources.forEach(source => {
+        [topArtistsLongTerm, topArtists].forEach(source => {
             source?.items?.forEach(a => {
                 (a.genres || []).forEach(g => {
                     genreCount[g] = (genreCount[g] || 0) + 1;
@@ -141,7 +151,7 @@ export default async function handler(req, res) {
             .slice(0, 10)
             .map(([name]) => name);
 
-        // Recent listening history (exclude currently playing if same track)
+        // Recent history
         const recent_tracks = (recentlyPlayed?.items || []).map(item => ({
             track: item.track.name,
             artist: item.track.artists.map(a => a.name).join(', '),
@@ -150,20 +160,35 @@ export default async function handler(req, res) {
             played_at: item.played_at,
         }));
 
-        // Public playlists
-        const playlist_list = (playlists?.items || [])
-            .filter(p => p && p.name)
-            .slice(0, 12)
-            .map(p => ({
-                name: p.name,
-                track_count: p.tracks?.total || 0,
-                image: p.images?.[0]?.url || null,
-                url: p.external_urls?.spotify || 'https://open.spotify.com/',
-            }));
+        // Playlists
+        const playlist_list = playlistItems.slice(0, 12).map(p => ({
+            id: p.id,
+            name: p.name,
+            track_count: p.tracks?.total ?? 0,
+            image: p.images?.[0]?.url || null,
+            url: p.external_urls?.spotify || 'https://open.spotify.com/',
+        }));
+
+        // Audio features (already fetched above)
+        const audio_features = (audioFeaturesData?.audio_features || []).filter(Boolean).map(f => ({
+            id: f.id,
+            energy: f.energy,
+            danceability: f.danceability,
+            valence: f.valence,
+            tempo: f.tempo,
+            acousticness: f.acousticness,
+            instrumentalness: f.instrumentalness,
+            speechiness: f.speechiness,
+            liveness: f.liveness,
+        }));
 
         const spotify_url = profile?.external_urls?.spotify || 'https://open.spotify.com/';
 
-        return res.status(200).json({ last_played, top_artists, top_tracks, top_genres, recent_tracks, playlists: playlist_list, spotify_url });
+        return res.status(200).json({
+            last_played, top_artists, top_tracks, top_genres,
+            recent_tracks, playlists: playlist_list, spotify_url,
+            audio_features,
+        });
     } catch (err) {
         console.error('Spotify API error:', err.message);
         return res.status(500).json({ error: err.message });
