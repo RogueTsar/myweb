@@ -1,30 +1,17 @@
 # myweb
 
-Personal site for Vaishnavi Singh. Built with Jekyll templates, a Python build script for local preview, and Vercel serverless functions.
+this is just my chill website :') 
 
-## Pages
+## just 4 pages
 
-- **Home** — holographic Balatro-style cards
-- **Work** — research and professional experience
-- **Music** — live Spotify dashboard (top artists, tracks, genres, playlists)
-- **Blog** — writing on AI safety, governance, and policy
+- **Home** — there are holographic Balatro-style cards from my fav game
+- **Work** — research and professional experiences (uh i am still adding stuff)
+- **Music** — live Spotify dashboard (top artists, tracks, genres, playlists) - WIP 
+- **Blog** — writing on AI safety, governance, and policy - coming sooooon
 
-## Stack
-
-- Jekyll layouts + Liquid templates
+## super chill stack
 - Vercel for hosting + serverless API (`/api/spotify`)
 - Spotify Web API (OAuth refresh token flow)
 - Vanilla JS, no frameworks
 
-## Local preview
-
-```
-python3 build-preview.py
-python3 -m http.server 8000 --directory _site
-```
-
-Note: the Spotify dashboard requires Vercel's serverless runtime — it shows "Could not load data" locally.
-
-## Deploy
-
-Push to `main` — Vercel builds and deploys automatically.
+inspired by david africa's website and the cool text reveal feature he has on it
