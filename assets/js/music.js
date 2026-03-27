@@ -371,9 +371,11 @@ function renderPlaylists(playlists) {
         html +=
             '<a class="playlist-card" href="' + escapeHtml(p.url) + '" target="_blank" rel="noopener">' +
                 imgHtml +
-                '<div class="playlist-card__name">' + escapeHtml(p.name) + '</div>' +
-                (countText ? '<div class="playlist-card__count">' + countText + '</div>' : '') +
-                descHtml +
+                '<div class="playlist-card__body">' +
+                    '<div class="playlist-card__name">' + escapeHtml(p.name) + '</div>' +
+                    (countText ? '<div class="playlist-card__count">' + countText + '</div>' : '') +
+                    descHtml +
+                '</div>' +
             '</a>';
     }
     html += '</div>';
