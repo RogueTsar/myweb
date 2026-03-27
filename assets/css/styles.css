@@ -643,6 +643,60 @@ a:hover {
     color: var(--text-secondary);
 }
 
+/* ── Publications ── */
+
+.work-section-title {
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+}
+
+.publications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.pub-card {
+    border: 1px solid var(--border);
+    padding: 1.25rem;
+    transition: border-color 0.3s;
+}
+
+.pub-card:hover {
+    border-color: var(--green);
+}
+
+.pub-card__title {
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.4;
+    margin-bottom: 0.35rem;
+}
+
+.pub-card__authors {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.pub-card__venue {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.6rem;
+}
+
+.pub-card__link {
+    display: inline-block;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    border-bottom: 1px solid var(--accent);
+}
+
 /* =========================================
    8. MUSIC PAGE
    ========================================= */
@@ -1416,7 +1470,7 @@ details[open] > .history-toggle::before {
    ========================================= */
 
 /* Widen the reading column for posts */
-body.post-page {
+body.post-page .page-content {
     max-width: 700px;
 }
 
@@ -1631,6 +1685,160 @@ body.post-page {
 .back-link {
     margin-top: 3rem;
     font-size: 0.9rem;
+}
+
+/* ── Reading Progress Bar ── */
+
+.reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 0;
+    background: var(--accent);
+    z-index: 999;
+    transition: width 0.1s linear;
+}
+
+/* ── Post Layout: Sidebar TOC on Desktop ── */
+
+.post-layout {
+    display: block;
+}
+
+.post-sidebar {
+    display: none;
+}
+
+@media (min-width: 901px) {
+    body.post-page .page-content {
+        max-width: 960px;
+    }
+
+    .post-layout {
+        display: flex;
+        gap: 2.5rem;
+    }
+
+    .post-sidebar--active {
+        display: block;
+        width: 200px;
+        flex-shrink: 0;
+    }
+
+    .post-sidebar .post-toc {
+        position: sticky;
+        top: 2rem;
+        border: none;
+        padding: 0;
+        margin: 0;
+        font-size: 0.78rem;
+    }
+
+    .post-sidebar .post-toc__title {
+        font-size: 0.65rem;
+    }
+
+    .post-sidebar .post-toc ol {
+        padding-left: 0.75rem;
+    }
+
+    .post-sidebar--active + .post-article #post-toc-container {
+        display: none;
+    }
+
+    .post-article {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+/* Scroll spy active highlight */
+.toc-active {
+    color: var(--accent) !important;
+    font-weight: 500;
+}
+
+/* ── Post Tags ── */
+
+.post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.25rem;
+}
+
+.post-tags--detail {
+    margin-bottom: 1.5rem;
+}
+
+.post-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    text-transform: lowercase;
+    letter-spacing: 0.03em;
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+}
+
+/* ── Blog Controls: Search + Tag Cloud ── */
+
+.blog-controls {
+    margin-bottom: 1.5rem;
+}
+
+.blog-search {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    font-family: inherit;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    margin-bottom: 0.75rem;
+    transition: border-color 0.2s;
+}
+
+.blog-search:focus {
+    border-color: var(--accent);
+}
+
+.tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.tag-btn {
+    font-size: 0.68rem;
+    text-transform: lowercase;
+    letter-spacing: 0.03em;
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+}
+
+.tag-btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+.tag-btn--active {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+}
+
+/* ── Footnote Tooltip ── */
+
+.fn-tooltip-trigger {
+    cursor: help;
 }
 
 /* =========================================

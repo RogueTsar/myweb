@@ -35,13 +35,25 @@ function getFrontMatter(content) {
                 const idx = line.indexOf(':');
                 if (idx !== -1) {
                     const k = line.slice(0, idx).trim();
-                    const v = line.slice(idx + 1).trim().replace(/^["']|["']$/g, '');
+                    let v = line.slice(idx + 1).trim().replace(/^["']|["']$/g, '');
                     fm[k] = v;
                 }
             });
         }
     }
     return fm;
+}
+
+function parseTags(fm) {
+    const raw = fm.tags || '';
+    // Handle [tag1, tag2] format
+    const match = raw.match(/^\[(.+)\]$/);
+    if (match) {
+        return match[1].split(',').map(t => t.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
+    }
+    // Handle comma-separated
+    if (raw.includes(',')) return raw.split(',').map(t => t.trim()).filter(Boolean);
+    return raw ? [raw.trim()] : [];
 }
 
 function fixUrls(text) {
@@ -167,7 +179,58 @@ function markdownToHtml(md) {
     return htmlLines.join('\n');
 }
 
-function assemblePage(pageFile) {
+// ── Read all posts once ──
+function readAllPosts() {
+    const postsDir = path.join(BASE, '_posts');
+    const posts = [];
+    if (!fs.existsSync(postsDir)) return posts;
+
+    const files = fs.readdirSync(postsDir).filter(f => f.endsWith('.md')).sort().reverse();
+    for (const f of files) {
+        const postContent = read(`_posts/${f}`);
+        const pfm = getFrontMatter(postContent);
+        const postBody = stripFrontMatter(postContent);
+        const slug = f.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace('.md', '');
+        const dateStr = f.slice(0, 10);
+        const dt = new Date(dateStr + 'T00:00:00');
+        const formatted = dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+        const rawExcerpt = postBody.split('\n\n')[0].replace(/[#*`>\[\]!]/g, '').slice(0, 150);
+        const tags = parseTags(pfm);
+        const section = (pfm.section || 'blog').trim();
+
+        posts.push({
+            filename: f,
+            title: pfm.title || slug,
+            date: formatted,
+            excerpt: rawExcerpt + '...',
+            slug,
+            tags,
+            section,
+            bodyMd: postBody,
+            fm: pfm,
+        });
+    }
+    return posts;
+}
+
+function buildPostListHtml(posts, baseUrl) {
+    let html = '';
+    for (const p of posts) {
+        const tagsAttr = p.tags.length ? ` data-tags="${p.tags.join(',')}"` : ' data-tags=""';
+        const tagsHtml = p.tags.length
+            ? `<div class="post-tags">${p.tags.map(t => `<span class="post-tag">${t}</span>`).join('')}</div>`
+            : '';
+        html += `<li${tagsAttr}>
+    <span class="post-date">${p.date}</span>
+    <h3 class="post-title"><a href="${baseUrl}/${p.slug}.html">${p.title}</a></h3>
+    ${tagsHtml}
+    <p class="post-excerpt">${p.excerpt}</p>
+</li>\n`;
+    }
+    return html;
+}
+
+function assemblePage(pageFile, activeNav) {
     let head = read('_includes/head.html');
     let header = read('_includes/header.html');
     let footer = read('_includes/footer.html');
@@ -195,10 +258,13 @@ function assemblePage(pageFile) {
     header = header.replace(/\{%\s*if.*?%\}.*?\{%\s*endif\s*%\}/gs, '');
     header = header.replace(/\{%.*?%\}/g, '');
     header = header.replace(/"\s+>/g, '">');
-    if (pageFile === 'index.html') {
+
+    // Set active nav
+    const navTarget = activeNav || pageFile;
+    if (navTarget === 'index.html') {
         header = header.replace('href="/">', 'href="/" class="active">');
-    } else if (['work.html', 'music.html', 'blog.html'].includes(pageFile)) {
-        header = header.replace(`href="/${pageFile}">`, `href="/${pageFile}" class="active">`);
+    } else {
+        header = header.replace(`href="/${navTarget}">`, `href="/${navTarget}" class="active">`);
     }
 
     footer = footer.replace(/\{%.*?%\}/g, '');
@@ -215,45 +281,34 @@ function assemblePage(pageFile) {
     </main>
     ${footer}
     <script src="/assets/js/theme.js"></script>
+    <script src="/assets/js/name-scatter.js"></script>
 </body>
 </html>`;
 }
+
+// ── Main Build ──
 
 // Clean and create _site
 if (fs.existsSync(SITE)) fs.rmSync(SITE, { recursive: true });
 fs.mkdirSync(SITE);
 
+// Read all posts
+const allPosts = readAllPosts();
+const blogPosts = allPosts.filter(p => p.section !== 'personal');
+const personalPosts = allPosts.filter(p => p.section === 'personal');
+
 // Build main pages
-for (const page of ['index.html', 'work.html', 'music.html', 'blog.html']) {
+for (const page of ['index.html', 'work.html', 'music.html', 'blog.html', 'personal.html']) {
     let html = assemblePage(page);
 
     if (page === 'blog.html') {
-        const postsDir = path.join(BASE, '_posts');
-        const posts = [];
-        if (fs.existsSync(postsDir)) {
-            const files = fs.readdirSync(postsDir).filter(f => f.endsWith('.md')).sort().reverse();
-            for (const f of files) {
-                const postContent = read(`_posts/${f}`);
-                const pfm = getFrontMatter(postContent);
-                const postBody = stripFrontMatter(postContent);
-                const slug = f.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace('.md', '');
-                const dateStr = f.slice(0, 10);
-                const dt = new Date(dateStr + 'T00:00:00');
-                const formatted = dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-                const rawExcerpt = postBody.split('\n\n')[0].replace(/[#*`>\[\]!]/g, '').slice(0, 150);
-                posts.push({ title: pfm.title || slug, date: formatted, excerpt: rawExcerpt + '...', url: `/blog/${slug}.html` });
-            }
-        }
+        const postListHtml = buildPostListHtml(blogPosts, '/blog');
+        html = html.replace(/\{%\s*for.*?endfor\s*%\}/gs, postListHtml);
+        html = html.replace(/\{%\s*if.*?endif\s*%\}/gs, '');
+    }
 
-        let postListHtml = '';
-        for (const p of posts) {
-            postListHtml += `<li>
-    <span class="post-date">${p.date}</span>
-    <h3 class="post-title"><a href="${p.url}">${p.title}</a></h3>
-    <p class="post-excerpt">${p.excerpt}</p>
-</li>\n`;
-        }
-
+    if (page === 'personal.html') {
+        const postListHtml = buildPostListHtml(personalPosts, '/personal');
         html = html.replace(/\{%\s*for.*?endfor\s*%\}/gs, postListHtml);
         html = html.replace(/\{%\s*if.*?endif\s*%\}/gs, '');
     }
@@ -261,68 +316,75 @@ for (const page of ['index.html', 'work.html', 'music.html', 'blog.html']) {
     writeOut(page, html);
 }
 
-// Build blog posts
-const postsDir = path.join(BASE, '_posts');
-if (fs.existsSync(postsDir)) {
-    for (const f of fs.readdirSync(postsDir).filter(f => f.endsWith('.md'))) {
-        const postContent = read(`_posts/${f}`);
-        const pfm = getFrontMatter(postContent);
-        const postBodyMd = stripFrontMatter(postContent);
-        const slug = f.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace('.md', '');
+// Build individual post pages
+function buildPost(post, section) {
+    const bodyHtml = markdownToHtml(post.bodyMd);
+    const baseUrl = section === 'personal' ? '/personal' : '/blog';
+    const backPage = section === 'personal' ? '/personal.html' : '/blog.html';
+    const backLabel = section === 'personal' ? 'Back to Personal' : 'Back to Blog';
+    const activeNav = section === 'personal' ? 'personal.html' : 'blog.html';
 
-        const bodyHtml = markdownToHtml(postBodyMd);
+    let head = read('_includes/head.html');
+    let headerHtml = read('_includes/header.html');
+    let footerHtml = read('_includes/footer.html');
 
-        let head = read('_includes/head.html');
-        let headerHtml = read('_includes/header.html');
-        let footerHtml = read('_includes/footer.html');
+    head = head.replace("{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}", `${post.title} | Vaishnavi Singh`);
+    head = head.replace("{{ site.description }}", "Undergraduate researcher in Technical AI Safety and AI Governance & Policy");
+    head = head.replace("{{ site.url }}{{ page.url }}", "#");
+    head = fixUrls(head);
 
-        head = head.replace("{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}", `${pfm.title || ''} | Vaishnavi Singh`);
-        head = head.replace("{{ site.description }}", "Undergraduate researcher in Technical AI Safety and AI Governance & Policy");
-        head = head.replace("{{ site.url }}{{ page.url }}", "#");
-        head = fixUrls(head);
+    headerHtml = fixUrls(headerHtml);
+    headerHtml = headerHtml.replace(/\{%\s*if.*?%\}.*?\{%\s*endif\s*%\}/gs, '');
+    headerHtml = headerHtml.replace(/\{%.*?%\}/g, '');
+    headerHtml = headerHtml.replace(/"\s+>/g, '">');
+    headerHtml = headerHtml.replace(`href="/${activeNav}">`, `href="/${activeNav}" class="active">`);
 
-        headerHtml = fixUrls(headerHtml);
-        headerHtml = headerHtml.replace(/\{%\s*if.*?%\}.*?\{%\s*endif\s*%\}/gs, '');
-        headerHtml = headerHtml.replace(/\{%.*?%\}/g, '');
-        headerHtml = headerHtml.replace(/"\s+>/g, '">');
-        headerHtml = headerHtml.replace('href="/blog.html">', 'href="/blog.html" class="active">');
+    footerHtml = fixUrls(footerHtml);
+    footerHtml = footerHtml.replace(/\{%.*?%\}/g, '');
+    footerHtml = footerHtml.replace(/\{\{\s*site\.time\s*\|\s*date:\s*'%Y'\s*\}\}/g, String(new Date().getFullYear()));
 
-        footerHtml = fixUrls(footerHtml);
-        footerHtml = footerHtml.replace(/\{%.*?%\}/g, '');
+    const tagsHtml = post.tags.length
+        ? `<div class="post-tags post-tags--detail">${post.tags.map(t => `<span class="post-tag">${t}</span>`).join('')}</div>`
+        : '';
 
-        const dateStr = f.slice(0, 10);
-        const dt = new Date(dateStr + 'T00:00:00');
-        const formatted = dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-
-        const postHtml = `<!DOCTYPE html>
+    const postHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
     ${head}
 </head>
 <body class="post-page">
+    <div class="reading-progress" id="reading-progress"></div>
     ${headerHtml}
     <main class="page-content">
-        <article>
-            <h2 class="post-page-title">${pfm.title || ''}</h2>
-            <div class="post-meta-row">
-                <span class="post-date">${formatted}</span>
-                <span class="reading-time" id="reading-time"></span>
-            </div>
-            <div id="post-toc-container"></div>
-            <div class="post-body" id="post-body">
-                ${bodyHtml}
-            </div>
-            <p class="back-link"><a href="/blog.html">&larr; Back to Blog</a></p>
-        </article>
+        <div class="post-layout">
+            <div class="post-sidebar" id="post-sidebar"></div>
+            <article class="post-article">
+                <h2 class="post-page-title">${post.title}</h2>
+                <div class="post-meta-row">
+                    <span class="post-date">${post.date}</span>
+                    <span class="reading-time" id="reading-time"></span>
+                </div>
+                ${tagsHtml}
+                <div id="post-toc-container"></div>
+                <div class="post-body" id="post-body">
+                    ${bodyHtml}
+                </div>
+                <p class="back-link"><a href="${backPage}">&larr; ${backLabel}</a></p>
+            </article>
+        </div>
     </main>
     ${footerHtml}
     <script src="/assets/js/theme.js"></script>
+    <script src="/assets/js/name-scatter.js"></script>
     <script src="/assets/js/post.js"></script>
 </body>
 </html>`;
 
-        writeOut(`blog/${slug}.html`, postHtml);
-    }
+    writeOut(`${baseUrl.slice(1)}/${post.slug}.html`, postHtml);
+}
+
+for (const post of allPosts) {
+    buildPost(post, post.section);
 }
 
 // Copy assets

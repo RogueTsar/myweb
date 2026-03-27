@@ -59,7 +59,7 @@ export default async function handler(req, res) {
             fetchSpotify(token, '/me/top/tracks?time_range=short_term&limit=10'),
             fetchSpotify(token, '/me/top/artists?time_range=long_term&limit=50'),
             fetchSpotify(token, '/me/player/recently-played?limit=10'),
-            fetchSpotify(token, '/me/playlists?limit=12'),
+            fetchSpotify(token, '/me/playlists?limit=50'),
             fetchSpotify(token, '/me'),
         ]);
 
@@ -162,7 +162,7 @@ export default async function handler(req, res) {
 
         // Playlists — fetch each individually for real track count + description
         const playlistDetails = await Promise.all(
-            playlistItems.slice(0, 12).map(async (p) => {
+            playlistItems.slice(0, 26).map(async (p) => {
                 try {
                     const detail = await fetchSpotify(token, `/playlists/${p.id}?fields=id,name,description,tracks.total,images,external_urls`);
                     return {

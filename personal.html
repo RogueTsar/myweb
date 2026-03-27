@@ -1,9 +1,9 @@
 ---
 layout: default
-title: "Blog"
+title: "Personal"
 ---
 
-<h2>Blog</h2>
+<h2>Personal</h2>
 
 <div class="blog-controls">
     <input type="text" id="blog-search" class="blog-search" placeholder="Search posts...">
@@ -11,7 +11,7 @@ title: "Blog"
 </div>
 
 <ul class="post-list" id="post-list">
-    {% for post in site.posts %}
+    {% for post in site.personal_posts %}
     <li>
         <span class="post-date">{{ post.date | date: "%-d %B %Y" }}</span>
         <h3 class="post-title"><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h3>
@@ -20,7 +20,7 @@ title: "Blog"
     {% endfor %}
 </ul>
 
-{% if site.posts.size == 0 %}
+{% if site.personal_posts.size == 0 %}
 <p class="text-secondary">Nothing here yet. Check back soon.</p>
 {% endif %}
 
