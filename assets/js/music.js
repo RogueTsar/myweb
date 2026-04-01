@@ -263,24 +263,32 @@ function renderBarChart(containerId, items, mode) {
     var html = '<div class="bar-chart">';
     for (var j = 0; j < items.length; j++) {
         var item = items[j];
-        var label = mode === 'full' ? item.name + ' \u2014 ' + item.artist : item.name;
         var pct = Math.round(100 - ((item.rank - 1) / total) * 72);
-        var tooltipText;
-        if (item.genres && item.genres.length > 0) {
-            tooltipText = item.genres.join(' \u00b7 ');
-        } else if (item.album) {
-            tooltipText = item.album;
+
+        // Build styled label: song name (maroon) + artist (highlighted) + genre tags
+        var labelHtml;
+        if (mode === 'full') {
+            labelHtml = '<span class="bar-chart-row__name">' + escapeHtml(item.name) + '</span> ' +
+                '<span class="bar-chart-row__artist-hl">' + escapeHtml(item.artist) + '</span>';
         } else {
-            tooltipText = '#' + item.rank;
+            labelHtml = '<span class="bar-chart-row__name">' + escapeHtml(item.name) + '</span>';
         }
+
+        // Genre tags
+        var genreHtml = '';
+        if (item.genres && item.genres.length > 0) {
+            item.genres.forEach(function (g) {
+                genreHtml += ' <span class="bar-chart-row__genre-hl">' + escapeHtml(g) + '</span>';
+            });
+        }
+
         html +=
             '<div class="bar-chart-row">' +
                 '<span class="bar-chart-row__rank">' + item.rank + '</span>' +
-                '<span class="bar-chart-row__label" title="' + escapeHtml(label) + '">' + escapeHtml(label) + '</span>' +
+                '<span class="bar-chart-row__label">' + labelHtml + genreHtml + '</span>' +
                 '<div class="bar-chart-row__bar-container">' +
                     '<div class="bar-chart-row__bar" data-width="' + pct + '%"></div>' +
                 '</div>' +
-                '<span class="bar-chart-row__tooltip">' + escapeHtml(tooltipText) + '</span>' +
             '</div>';
     }
     html += '</div>';
@@ -360,20 +368,20 @@ function renderPlaylists(playlists) {
         if (section) section.style.display = 'none';
         return;
     }
-    var html = '<div class="playlist-grid">';
+    var html = '<div class="playlist-drawer">';
     for (var i = 0; i < playlists.length; i++) {
         var p = playlists[i];
         var imgHtml = p.image
-            ? '<img class="playlist-card__img" src="' + escapeHtml(p.image) + '" alt="" loading="lazy">'
-            : '<div class="playlist-card__img playlist-card__img--placeholder"></div>';
+            ? '<img class="playlist-drawer-card__img" src="' + escapeHtml(p.image) + '" alt="" loading="lazy">'
+            : '<div class="playlist-drawer-card__img playlist-drawer-card__img--placeholder"></div>';
         var countText = p.track_count > 0 ? p.track_count + ' tracks' : '';
-        var descHtml = p.description ? '<div class="playlist-card__desc">' + escapeHtml(p.description) + '</div>' : '';
+        var descHtml = p.description ? '<div class="playlist-drawer-card__desc">' + escapeHtml(p.description) + '</div>' : '';
         html +=
-            '<a class="playlist-card" href="' + escapeHtml(p.url) + '" target="_blank" rel="noopener">' +
+            '<a class="playlist-drawer-card" href="' + escapeHtml(p.url) + '" target="_blank" rel="noopener">' +
                 imgHtml +
-                '<div class="playlist-card__body">' +
-                    '<div class="playlist-card__name">' + escapeHtml(p.name) + '</div>' +
-                    (countText ? '<div class="playlist-card__count">' + countText + '</div>' : '') +
+                '<div class="playlist-drawer-card__body">' +
+                    '<div class="playlist-drawer-card__name">' + escapeHtml(p.name) + '</div>' +
+                    (countText ? '<div class="playlist-drawer-card__count">' + countText + '</div>' : '') +
                     descHtml +
                 '</div>' +
             '</a>';

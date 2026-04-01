@@ -3,41 +3,69 @@
    ========================================= */
 
 :root {
-    /* Light mode — parchment + dark red */
-    --bg:              #FAFAF8;
+    /* Light mode — maroon → black */
+    --bg:              #FAFAF9;
     --text:            #1A1A1A;
-    --text-secondary:  #6B6B6B;
-    --text-tertiary:   #999999;
-    --border:          #E2E0DC;
-    --bg-subtle:       #F2F1EF;
-    --bg-subtle-2:     #E8E6E3;
-    --accent:          #722F37;
-    --accent-hover:    rgba(114, 47, 55, 0.08);
-    --gold:            #C9A96E;
-    --gold-hover:      rgba(201, 169, 110, 0.1);
+    --text-secondary:  #555555;
+    --text-tertiary:   #888888;
+    --border:          rgba(128, 0, 32, 0.15);
+    --bg-subtle:       #FFFFFF;
+    --bg-subtle-2:     #F5F5F4;
+    --accent:          #800020;
+    --accent-light:    #A0324F;
+    --accent-dark:     #4A0012;
+    --accent-hover:    rgba(128, 0, 32, 0.08);
+    --gold:            #B03060;
+    --gold-hover:      rgba(176, 48, 96, 0.1);
     --green:           #1B4332;
     --navy:            #0A1628;
     --link-hover-border: #1A1A1A;
 
-    --transition: background 0.25s, color 0.25s, border-color 0.25s;
+    /* Music page colours */
+    --color-song-name: #800020;
+    --color-artist-bg: #800020;
+    --color-artist-text: #FFFFFF;
+    --color-genre-bg: #000000;
+    --color-genre-text: #FFFFFF;
+
+    /* Glassy */
+    --glass-bg: rgba(255, 255, 255, 0.6);
+    --glass-border: rgba(128, 0, 32, 0.2);
+    --glass-shadow: rgba(128, 0, 32, 0.1);
+
+    --transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 [data-theme="dark"] {
-    /* Dark mode — deep navy-black + bluish-white */
-    --bg:              #0B0D14;
-    --text:            #B8CAD8;
-    --text-secondary:  #6A8899;
-    --text-tertiary:   #405060;
-    --border:          #1C2A3A;
-    --bg-subtle:       #0F1520;
-    --bg-subtle-2:     #162030;
-    --accent:          #5BA3C9;
-    --accent-hover:    rgba(91, 163, 201, 0.1);
-    --gold:            #7AABBF;
-    --gold-hover:      rgba(122, 171, 191, 0.1);
+    /* Dark mode — royal blue → white */
+    --bg:              #0D1117;
+    --text:            #E6E6E6;
+    --text-secondary:  #AAAAAA;
+    --text-tertiary:   #777777;
+    --border:          rgba(65, 105, 225, 0.2);
+    --bg-subtle:       #161B22;
+    --bg-subtle-2:     #1C2128;
+    --accent:          #4169E1;
+    --accent-light:    #6B8DE8;
+    --accent-dark:     #002366;
+    --accent-hover:    rgba(65, 105, 225, 0.1);
+    --gold:            #7B9FFF;
+    --gold-hover:      rgba(123, 159, 255, 0.1);
     --green:           #2A7A5A;
     --navy:            #1A3060;
-    --link-hover-border: #B8CAD8;
+    --link-hover-border: #E6E6E6;
+
+    /* Music page colours */
+    --color-song-name: #7B9FFF;
+    --color-artist-bg: #002366;
+    --color-artist-text: #FFFFFF;
+    --color-genre-bg: #1A1A2E;
+    --color-genre-text: #E6E6E6;
+
+    /* Glassy */
+    --glass-bg: rgba(13, 17, 23, 0.6);
+    --glass-border: rgba(65, 105, 225, 0.2);
+    --glass-shadow: rgba(65, 105, 225, 0.1);
 }
 
 /* =========================================
@@ -201,30 +229,30 @@ nav {
     letter-spacing: 0.08em;
     display: flex;
     align-items: center;
-    gap: 0;
+    gap: 1rem;
 }
 
 nav a {
-    color: var(--text);
+    color: var(--text-secondary);
     text-decoration: none;
-    border-bottom: 1.5px solid transparent;
-    padding-bottom: 2px;
-    transition: border-bottom-color 0.2s, background 0.2s;
+    border-bottom: none;
+    padding: 4px 0;
+    position: relative;
+    transition: color 0.2s;
 }
 
 nav a:hover {
-    border-bottom-color: var(--accent);
+    color: var(--text);
     background: none;
 }
 
 nav a.active {
-    border-bottom-color: var(--accent);
+    color: var(--text);
+    font-weight: 500;
 }
 
 .nav-sep {
-    color: var(--border);
-    margin: 0 0.4rem;
-    font-weight: 300;
+    display: none;
 }
 
 /* Theme toggle — pill switch */
@@ -820,13 +848,15 @@ a:hover {
 }
 
 .bar-chart-row__label {
-    width: 140px;
+    min-width: 140px;
+    max-width: 260px;
     font-size: 0.8rem;
     color: var(--text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
     flex-shrink: 0;
+    line-height: 1.4;
 }
 
 .bar-chart-row__bar-container {
@@ -1717,6 +1747,287 @@ body.post-page .page-content {
     background: var(--accent);
     z-index: 999;
     transition: width 0.1s linear;
+}
+
+/* =========================================
+   GLASSY BUTTON
+   ========================================= */
+
+.btn-glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 8px 20px;
+    color: var(--text);
+    font-family: inherit;
+    font-weight: 300;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px var(--glass-shadow);
+}
+
+.btn-glass:hover {
+    box-shadow: 0 4px 16px var(--glass-shadow);
+    transform: translateY(-1px);
+}
+
+/* =========================================
+   BORDER MORPH NAV
+   ========================================= */
+
+nav a {
+    position: relative;
+}
+
+nav a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 1px;
+    transform: translateX(-50%);
+    transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+nav a.active::after {
+    width: 100%;
+}
+
+nav a:not(.active):hover::after {
+    width: 60%;
+}
+
+/* =========================================
+   BACKGROUND TOGGLE
+   ========================================= */
+
+.bg-toggle {
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    cursor: pointer;
+    z-index: 100;
+    color: var(--text-secondary);
+    font-size: 16px;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px var(--glass-shadow);
+}
+
+.bg-toggle:hover {
+    color: var(--accent);
+    box-shadow: 0 4px 16px var(--glass-shadow);
+}
+
+.bg-toggle.active {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+/* =========================================
+   MUSIC PAGE — TRACK TYPOGRAPHY
+   ========================================= */
+
+.bar-chart-row__name {
+    color: var(--color-song-name);
+    font-weight: 400;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.bar-chart-row__artist-hl {
+    display: inline;
+    background: var(--color-artist-bg);
+    color: var(--color-artist-text);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 400;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.bar-chart-row__genre-hl {
+    display: inline;
+    background: var(--color-genre-bg);
+    color: var(--color-genre-text);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: 400;
+}
+
+/* =========================================
+   PLAYLIST DRAWER CARDS
+   ========================================= */
+
+.playlist-drawer {
+    perspective: 800px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.playlist-drawer-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    background: var(--bg-subtle);
+    text-decoration: none;
+    color: var(--text);
+    transform-origin: bottom center;
+    transform: rotateX(0deg);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.3s ease,
+                z-index 0s;
+    position: relative;
+    z-index: 1;
+}
+
+.playlist-drawer-card:last-child {
+    border-bottom: 1px solid var(--border);
+}
+
+.playlist-drawer-card:hover {
+    transform: rotateX(-8deg) translateY(-6px) scale(1.01);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+    border-color: var(--accent);
+}
+
+.playlist-drawer-card__img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.playlist-drawer-card__img--placeholder {
+    background: var(--bg-subtle-2);
+}
+
+.playlist-drawer-card__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.playlist-drawer-card__name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 2px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.playlist-drawer-card__count {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.playlist-drawer-card__desc {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* =========================================
+   WELCOME LETTER
+   ========================================= */
+
+.letter-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.letter-overlay.visible {
+    opacity: 1;
+}
+
+.letter-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2.5rem;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--text);
+}
+
+.letter-card p {
+    margin-bottom: 1rem;
+}
+
+.letter-signature {
+    font-family: 'Caveat', cursive;
+    font-size: 48px;
+    color: var(--accent);
+    margin-top: 1rem;
+}
+
+.letter-envelope {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    cursor: pointer;
+    z-index: 100;
+    font-size: 18px;
+    animation: envelope-bob 3s ease-in-out infinite;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px var(--glass-shadow);
+}
+
+.letter-envelope:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 16px var(--glass-shadow);
+}
+
+@keyframes envelope-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
 }
 
 /* ── Post Layout: Sidebar TOC on Desktop ── */
