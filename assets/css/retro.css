@@ -1,0 +1,132 @@
+/* ── Retro Mode — CRT green terminal ── */
+
+[data-theme="retro"] {
+    --bg: #0A0A0A;
+    --text: #00FF00;
+    --text-secondary: #00CC00;
+    --text-tertiary: #009900;
+    --border: #003300;
+    --bg-subtle: #0D0D0D;
+    --bg-subtle-2: #111111;
+    --accent: #00FF00;
+    --accent-light: #33FF33;
+    --accent-dark: #006600;
+    --accent-hover: rgba(0, 255, 0, 0.1);
+    --gold: #00FF00;
+    --gold-hover: rgba(0, 255, 0, 0.1);
+    --green: #00FF00;
+    --navy: #003300;
+    --link-hover-border: #00FF00;
+    --color-song-name: #00FF00;
+    --color-artist-bg: #003300;
+    --color-artist-text: #00FF00;
+    --color-genre-bg: #001100;
+    --color-genre-text: #00CC00;
+    --glass-bg: rgba(0, 20, 0, 0.8);
+    --glass-border: rgba(0, 255, 0, 0.2);
+    --glass-shadow: rgba(0, 255, 0, 0.1);
+}
+
+[data-theme="retro"] body {
+    font-family: 'VT323', 'Courier New', monospace;
+    text-shadow: 0 0 8px rgba(0, 255, 0, 0.4);
+}
+
+/* Scanlines */
+[data-theme="retro"] body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9998;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.15) 2px,
+        rgba(0, 0, 0, 0.15) 4px
+    );
+}
+
+/* Flicker */
+[data-theme="retro"] body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9997;
+    animation: retro-flicker 4s ease-in-out infinite;
+    background: transparent;
+}
+
+@keyframes retro-flicker {
+    0%, 95%, 100% { opacity: 0; }
+    96% { opacity: 0.03; background: rgba(0, 255, 0, 0.02); }
+}
+
+@keyframes retro-pulse {
+    0%, 100% { box-shadow: 0 0 4px rgba(0, 255, 0, 0.3); }
+    50% { box-shadow: 0 0 12px rgba(0, 255, 0, 0.6); }
+}
+
+/* Title bar */
+[data-theme="retro"] header::before {
+    content: 'VAISHNAVI.EXE v0.1';
+    display: block;
+    font-size: 12px;
+    color: #009900;
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #003300;
+    padding-bottom: 4px;
+}
+
+/* Nav brackets */
+[data-theme="retro"] nav a::before { content: '['; }
+[data-theme="retro"] nav a::after {
+    content: ']';
+    position: static;
+    width: auto;
+    height: auto;
+    background: none;
+    transform: none;
+}
+
+[data-theme="retro"] nav a {
+    color: #00FF00;
+}
+
+[data-theme="retro"] nav a.active {
+    color: #33FF33;
+    text-shadow: 0 0 12px rgba(0, 255, 0, 0.6);
+}
+
+/* Exit retro button */
+[data-theme="retro"] .retro-exit {
+    display: block !important;
+}
+
+.retro-exit {
+    display: none;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 9999;
+    background: #003300;
+    color: #00FF00;
+    border: 1px solid #00FF00;
+    padding: 4px 12px;
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* Disable bg toggle in retro */
+[data-theme="retro"] .bg-toggle {
+    display: none;
+}
+
+/* Images get green tint */
+[data-theme="retro"] img {
+    filter: grayscale(100%) brightness(0.7) sepia(100%) hue-rotate(70deg) saturate(300%);
+}

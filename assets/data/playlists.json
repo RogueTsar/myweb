@@ -1,0 +1,26 @@
+[
+  {
+    "id": "deep-focus",
+    "name": "Deep Focus",
+    "description": "[to be placed]",
+    "tracks": [
+      { "name": "[to be placed]", "artist": "[to be placed]", "genre": "[to be placed]" }
+    ]
+  },
+  {
+    "id": "melancholy",
+    "name": "Melancholy",
+    "description": "[to be placed]",
+    "tracks": [
+      { "name": "[to be placed]", "artist": "[to be placed]", "genre": "[to be placed]" }
+    ]
+  },
+  {
+    "id": "high-energy",
+    "name": "High Energy",
+    "description": "[to be placed]",
+    "tracks": [
+      { "name": "[to be placed]", "artist": "[to be placed]", "genre": "[to be placed]" }
+    ]
+  }
+]
