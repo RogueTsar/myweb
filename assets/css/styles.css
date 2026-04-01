@@ -1901,6 +1901,221 @@ nav a:not(.active):hover::after {
 }
 
 /* =========================================
+   BLOG — DYNAMIC POSTS
+   ========================================= */
+
+.blog-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.blog-controls input[type="text"] {
+    flex: 1;
+    min-width: 200px;
+    padding: 8px 12px;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 0.85rem;
+}
+
+.blog-controls input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.tag-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.tag-filter-btn {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.tag-filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+.tag-filter-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+
+.post-card {
+    border-bottom: 1px solid var(--border);
+}
+
+.post-card__link {
+    display: block;
+    padding: 1rem 0;
+    text-decoration: none;
+    color: var(--text);
+    transition: background 0.15s;
+}
+
+.post-card__link:hover {
+    background: var(--accent-hover);
+}
+
+.post-card__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.post-card__title {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text);
+}
+
+.post-card__meta {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+.post-card__tags {
+    margin-top: 4px;
+}
+
+.post-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 1px 6px;
+    border-radius: 3px;
+    margin-right: 4px;
+    text-transform: lowercase;
+}
+
+.post-card__status {
+    display: inline-block;
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    font-style: italic;
+    margin-top: 2px;
+}
+
+/* =========================================
+   FAQ — BLUR EFFECT
+   ========================================= */
+
+.faq-item {
+    transition: filter 0.3s ease, opacity 0.3s ease;
+}
+
+.faq-item--dimmed {
+    filter: blur(3px);
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.faq-question {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-size: 0.95rem;
+    padding: 1rem 0;
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.15s;
+}
+
+.faq-question:hover {
+    color: var(--accent);
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+}
+
+.faq-item--open .faq-answer {
+    max-height: 500px;
+}
+
+.faq-answer__inner {
+    padding: 1rem 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    background: var(--glass-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 0.5rem 0;
+}
+
+/* =========================================
+   TESTIMONIALS
+   ========================================= */
+
+.testimonials-section {
+    margin-top: 3rem;
+}
+
+.testimonials-scroll {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+
+.testimonial-card {
+    flex: 0 0 280px;
+    scroll-snap-align: start;
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+    background: var(--bg-subtle);
+    border-radius: 8px;
+}
+
+.testimonial-card__quote {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--text);
+    font-style: italic;
+    margin-bottom: 0.75rem;
+}
+
+.testimonial-card__author {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.testimonial-card__role {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* =========================================
    EASTER EGG — CARD FOUND GLOW
    ========================================= */
 
