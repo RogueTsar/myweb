@@ -6,16 +6,22 @@ title: "Personal"
 <h2>Personal</h2>
 
 <div class="blog-controls">
-    <input type="text" id="blog-search" placeholder="Search posts...">
-    <div class="tag-filters" id="blog-tag-filters"></div>
+    <input type="text" id="blog-search" class="blog-search" placeholder="Search posts...">
+    <div class="tag-cloud" id="blog-tags"></div>
 </div>
 
-<div id="blog-posts-list" data-section="personal"></div>
+<ul class="post-list" id="post-list">
+    {% for post in site.personal_posts %}
+    <li>
+        <span class="post-date">{{ post.date | date: "%-d %B %Y" }}</span>
+        <h3 class="post-title"><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h3>
+        <p class="post-excerpt">{{ post.excerpt | strip_html | truncatewords: 30 }}</p>
+    </li>
+    {% endfor %}
+</ul>
 
-<div class="faq-section" style="margin-top:3rem">
-    <h3>FAQ</h3>
-    <div id="faq-list"></div>
-</div>
+{% if site.personal_posts.size == 0 %}
+<p class="text-secondary">Nothing here yet. Check back soon.</p>
+{% endif %}
 
-<script src="{{ '/assets/js/blog-renderer.js' | relative_url }}"></script>
-<script src="{{ '/assets/js/faq.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/blog-filter.js' | relative_url }}"></script>
