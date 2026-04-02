@@ -304,9 +304,11 @@
     el.innerHTML = html;
 
     document.getElementById('btn-add-post').onclick = function () {
+      var slug = 'new-post-' + Date.now();
+      var filePath = '/blog/' + slug + '.html';
       posts.push({
         title: '[to be placed]',
-        url: '/blog/new-post.html',
+        url: filePath,
         date: new Date().toISOString().split('T')[0],
         tags: [],
         readTime: 5,
@@ -314,7 +316,34 @@
         section: 'blog',
         excerpt: '[to be placed]'
       });
-      saveFile('blog-posts', posts).then(function () { renderBlogPosts(el); });
+      saveFile('blog-posts', posts).then(function () {
+        renderBlogPosts(el);
+        // Offer downloadable template HTML
+        var templateHtml = '<!DOCTYPE html>\n<html lang="en">\n<head>\n' +
+          '    <meta charset="UTF-8">\n' +
+          '    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
+          '    <title>[to be placed] — Blog</title>\n' +
+          '    <link rel="stylesheet" href="/assets/css/style.css">\n' +
+          '</head>\n<body>\n' +
+          '    <article class="blog-post">\n' +
+          '        <header>\n' +
+          '            <h1>[to be placed]</h1>\n' +
+          '            <time datetime="' + new Date().toISOString().split('T')[0] + '">' + new Date().toISOString().split('T')[0] + '</time>\n' +
+          '        </header>\n' +
+          '        <section class="post-content">\n' +
+          '            <p>[to be placed]</p>\n' +
+          '        </section>\n' +
+          '    </article>\n' +
+          '    <script src="/assets/js/main.js"><\/script>\n' +
+          '</body>\n</html>\n';
+        var blob = new Blob([templateHtml], { type: 'text/html' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = slug + '.html';
+        a.click();
+        URL.revokeObjectURL(a.href);
+        showToast('Template downloaded: ' + slug + '.html — place in /blog/');
+      });
     };
 
     el.querySelectorAll('[data-action="del-post"]').forEach(function (btn) {
@@ -645,9 +674,50 @@
   /* ──────────────────────────────────────
      TAB: Research Graph
      ────────────────────────────────────── */
+  function renderResearchPreview(container, data) {
+    var nodes = data.nodes || [];
+    var edges = data.edges || [];
+    if (nodes.length === 0) { container.innerHTML = '<div class="empty-state">Add nodes to see the graph preview</div>'; return; }
+
+    var width = container.clientWidth || 500;
+    var height = 300;
+    var svg = '<svg width="' + width + '" height="' + height + '" style="background:var(--admin-bg);border-radius:8px">';
+
+    // Position nodes in a circle
+    var cx = width / 2, cy = height / 2, r = Math.min(width, height) * 0.35;
+    var positions = {};
+    nodes.forEach(function (n, i) {
+      var angle = (2 * Math.PI * i) / nodes.length - Math.PI / 2;
+      positions[n.id] = { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
+    });
+
+    // Draw edges as lines
+    edges.forEach(function (e) {
+      var s = positions[e.source], t = positions[e.target];
+      if (s && t) {
+        svg += '<line x1="' + s.x + '" y1="' + s.y + '" x2="' + t.x + '" y2="' + t.y + '" stroke="#30363d" stroke-width="1.5" />';
+      }
+    });
+
+    // Draw nodes as circles with labels
+    nodes.forEach(function (n) {
+      var pos = positions[n.id];
+      if (!pos) return;
+      svg += '<circle cx="' + pos.x + '" cy="' + pos.y + '" r="18" fill="var(--admin-surface)" stroke="var(--admin-accent)" stroke-width="2" />';
+      svg += '<text x="' + pos.x + '" y="' + (pos.y + 32) + '" text-anchor="middle" fill="var(--admin-text-dim)" font-size="11">' + esc(n.label) + '</text>';
+    });
+
+    svg += '</svg>';
+    container.innerHTML = svg;
+  }
+
   function renderResearch(el) {
     var data = cache['research'] || { nodes: [], edges: [] };
     var html = '<h2>Research Interest Graph</h2>';
+
+    // Visual preview
+    html += '<div id="research-preview" class="card" style="padding:12px;margin-bottom:16px"></div>';
+
     html += '<h3>Nodes</h3><button class="btn btn-primary btn-sm" id="btn-add-node">+ Add Node</button>';
     html += '<div class="item-list" style="margin-top:12px">';
 
