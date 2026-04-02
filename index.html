@@ -3,54 +3,70 @@ layout: default
 title: "Home"
 ---
 
-<div class="card-showcase">
-    <div class="holo-card" data-card="triboulet">
-        <div class="holo-card__inner">
-            <div class="holo-card__front">
-                <img src="{{ '/assets/images/joker.png' | relative_url }}" alt="Triboulet" draggable="false" data-light-src="/assets/images/joker.png" data-dark-src="/assets/images/chicot.png">
-                <div class="holo-card__shine"></div>
-                <div class="holo-card__glare"></div>
+<div class="folder" id="about-folder">
+    <div class="folder__lid" id="folder-lid" role="button" tabindex="0" aria-expanded="false" aria-controls="folder-body">
+        <span class="folder__title">About Me</span>
+    </div>
+    <div class="folder__body" id="folder-body">
+        <button class="btn-glass folder__close" id="folder-close" aria-label="Close folder">&times;</button>
+
+        <div class="telescopic-text">
+            <p>I'm Vaishnavi Singh. I study <span class="telescope"><span class="trigger" onclick="expand(this)">Computing and Law</span><span class="content">Computing and Law with a double major in Political Science</span></span> at SMU, in my final year. I work on AI safety and governance.</p>
+
+            <p style="margin-top: 1.25rem;">On the research side: I'm a <span class="telescope"><span class="trigger" onclick="expand(this)">Georgia Tech AISI Technical Fellow</span><span class="content">Georgia Tech AISI Technical Fellow, covering RL misspecification, AI control, oversight, and mechanistic interpretability</span></span>, and alumna of <span class="telescope"><span class="trigger" onclick="expand(this)">OAISI</span><span class="content">the Oxford AI Safety Initiative, where I completed the ARENA curriculum and did ML engineering for AI safety research at ARBOx3</span></span> and <span class="telescope"><span class="trigger" onclick="expand(this)">BASIS Berkeley</span><span class="content">the Berkeley AI Safety Student Initiative, where I worked on AI moral status and personhood. That research became a paper accepted to the FAST Workshop at AAAI 2025</span></span>.</p>
+
+            <p style="margin-top: 1.25rem;">In industry: I'm at <span class="telescope"><span class="trigger" onclick="expand(this)">Confide</span><span class="content">Confide Platform, building an AI governance product covering policy generation, evaluation tooling, and incident reporting</span></span>, and previously worked in technology risk at <span class="telescope"><span class="trigger" onclick="expand(this)">KPMG</span><span class="content">KPMG, in technology risk advisory, reviewing AI systems against the EU AI Act, NIST RMF, and related standards</span></span>.</p>
+        </div>
+
+        <div class="card-showcase">
+            <div class="holo-card" data-card="triboulet">
+                <div class="holo-card__inner">
+                    <div class="holo-card__front">
+                        <img src="{{ '/assets/images/joker.png' | relative_url }}" alt="Triboulet" draggable="false" data-light-src="/assets/images/joker.png" data-dark-src="/assets/images/chicot.png">
+                        <div class="holo-card__shine"></div>
+                        <div class="holo-card__glare"></div>
+                    </div>
+                    <div class="holo-card__back">
+                        <p class="holo-card__quote">[to be placed]</p>
+                        <p class="holo-card__author">[to be placed]</p>
+                    </div>
+                </div>
             </div>
-            <div class="holo-card__back">
-                <p class="holo-card__quote">[to be placed]</p>
-                <p class="holo-card__author">[to be placed]</p>
+            <div class="holo-card" data-card="canio">
+                <div class="holo-card__inner">
+                    <div class="holo-card__front">
+                        <img src="{{ '/assets/images/canio.png' | relative_url }}" alt="Canio" draggable="false" data-light-src="/assets/images/canio.png" data-dark-src="/assets/images/bloodstone.png">
+                        <div class="holo-card__shine"></div>
+                        <div class="holo-card__glare"></div>
+                    </div>
+                    <div class="holo-card__back">
+                        <p class="holo-card__quote">[to be placed]</p>
+                        <p class="holo-card__author">[to be placed]</p>
+                    </div>
+                </div>
+            </div>
+            <div class="holo-card" data-card="perkeo">
+                <div class="holo-card__inner">
+                    <div class="holo-card__front">
+                        <img src="{{ '/assets/images/perkeo.png' | relative_url }}" alt="Perkeo" draggable="false" data-light-src="/assets/images/perkeo.png" data-dark-src="/assets/images/madness.png">
+                        <div class="holo-card__shine"></div>
+                        <div class="holo-card__glare"></div>
+                    </div>
+                    <div class="holo-card__back">
+                        <p class="holo-card__quote">[to be placed]</p>
+                        <p class="holo-card__author">[to be placed]</p>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="holo-card" data-card="canio">
-        <div class="holo-card__inner">
-            <div class="holo-card__front">
-                <img src="{{ '/assets/images/canio.png' | relative_url }}" alt="Canio" draggable="false" data-light-src="/assets/images/canio.png" data-dark-src="/assets/images/bloodstone.png">
-                <div class="holo-card__shine"></div>
-                <div class="holo-card__glare"></div>
-            </div>
-            <div class="holo-card__back">
-                <p class="holo-card__quote">[to be placed]</p>
-                <p class="holo-card__author">[to be placed]</p>
-            </div>
+
+        <div class="contact-info">
+            <a href="mailto:vaishnavis.2022@scis.smu.edu.sg">Email</a>
+            <a href="https://www.linkedin.com/in/vaishnavisingh-/" target="_blank" rel="noopener">LinkedIn</a>
+            <a href="https://github.com/RogueTsar" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://calendar.notion.so/meet/vaish2003singh/72nx4ock" target="_blank" rel="noopener" class="meet-btn">Meet with me</a>
         </div>
     </div>
-    <div class="holo-card" data-card="perkeo">
-        <div class="holo-card__inner">
-            <div class="holo-card__front">
-                <img src="{{ '/assets/images/perkeo.png' | relative_url }}" alt="Perkeo" draggable="false" data-light-src="/assets/images/perkeo.png" data-dark-src="/assets/images/madness.png">
-                <div class="holo-card__shine"></div>
-                <div class="holo-card__glare"></div>
-            </div>
-            <div class="holo-card__back">
-                <p class="holo-card__quote">[to be placed]</p>
-                <p class="holo-card__author">[to be placed]</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="telescopic-text">
-    <p>I'm Vaishnavi Singh. I study <span class="telescope"><span class="trigger" onclick="expand(this)">Computing and Law</span><span class="content">Computing and Law with a double major in Political Science</span></span> at SMU, in my final year. I work on AI safety and governance.</p>
-
-    <p style="margin-top: 1.25rem;">On the research side: I'm a <span class="telescope"><span class="trigger" onclick="expand(this)">Georgia Tech AISI Technical Fellow</span><span class="content">Georgia Tech AISI Technical Fellow, covering RL misspecification, AI control, oversight, and mechanistic interpretability</span></span>, and alumna of <span class="telescope"><span class="trigger" onclick="expand(this)">OAISI</span><span class="content">the Oxford AI Safety Initiative, where I completed the ARENA curriculum and did ML engineering for AI safety research at ARBOx3</span></span> and <span class="telescope"><span class="trigger" onclick="expand(this)">BASIS Berkeley</span><span class="content">the Berkeley AI Safety Student Initiative, where I worked on AI moral status and personhood. That research became a paper accepted to the FAST Workshop at AAAI 2025</span></span>.</p>
-
-    <p style="margin-top: 1.25rem;">In industry: I'm at <span class="telescope"><span class="trigger" onclick="expand(this)">Confide</span><span class="content">Confide Platform, building an AI governance product covering policy generation, evaluation tooling, and incident reporting</span></span>, and previously worked in technology risk at <span class="telescope"><span class="trigger" onclick="expand(this)">KPMG</span><span class="content">KPMG, in technology risk advisory, reviewing AI systems against the EU AI Act, NIST RMF, and related standards</span></span>.</p>
 </div>
 
 <div id="research-graph-section" class="research-graph-section">
@@ -58,13 +74,8 @@ title: "Home"
     <div id="research-graph"></div>
 </div>
 
-<div class="contact-info">
-    <a href="mailto:vaishnavis.2022@scis.smu.edu.sg">Email</a>
-    <a href="https://www.linkedin.com/in/vaishnavisingh-/" target="_blank" rel="noopener">LinkedIn</a>
-    <a href="https://github.com/RogueTsar" target="_blank" rel="noopener">GitHub</a>
-    <a href="https://calendar.notion.so/meet/vaish2003singh/72nx4ock" target="_blank" rel="noopener" class="meet-btn">Meet with me</a>
-</div>
-
 <script src="{{ '/assets/js/telescopic.js' | relative_url }}"></script>
 <script src="{{ '/assets/js/holo-cards.js' | relative_url }}"></script>
 <script src="{{ '/assets/js/research-graph.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/background-grid.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/folder-open.js' | relative_url }}"></script>
