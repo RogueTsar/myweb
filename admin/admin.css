@@ -393,3 +393,31 @@ textarea {
   justify-content: flex-end;
   margin-top: 16px;
 }
+
+/* ── Scan result clickable links ── */
+.scan-result a.scan-result-file {
+  color: var(--admin-accent);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.scan-result a.scan-result-file:hover {
+  text-decoration: underline;
+  color: var(--admin-accent-hover);
+}
+
+/* ── Phase card enhancements ── */
+.phase-card .badge {
+  text-transform: capitalize;
+}
+
+/* ── Deploy disabled state ── */
+.deploy-commands.deploy-disabled {
+  user-select: none;
+}
+
+/* ── Research preview ── */
+#research-preview svg {
+  display: block;
+  margin: 0 auto;
+}
