@@ -2213,6 +2213,7 @@ nav a:not(.active):hover::after {
    WELCOME LETTER
    ========================================= */
 
+/* ── Full-screen overlay: blur + darken (glassy) ── */
 .letter-overlay {
     position: fixed;
     inset: 0;
@@ -2224,44 +2225,132 @@ nav a:not(.active):hover::after {
     justify-content: center;
     z-index: 9999;
     opacity: 0;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.6s ease;
 }
 
 .letter-overlay.visible {
     opacity: 1;
 }
 
+.letter-overlay.closing {
+    transition: opacity 0.6s ease;
+    opacity: 0;
+}
+
+/* ── Centred letter card — paper on glass table ── */
 .letter-card {
     background: var(--bg);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 2.5rem;
+    border-radius: 4px;
+    padding: 2.5rem 2.5rem 2rem;
     max-width: 500px;
     width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
     position: relative;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow:
+        0 1px 2px rgba(0,0,0,0.08),
+        0 4px 12px rgba(0,0,0,0.12),
+        0 20px 60px rgba(0,0,0,0.25);
     font-size: 0.95rem;
-    line-height: 1.7;
+    line-height: 1.75;
     color: var(--text);
+    /* Subtle paper texture via repeating gradient */
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 1.7rem,
+            var(--border) 1.7rem,
+            var(--border) 1.72rem
+        );
+    background-position: 0 2.3rem;
+    transform: scale(0.96);
+    opacity: 0;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.5s ease;
+}
+
+.letter-overlay.visible .letter-card {
+    transform: scale(1);
+    opacity: 1;
 }
 
 .letter-card p {
     margin-bottom: 1rem;
 }
 
-.letter-signature {
+.letter-greeting {
     font-family: 'Caveat', cursive;
-    font-size: 48px;
+    font-size: 1.4rem;
     color: var(--accent);
-    margin-top: 1rem;
+    margin-bottom: 0.5rem;
 }
 
+.letter-body {
+    text-indent: 1.5em;
+}
+
+/* ── Coffee cup — slides in from right ── */
+.letter-coffee {
+    position: absolute;
+    top: -30px;
+    right: -50px;
+    opacity: 0;
+    transform: translateX(60px) rotate(12deg);
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.letter-overlay.visible .letter-coffee {
+    opacity: 1;
+    transform: translateX(0) rotate(5deg);
+    transition-delay: 0.3s;
+}
+
+.letter-coffee--out {
+    transform: translateX(80px) rotate(15deg) !important;
+    opacity: 0 !important;
+    transition-delay: 0s !important;
+    transition-duration: 0.4s !important;
+}
+
+/* Steam animation */
+.letter-steam {
+    animation: steam-rise 2.5s ease-in-out infinite;
+}
+.letter-steam--2 {
+    animation-delay: 0.8s;
+}
+.letter-steam--3 {
+    animation-delay: 1.6s;
+}
+
+@keyframes steam-rise {
+    0%   { opacity: 0; transform: translateY(0); }
+    30%  { opacity: 0.4; }
+    100% { opacity: 0; transform: translateY(-8px); }
+}
+
+/* ── Signature — SVG stroke draw-in ── */
+.letter-signature {
+    margin-top: 1.2rem;
+    min-height: 70px;
+}
+
+.letter-sig-svg {
+    display: block;
+}
+
+/* ── Envelope icon — persistent, bottom-right ── */
 .letter-envelope {
     position: fixed;
     bottom: 16px;
     right: 16px;
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2269,23 +2358,30 @@ nav a:not(.active):hover::after {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--glass-border);
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
     z-index: 100;
-    font-size: 18px;
+    padding: 0;
     animation: envelope-bob 3s ease-in-out infinite;
-    transition: all 0.2s;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     box-shadow: 0 2px 8px var(--glass-shadow);
+    opacity: 0;
+    animation: envelope-fadein 0.4s ease forwards, envelope-bob 3s ease-in-out 0.4s infinite;
 }
 
 .letter-envelope:hover {
-    transform: scale(1.1);
+    transform: scale(1.12);
     box-shadow: 0 4px 16px var(--glass-shadow);
+}
+
+@keyframes envelope-fadein {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes envelope-bob {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-3px); }
+    50%      { transform: translateY(-3px); }
 }
 
 /* ── Post Layout: Sidebar TOC on Desktop ── */
