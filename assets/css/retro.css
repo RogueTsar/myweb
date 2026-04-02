@@ -102,11 +102,13 @@
 }
 
 /* Exit retro button */
-[data-theme="retro"] .retro-exit {
+[data-theme="retro"] .retro-exit,
+[data-theme="retro"] #retro-exit-btn {
     display: block !important;
 }
 
-.retro-exit {
+.retro-exit,
+#retro-exit-btn {
     display: none;
     position: fixed;
     top: 16px;
@@ -119,6 +121,14 @@
     font-family: 'VT323', monospace;
     font-size: 14px;
     cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: background 0.2s;
+}
+
+.retro-exit:hover,
+#retro-exit-btn:hover {
+    background: #004400;
+    box-shadow: 0 0 8px rgba(0, 255, 0, 0.4);
 }
 
 /* Disable bg toggle in retro */
