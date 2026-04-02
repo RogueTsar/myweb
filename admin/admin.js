@@ -161,7 +161,8 @@
      TAB: Dashboard
      ────────────────────────────────────── */
   function renderDashboard(el) {
-    var phases = JSON.parse(localStorage.getItem('vs-admin-phases') || '{}');
+    // Phase progress stored in both keys for compatibility
+    var phases = JSON.parse(localStorage.getItem('vs-build-status') || localStorage.getItem('vs-admin-phases') || '{}');
     var statuses = ['not-started', 'in-progress', 'complete', 'tested'];
     var badgeClass = { 'not-started': 'badge-danger', 'in-progress': 'badge-warning', 'complete': 'badge-info', 'tested': 'badge-success' };
     var phaseList = [
@@ -174,35 +175,40 @@
 
     var html = '<h2>Dashboard</h2>';
     html += '<button class="btn btn-primary" id="btn-dir-access" style="margin-bottom:16px">Grant Directory Access</button>';
-    html += '<h3>Phase Progress</h3><div class="phase-grid">';
+    html += '<h3>Phase Progress Board</h3><div class="phase-grid">';
 
     phaseList.forEach(function (p) {
       var status = phases[p.id] || 'not-started';
       html += '<div class="card phase-card" data-phase="' + p.id + '">' +
         '<h4>' + p.name + '</h4>' +
-        '<span class="badge ' + (badgeClass[status] || '') + '">' + status + '</span>' +
+        '<span class="badge ' + (badgeClass[status] || '') + '">' + status.replace('-', ' ') + '</span>' +
+        '<div style="font-size:10px;color:var(--admin-text-dim);margin-top:6px">Click to cycle status</div>' +
         '</div>';
     });
     html += '</div>';
 
-    // Scan
-    html += '<h3>Content Readiness</h3>';
-    html += '<button class="btn" id="btn-scan">Scan for [to be placed]</button>';
+    // Content Readiness Scanner
+    html += '<h3>Content Readiness Scanner</h3>';
+    html += '<button class="btn" id="btn-scan"><span style="margin-right:4px">&#128269;</span> Scan for [to be placed]</button>';
     html += '<div id="scan-results" style="margin-top:12px"></div>';
 
     // Deploy gate
     var placeholders = scanPlaceholders();
     var totalP = placeholders.reduce(function (s, r) { return s + r.count; }, 0);
     var allComplete = phaseList.every(function (p) { return (phases[p.id] || '') === 'tested' || (phases[p.id] || '') === 'complete'; });
+    var isReady = totalP === 0 && allComplete;
 
-    html += '<div class="deploy-gate ' + (totalP === 0 && allComplete ? 'ready' : 'not-ready') + '">';
-    if (totalP === 0 && allComplete) {
-      html += '<span class="badge badge-success">READY TO DEPLOY</span>';
+    html += '<div class="deploy-gate ' + (isReady ? 'ready' : 'not-ready') + '">';
+    if (isReady) {
+      html += '<span class="badge badge-success" style="font-size:14px;padding:4px 12px">READY TO DEPLOY</span>';
+      html += '<div class="deploy-commands" id="deploy-cmd">git checkout main &amp;&amp; git merge staging &amp;&amp; git push origin main</div>';
+      html += '<button class="btn btn-sm" id="btn-copy-deploy" style="margin-top:8px">Copy deploy command</button>';
     } else {
-      html += '<span class="badge badge-danger">NOT READY</span>';
-      if (totalP > 0) html += ' <span style="font-size:13px;color:var(--admin-text-dim)">' + totalP + ' placeholders remaining</span>';
+      html += '<span class="badge badge-danger" style="font-size:14px;padding:4px 12px">NOT READY</span>';
+      if (totalP > 0) html += ' <span style="font-size:13px;color:var(--admin-text-dim)">' + totalP + ' placeholder' + (totalP > 1 ? 's' : '') + ' remaining</span>';
+      if (!allComplete) html += ' <span style="font-size:13px;color:var(--admin-text-dim)">&middot; phases incomplete</span>';
+      html += '<div class="deploy-commands deploy-disabled" style="opacity:0.4;pointer-events:none">git checkout main &amp;&amp; git merge staging &amp;&amp; git push origin main</div>';
     }
-    html += '<div class="deploy-commands">git checkout main\ngit merge redesign/2026-04-01\ngit push origin main</div>';
     html += '</div>';
 
     // Notes
@@ -213,17 +219,50 @@
 
     // Events
     document.getElementById('btn-dir-access').onclick = requestDirAccess;
+
+    // Copy deploy command
+    var copyBtn = document.getElementById('btn-copy-deploy');
+    if (copyBtn) {
+      copyBtn.onclick = function () {
+        var cmd = 'git checkout main && git merge staging && git push origin main';
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(cmd).then(function () { showToast('Deploy command copied!'); });
+        } else {
+          // Fallback
+          var ta = document.createElement('textarea');
+          ta.value = cmd;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          ta.remove();
+          showToast('Deploy command copied!');
+        }
+      };
+    }
+
+    // Scan button
     document.getElementById('btn-scan').onclick = function () {
       var res = scanPlaceholders();
       var div = document.getElementById('scan-results');
       if (res.length === 0) {
-        div.innerHTML = '<span class="badge badge-success">All content filled!</span>';
+        div.innerHTML = '<span class="badge badge-success">All content filled! 0 placeholders found.</span>';
       } else {
-        div.innerHTML = res.map(function (r) {
-          return '<div class="scan-result"><span class="scan-result-file">' + r.file + '</span> — ' + r.count + ' placeholder' + (r.count > 1 ? 's' : '') + '</div>';
+        var total = res.reduce(function (s, r) { return s + r.count; }, 0);
+        div.innerHTML = '<div style="margin-bottom:8px;font-size:13px"><strong>' + total + '</strong> total placeholder' + (total > 1 ? 's' : '') + ' found across ' + res.length + ' file' + (res.length > 1 ? 's' : '') + ':</div>';
+        div.innerHTML += res.map(function (r) {
+          return '<div class="scan-result"><a href="#" class="scan-result-file" data-jump-tab="' + r.file + '">' + r.file + '</a> — ' + r.count + ' placeholder' + (r.count > 1 ? 's' : '') + '</div>';
         }).join('');
+
+        // Make file names clickable to jump to that tab
+        div.querySelectorAll('[data-jump-tab]').forEach(function (link) {
+          link.onclick = function (e) {
+            e.preventDefault();
+            switchTab(link.getAttribute('data-jump-tab'));
+          };
+        });
       }
     };
+
     document.getElementById('admin-notes').oninput = function (e) {
       localStorage.setItem('vs-admin-notes', e.target.value);
     };
@@ -234,6 +273,7 @@
         var cur = phases[pid] || 'not-started';
         var next = statuses[(statuses.indexOf(cur) + 1) % statuses.length];
         phases[pid] = next;
+        localStorage.setItem('vs-build-status', JSON.stringify(phases));
         localStorage.setItem('vs-admin-phases', JSON.stringify(phases));
         renderDashboard(el);
       };
