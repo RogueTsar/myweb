@@ -2843,3 +2843,449 @@ footer p {
     z-index: -1;
     pointer-events: none;
 }
+
+/* =========================================
+   MEDIA LOG
+   ========================================= */
+
+.media-log-section {
+    margin-top: 3rem;
+}
+
+.media-log-toggle {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.media-log-btn {
+    padding: 6px 16px;
+    font-size: 0.78rem;
+    border-radius: 8px;
+}
+
+.media-log-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+
+.media-log-viewport {
+    position: relative;
+    min-height: 420px;
+}
+
+/* ── Circular Wheel ── */
+
+.media-wheel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    height: 420px;
+    overflow: hidden;
+    user-select: none;
+}
+
+.media-wheel__info {
+    text-align: center;
+    padding: 1rem 0 0.5rem;
+    min-height: 100px;
+    z-index: 2;
+}
+
+.media-wheel__title {
+    font-size: 1.05rem;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 0.2rem;
+}
+
+.media-wheel__author {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+}
+
+.media-wheel__date {
+    font-size: 0.72rem;
+    color: var(--text-tertiary);
+    margin-top: 0.15rem;
+}
+
+.media-wheel__note {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin-top: 0.3rem;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.media-wheel__badge {
+    display: inline-block;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+    padding: 2px 8px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.media-wheel__badge--book { color: var(--green); border-color: var(--green); }
+.media-wheel__badge--video { color: var(--accent); border-color: var(--accent); }
+.media-wheel__badge--podcast { color: var(--navy); border-color: var(--navy); }
+.media-wheel__badge--essay { color: var(--gold); border-color: var(--gold); }
+.media-wheel__badge--blog { color: var(--text-secondary); border-color: var(--text-secondary); }
+
+.media-wheel__ring {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.media-wheel__item {
+    position: absolute;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                opacity 0.4s ease;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.media-wheel__dot {
+    display: block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--border);
+    border: 2px solid var(--glass-border);
+    transition: all 0.3s ease;
+}
+
+.media-wheel__item--active .media-wheel__dot {
+    width: 18px;
+    height: 18px;
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 12px var(--glass-shadow);
+}
+
+/* ── Infinite Canvas ── */
+
+.media-canvas {
+    position: relative;
+    height: 420px;
+    overflow: hidden;
+    cursor: grab;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-subtle);
+}
+
+.media-canvas__inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2000px;
+    height: 2000px;
+    transition: none;
+}
+
+.media-canvas__card {
+    position: absolute;
+    display: block;
+    width: 220px;
+    padding: 1rem;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px var(--glass-shadow);
+    text-decoration: none;
+    color: var(--text);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.media-canvas__card:hover {
+    box-shadow: 0 4px 16px var(--glass-shadow);
+}
+
+.media-canvas__badge {
+    display: inline-block;
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+    padding: 1px 6px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+}
+
+.media-canvas__badge--book { color: var(--green); border-color: var(--green); }
+.media-canvas__badge--video { color: var(--accent); border-color: var(--accent); }
+.media-canvas__badge--podcast { color: var(--navy); border-color: var(--navy); }
+.media-canvas__badge--essay { color: var(--gold); border-color: var(--gold); }
+.media-canvas__badge--blog { color: var(--text-secondary); border-color: var(--text-secondary); }
+
+.media-canvas__title {
+    font-size: 0.88rem;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 0.15rem;
+}
+
+.media-canvas__author {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.media-canvas__date {
+    font-size: 0.68rem;
+    color: var(--text-tertiary);
+    margin-top: 0.1rem;
+}
+
+/* =========================================
+   HOVER MASK — WORK CARDS
+   ========================================= */
+
+.hover-mask {
+    position: relative;
+    overflow: hidden;
+}
+
+.hover-mask::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    background: radial-gradient(
+        300px circle at var(--mask-x, 50%) var(--mask-y, 50%),
+        var(--accent-hover) 0%,
+        transparent 70%
+    );
+    pointer-events: none;
+    z-index: 1;
+}
+
+.hover-mask:hover::before {
+    opacity: 1;
+}
+
+/* =========================================
+   FLUID TESTIMONIALS CAROUSEL
+   ========================================= */
+
+.testimonials-carousel {
+    position: relative;
+}
+
+.testimonials-carousel__track {
+    display: flex;
+    gap: 1.25rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
+
+.testimonials-carousel__track::-webkit-scrollbar {
+    height: 4px;
+}
+
+.testimonials-carousel__track::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.testimonials-carousel__track::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 2px;
+}
+
+.testimonial-card--fluid {
+    flex: 0 0 300px;
+    scroll-snap-align: center;
+    padding: 1.5rem;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px var(--glass-shadow);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    position: relative;
+}
+
+.testimonial-card--fluid:hover {
+    box-shadow: 0 4px 20px var(--glass-shadow);
+    transform: translateY(-2px);
+}
+
+.testimonial-card--fluid .testimonial-card__quote-mark {
+    font-size: 2.5rem;
+    line-height: 1;
+    color: var(--accent);
+    opacity: 0.3;
+    font-family: Georgia, serif;
+    position: absolute;
+    top: 0.75rem;
+    left: 1rem;
+}
+
+.testimonial-card--fluid .testimonial-card__quote {
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: var(--text);
+    font-style: italic;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+}
+
+.testimonial-card--fluid .testimonial-card__footer {
+    border-top: 1px solid var(--border);
+    padding-top: 0.75rem;
+}
+
+.testimonial-card--fluid .testimonial-card__author {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.testimonial-card--fluid .testimonial-card__role {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    margin-top: 0.1rem;
+}
+
+.testimonials-carousel__dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+}
+
+.testimonials-carousel__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.2s ease;
+}
+
+.testimonials-carousel__dot.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    transform: scale(1.3);
+}
+
+/* =========================================
+   3D SPLIT SECTION DIVIDER
+   ========================================= */
+
+.split-divider {
+    position: relative;
+    height: 60px;
+    margin: 2.5rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.split-divider__line {
+    position: relative;
+    width: 100%;
+    height: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.split-divider__panel {
+    position: absolute;
+    width: 50%;
+    height: 1px;
+    background: var(--border);
+    transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                box-shadow 0.8s ease;
+    transform-origin: center center;
+}
+
+.split-divider__panel--left {
+    left: 0;
+    transform-origin: right center;
+}
+
+.split-divider__panel--right {
+    right: 0;
+    transform-origin: left center;
+}
+
+.split-divider--visible .split-divider__panel {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    box-shadow: 0 0 12px var(--glass-shadow);
+}
+
+.split-divider--visible .split-divider__panel--left {
+    transform: perspective(800px) rotateY(8deg) translateX(-8%);
+}
+
+.split-divider--visible .split-divider__panel--right {
+    transform: perspective(800px) rotateY(-8deg) translateX(8%);
+}
+
+/* Subtle center accent dot */
+.split-divider__line::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0;
+    transition: opacity 0.6s ease 0.3s;
+    z-index: 1;
+}
+
+.split-divider--visible .split-divider__line::after {
+    opacity: 0.6;
+}
+
+/* ── Media Log / Testimonials responsive ── */
+
+@media (max-width: 600px) {
+    .media-wheel {
+        height: 360px;
+    }
+
+    .media-wheel__ring {
+        height: 220px;
+    }
+
+    .media-canvas {
+        height: 320px;
+    }
+
+    .testimonial-card--fluid {
+        flex: 0 0 260px;
+    }
+
+    .media-canvas__card {
+        width: 180px;
+    }
+}

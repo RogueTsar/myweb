@@ -743,6 +743,10 @@
     html += '</div>';
     el.innerHTML = html;
 
+    // Render the visual graph preview
+    var previewEl = document.getElementById('research-preview');
+    if (previewEl) renderResearchPreview(previewEl, data);
+
     document.getElementById('btn-add-node').onclick = function () {
       var id = prompt('Node ID (slug):');
       if (!id) return;
