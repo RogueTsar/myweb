@@ -56,6 +56,9 @@
     function renderPosts() {
         var query = (searchInput ? searchInput.value : '').toLowerCase().trim();
         var filtered = posts.filter(function (p) {
+            // Hide hidden posts
+            if (p.status === 'hidden') return false;
+
             // Section filter — only show posts matching the page's section
             var pageSection = container.getAttribute('data-section') || 'blog';
             if (p.section && p.section !== pageSection) return false;

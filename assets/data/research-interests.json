@@ -1,13 +1,13 @@
 {
   "nodes": [
-    { "id": "mech-interp", "label": "Mechanistic Interpretability", "description": "[to be placed]", "link": "", "linkType": "internal" },
-    { "id": "ai-control", "label": "AI Control", "description": "[to be placed]", "link": "", "linkType": "internal" },
-    { "id": "deception", "label": "Deception Detection", "description": "[to be placed]", "link": "", "linkType": "internal" },
-    { "id": "moral-status", "label": "AI Moral Status", "description": "[to be placed]", "link": "", "linkType": "internal" },
-    { "id": "co-alignment", "label": "Co-Alignment", "description": "[to be placed]", "link": "", "linkType": "internal" },
-    { "id": "tech-gov", "label": "Technical AI Governance", "description": "[to be placed]", "link": "", "linkType": "internal" },
-    { "id": "mens-rea", "label": "Mens Rea Adjudication", "description": "[to be placed]", "link": "", "linkType": "internal" },
-    { "id": "evals", "label": "AI Evaluations", "description": "[to be placed]", "link": "", "linkType": "internal" }
+    { "id": "mech-interp", "label": "Mechanistic Interpretability", "description": "Reverse-engineering neural networks to understand how internal circuits and features produce model behaviour, enabling targeted safety interventions.", "link": "", "linkType": "internal" },
+    { "id": "ai-control", "label": "AI Control", "description": "Designing oversight protocols and containment strategies that keep AI systems operating within intended bounds, even under distributional shift.", "link": "", "linkType": "internal" },
+    { "id": "deception", "label": "Deception Detection", "description": "Identifying when AI systems produce outputs that are strategically misleading, and building robust methods to surface hidden model intentions.", "link": "", "linkType": "internal" },
+    { "id": "moral-status", "label": "AI Moral Status", "description": "Investigating whether and when AI systems might warrant moral consideration, and what legal and ethical frameworks should apply — the subject of my AAAI 2026 paper.", "link": "", "linkType": "internal" },
+    { "id": "co-alignment", "label": "Co-Alignment", "description": "Moving beyond one-way alignment to study how humans and AI systems can iteratively converge on shared values through mutual adaptation.", "link": "", "linkType": "internal" },
+    { "id": "tech-gov", "label": "Technical AI Governance", "description": "Bridging the gap between technical AI safety research and policy implementation — translating capability assessments into enforceable regulatory standards.", "link": "", "linkType": "internal" },
+    { "id": "mens-rea", "label": "Mens Rea Adjudication", "description": "Examining how criminal law concepts of intent and culpability apply when an AI system causes harm — who bears responsibility, and how mechanistic evidence informs that judgment.", "link": "", "linkType": "internal" },
+    { "id": "evals", "label": "AI Evaluations", "description": "Developing rigorous benchmarks and red-teaming methodologies that measure dangerous capabilities and alignment properties before and after deployment.", "link": "", "linkType": "internal" }
   ],
   "edges": [
     { "source": "mech-interp", "target": "deception" },
