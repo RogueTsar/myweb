@@ -2,37 +2,37 @@
   "light": {
     "triboulet": {
       "quote": "I bear a terrible responsibility before God and am ready to give him every minute an account, but as long as I live, I will act with conviction, as my conscience commands me.",
-      "author": "Pyotr Stolypin"
+      "author": "Pyotr Stolypin, Address to the Third Duma, 1907. Spoken as Prime Minister of Russia defending his agrarian reforms against hostile opposition."
     },
     "canio": {
       "quote": "However many holy words you read, however many you speak, what good will they do you if you do not act on upon them?",
-      "author": "Buddha"
+      "author": "Gautama Buddha, Dhammapada, c. 3rd century BCE. A teaching on the gap between knowledge and practice."
     },
     "perkeo": {
       "quote": "Be empty of worrying. Think of who created thought! Why do you stay in prison when the door is so wide open?",
-      "author": "Rumi"
+      "author": "Rumi, The Essential Rumi, 13th century. A Sufi meditation on self-imposed limitations."
     },
     "chicot": {
       "quote": "Let gratitude be the pillow upon which you kneel to say your nightly prayer.",
-      "author": "Maya Angelou"
+      "author": "Maya Angelou, Celebrations: Rituals of Peace and Prayer, 2006. On the discipline of thankfulness."
     }
   },
   "dark": {
     "triboulet": {
       "quote": "But I don't want comfort. I want God, I want poetry, I want real danger, I want freedom, I want goodness. I want sin.",
-      "author": "Aldous Huxley, Brave New World"
+      "author": "Aldous Huxley, Brave New World, 1932. John the Savage rejecting a painless but meaningless society."
     },
     "canio": {
       "quote": "O light! This is the cry of all the characters of ancient drama brought face to face with their fate. This last resort was ours, too, and I knew it now. In the middle of winter I at last discovered that there was in me an invincible summer.",
-      "author": "Albert Camus"
+      "author": "Albert Camus, Return to Tipasa, 1954. Revisiting Algeria and finding resilience despite exile and despair."
     },
     "perkeo": {
       "quote": "Man is always prey to his truths. Once he has admitted them, he cannot free himself from them.",
-      "author": "Albert Camus, The Myth of Sisyphus"
+      "author": "Albert Camus, The Myth of Sisyphus, 1942. On the inescapable weight of confronting the absurd."
     },
     "chicot": {
       "quote": "You think your pain and your heartbreak are unprecedented in the history of the world, but then you read.",
-      "author": "James Baldwin, 1963"
+      "author": "James Baldwin, interview with Life Magazine, 1963. On literature as solace and perspective."
     }
   }
 }

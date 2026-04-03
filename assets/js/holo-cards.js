@@ -37,7 +37,7 @@
             var quoteEl = card.querySelector('.holo-card__quote');
             var authorEl = card.querySelector('.holo-card__author');
             if (quoteEl) quoteEl.textContent = entry.quote;
-            if (authorEl) authorEl.textContent = '— ' + entry.author;
+            if (authorEl) authorEl.textContent = entry.author;
         });
     }
 
