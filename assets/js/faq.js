@@ -11,7 +11,10 @@
         });
 
     function render(items) {
-        if (!items || items.length === 0) return;
+        if (!items || items.length === 0) {
+            container.innerHTML = '<p style="color:var(--text-secondary);font-style:italic;padding:1rem 0">Coming soon.</p>';
+            return;
+        }
 
         var html = '';
         items.forEach(function (f, i) {

@@ -77,7 +77,10 @@
         });
 
         if (filtered.length === 0) {
-            container.innerHTML = '<p style="color:var(--text-secondary);padding:2rem 0">No posts found.</p>';
+            container.innerHTML = '<p style="color:var(--text-secondary);font-style:italic;padding:2rem 0">Coming soon.</p>';
+            // Hide search/filters when no posts
+            var controls = document.querySelector('.blog-controls');
+            if (controls) controls.style.display = 'none';
             return;
         }
 
