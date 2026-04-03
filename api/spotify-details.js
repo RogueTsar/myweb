@@ -71,9 +71,14 @@ export default async function handler(req, res) {
             return res.status(200).json({ vibe: null, message: 'No tracks found' });
         }
 
-        // Batch fetch audio features
-        const features = await fetchSpotify(token, `/audio-features?ids=${trackIds.join(',')}`);
-        const validFeatures = (features?.audio_features || []).filter(Boolean);
+        // Batch fetch audio features (may fail if app lacks extended access)
+        let validFeatures = [];
+        try {
+            const features = await fetchSpotify(token, `/audio-features?ids=${trackIds.join(',')}`);
+            validFeatures = (features?.audio_features || []).filter(Boolean);
+        } catch (_) {
+            // audio-features endpoint deprecated for some apps
+        }
 
         if (validFeatures.length === 0) {
             return res.status(200).json({ vibe: null, message: 'No audio features available' });
