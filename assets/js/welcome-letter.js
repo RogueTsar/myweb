@@ -50,6 +50,7 @@
     overlay.innerHTML =
         '<div class="letter-card">' +
             coffeeSVG +
+            '<p class="letter-epigraph">\u201CSearch others for their virtues, thyself for thy vices.\u201D</p>' +
             '<p class="letter-greeting">Hello,</p>' +
             '<p class="letter-body">Thank you for taking the time to get to know me. ' +
             'My goal is to help accelerate work that makes the world safer, happier, ' +

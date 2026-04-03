@@ -1,11 +1,20 @@
 [
   {
-    "title": "[to be placed]",
-    "type": "Book",
-    "author": "[to be placed]",
-    "date": "2026-01-01",
+    "title": "The Situation In The South",
+    "type": "Video",
+    "author": "Chinese Political Cartoons",
+    "date": "2026-03-15",
     "url": "#",
-    "note": "[to be placed]",
+    "note": "A political cartoon from China examining geopolitical dynamics and the shifting power balance in the Global South. Sharp visual commentary on how different nations navigate between great powers.",
+    "cover": ""
+  },
+  {
+    "title": "On Celebration and Existence",
+    "type": "Essay",
+    "author": "Osho",
+    "date": "2026-03-10",
+    "url": "#",
+    "note": "I don't think existence wants you to be serious. I have not seen a serious tree. I have not seen a serious bird. I have not seen a serious sunrise. I have not seen a serious starry night. It seems they are all laughing in their own ways, dancing in their own ways. We may not understand it, but there is a subtle feeling that the whole existence is a celebration.",
     "cover": ""
   }
 ]

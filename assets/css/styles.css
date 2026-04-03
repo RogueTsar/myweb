@@ -2298,6 +2298,16 @@ nav a:not(.active):hover::after {
     margin-bottom: 1rem;
 }
 
+.letter-epigraph {
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+}
+
 .letter-greeting {
     font-family: 'Caveat', cursive;
     font-size: 1.4rem;
