@@ -400,16 +400,26 @@ a:hover {
 .card-showcase {
     display: flex;
     justify-content: center;
-    gap: 1rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
     margin: 0 0 2rem 0;
     perspective: 800px;
 }
 
 .holo-card {
-    width: 120px;
+    width: 150px;
     cursor: pointer;
     transition: transform 0.35s ease;
     -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 680px) {
+    .holo-card {
+        width: 130px;
+    }
+    .card-showcase {
+        gap: 0.5rem;
+    }
 }
 
 .holo-card:hover {
@@ -495,19 +505,27 @@ a:hover {
 }
 
 .holo-card__quote {
-    font-size: 0.5rem;
+    font-size: 0.42rem;
     font-weight: 300;
-    line-height: 1.5;
+    line-height: 1.45;
     color: #d4d0e0;
     font-style: italic;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
+    overflow-y: auto;
+    max-height: 85%;
+    scrollbar-width: none;
+}
+
+.holo-card__quote::-webkit-scrollbar {
+    display: none;
 }
 
 .holo-card__author {
-    font-size: 0.48rem;
+    font-size: 0.38rem;
     font-weight: 400;
     letter-spacing: 0.04em;
     color: #C9A96E;
+    margin-top: auto;
 }
 
 .holo-card__inner img {

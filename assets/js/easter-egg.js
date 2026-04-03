@@ -30,15 +30,15 @@
                 }, 800);
             }
 
-            // Check if all 3 found
-            if (found.length >= 3) {
+            // Check if all 4 found
+            if (found.length >= 4) {
                 showRetroButton();
             }
         });
     });
 
     // Check on load too
-    if (getFound().length >= 3) {
+    if (getFound().length >= 4) {
         showRetroButton();
     }
 

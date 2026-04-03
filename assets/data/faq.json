@@ -1,5 +1,14 @@
 [
-  { "question": "[to be placed]", "answer": "[to be placed]" },
-  { "question": "[to be placed]", "answer": "[to be placed]" },
-  { "question": "[to be placed]", "answer": "[to be placed]" }
+  {
+    "question": "Why do you study Law, Computer Science, and Political Science at the same time?",
+    "answer": "I thrive on dynamism. The world doesn't divide itself neatly into disciplines — AI governance sits at the intersection of technical capability, legal frameworks, and political will. Studying all three lets me see the interlinks that others miss: how a line of code becomes a policy question, how a court ruling shapes what engineers can build, how political incentives determine which safety measures actually get adopted. I find the connections between everything in the world far more interesting than any one domain on its own."
+  },
+  {
+    "question": "What causes do you care most about?",
+    "answer": "Three things keep me up at night: children's safety — especially as AI systems increasingly interact with minors without adequate protections; poverty and economic inequality — because the benefits of transformative AI should not accrue only to those who already have the most; and democracy and good governance — because the institutions that safeguard human agency need to be resilient enough to weather the changes AI will bring."
+  },
+  {
+    "question": "What drives your work in AI safety?",
+    "answer": "I believe we are building systems whose consequences will outlast us. The question is not whether AI will be powerful — it already is — but whether the people building and deploying it are asking the right questions about who it serves and who it harms. I want to be one of the people making sure those questions get asked, rigorously and honestly, before the answers become irreversible."
+  }
 ]
