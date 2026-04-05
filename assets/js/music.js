@@ -5,7 +5,14 @@ var vibeCache = {};
 document.addEventListener('DOMContentLoaded', function () {
     fetch('/api/spotify')
         .then(function (res) {
-            if (!res.ok) throw new Error('API returned ' + res.status);
+            if (!res.ok) {
+                return res.json().then(function (body) {
+                    throw new Error(body.error || ('API returned ' + res.status));
+                }).catch(function (e) {
+                    if (e.message && e.message !== '[object Object]') throw e;
+                    throw new Error('API returned ' + res.status);
+                });
+            }
             return res.json();
         })
         .then(function (data) {
@@ -23,8 +30,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (link) link.href = data.spotify_url;
             }
         })
-        .catch(function () {
-            showError('last-played');
+        .catch(function (err) {
+            var msg = err && err.message ? err.message : 'Could not load data.';
+            var lp = document.getElementById('last-played');
+            if (lp) lp.innerHTML = '<p class="music-error">' + escapeHtml(msg) + '</p>';
             showError('recent-history');
             showError('top-artists');
             showError('top-tracks');
