@@ -4,17 +4,16 @@
  *
  * Prerequisites:
  *   1. Go to https://developer.spotify.com/dashboard
- *   2. Create an app (or use existing)
- *   3. In app settings → Redirect URIs → add: http://localhost:8888/callback
- *   4. Copy your Client ID and Client Secret
- *   5. Run this script and paste them in when prompted
+ *   2. In app settings → Redirect URIs → confirm: http://127.0.0.1:3000/callback
+ *   3. Copy your Client ID and Client Secret
+ *   4. Run this script and paste them in when prompted
  */
 
 import http from 'http';
 import { exec } from 'child_process';
 import readline from 'readline';
 
-const REDIRECT_URI = 'http://localhost:8888/callback';
+const REDIRECT_URI = 'http://127.0.0.1:3000/callback';
 const SCOPES = [
     'user-read-currently-playing',
     'user-read-recently-played',
@@ -58,8 +57,8 @@ async function exchangeCode(clientId, clientSecret, code) {
 
 async function main() {
     console.log('\n── Spotify Setup ──────────────────────────────────\n');
-    console.log('Make sure you have added this Redirect URI in your');
-    console.log('Spotify app settings:  http://localhost:8888/callback\n');
+    console.log('Make sure your Spotify app has this Redirect URI:');
+    console.log('  http://127.0.0.1:3000/callback\n');
 
     const clientId = await prompt('Paste your SPOTIFY_CLIENT_ID: ');
     const clientSecret = await prompt('Paste your SPOTIFY_CLIENT_SECRET: ');
@@ -95,7 +94,7 @@ async function main() {
             server.close();
             resolve(code);
         });
-        server.listen(8888, () => console.log('Waiting for Spotify callback on port 8888...'));
+        server.listen(3000, '127.0.0.1', () => console.log('Waiting for Spotify callback on http://127.0.0.1:3000/callback ...'));
     });
 
     console.log('\nExchanging code for tokens...');
