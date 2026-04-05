@@ -53,7 +53,7 @@ export default async function handler(req, res) {
     try {
         const token = await getAccessToken();
 
-        const [currentlyPlaying, topArtists, topTracks, topArtistsLongTerm, recentlyPlayed, playlistsRaw, profile] = await Promise.all([
+        const settled = await Promise.allSettled([
             fetchSpotify(token, '/me/player/currently-playing'),
             fetchSpotify(token, '/me/top/artists?time_range=short_term&limit=10'),
             fetchSpotify(token, '/me/top/tracks?time_range=short_term&limit=10'),
@@ -62,6 +62,9 @@ export default async function handler(req, res) {
             fetchSpotify(token, '/me/playlists?limit=50'),
             fetchSpotify(token, '/me'),
         ]);
+
+        const [currentlyPlaying, topArtists, topTracks, topArtistsLongTerm, recentlyPlayed, playlistsRaw, profile] =
+            settled.map(r => (r.status === 'fulfilled' ? r.value : null));
 
         // Try to fetch audio features (may fail with 403 if app lacks extended access)
         const trackIds = (topTracks?.items || []).map(t => t.id).filter(Boolean);
@@ -86,18 +89,15 @@ export default async function handler(req, res) {
                 album_art: track.album.images[1]?.url || track.album.images[0]?.url,
                 is_playing: currentlyPlaying.is_playing,
             };
-        } else {
-            const recent = await fetchSpotify(token, '/me/player/recently-played?limit=1');
-            if (recent && recent.items && recent.items.length > 0) {
-                const track = recent.items[0].track;
-                last_played = {
-                    track: track.name,
-                    artist: track.artists.map(a => a.name).join(', '),
-                    album: track.album.name,
-                    album_art: track.album.images[1]?.url || track.album.images[0]?.url,
-                    is_playing: false,
-                };
-            }
+        } else if (recentlyPlayed?.items?.length > 0) {
+            const track = recentlyPlayed.items[0].track;
+            last_played = {
+                track: track.name,
+                artist: track.artists.map(a => a.name).join(', '),
+                album: track.album.name,
+                album_art: track.album.images[1]?.url || track.album.images[0]?.url,
+                is_playing: false,
+            };
         }
 
         // Top artists with popularity
