@@ -2,25 +2,70 @@
   {
     "id": "deep-focus",
     "name": "Deep Focus",
-    "description": "[to be placed]",
+    "description": "For late-night research sessions and long writing blocks. Minimal lyrics, maximal atmosphere.",
     "tracks": [
-      { "name": "[to be placed]", "artist": "[to be placed]", "genre": "[to be placed]" }
+      { "name": "Nuvole Bianche", "artist": "Ludovico Einaudi", "genre": "neo-classical" },
+      { "name": "Intro", "artist": "The xx", "genre": "ambient-indie" },
+      { "name": "Experience", "artist": "Ludovico Einaudi", "genre": "neo-classical" },
+      { "name": "Avril 14th", "artist": "Aphex Twin", "genre": "ambient-electronic" },
+      { "name": "Gymnop\u00e9die No. 1", "artist": "Erik Satie", "genre": "classical" },
+      { "name": "An Ending (Ascent)", "artist": "Brian Eno", "genre": "ambient" },
+      { "name": "Dawn", "artist": "Nils Frahm", "genre": "neo-classical" }
     ]
   },
   {
     "id": "melancholy",
     "name": "Melancholy",
-    "description": "[to be placed]",
+    "description": "The invincible summer Camus found in the middle of winter. Beautiful sadness you choose to sit with.",
     "tracks": [
-      { "name": "[to be placed]", "artist": "[to be placed]", "genre": "[to be placed]" }
+      { "name": "Motion Picture Soundtrack", "artist": "Radiohead", "genre": "art-rock" },
+      { "name": "Skinny Love", "artist": "Bon Iver", "genre": "indie-folk" },
+      { "name": "La Vie en Rose", "artist": "\u00c9dith Piaf", "genre": "chanson" },
+      { "name": "No Surprises", "artist": "Radiohead", "genre": "alt-rock" },
+      { "name": "Mystery of Love", "artist": "Sufjan Stevens", "genre": "indie-folk" },
+      { "name": "Saturn", "artist": "Sleeping At Last", "genre": "indie-ambient" },
+      { "name": "Liability", "artist": "Lorde", "genre": "art-pop" }
     ]
   },
   {
     "id": "high-energy",
     "name": "High Energy",
-    "description": "[to be placed]",
+    "description": "For when existence is a celebration and you're dancing in your own way. Unserious, unapologetic.",
     "tracks": [
-      { "name": "[to be placed]", "artist": "[to be placed]", "genre": "[to be placed]" }
+      { "name": "Midnight City", "artist": "M83", "genre": "synth-pop" },
+      { "name": "Do I Wanna Know?", "artist": "Arctic Monkeys", "genre": "indie-rock" },
+      { "name": "Dangerous", "artist": "Big Data ft. Joywave", "genre": "alt-electronic" },
+      { "name": "Take Me Out", "artist": "Franz Ferdinand", "genre": "post-punk revival" },
+      { "name": "Electric Feel", "artist": "MGMT", "genre": "psychedelic-pop" },
+      { "name": "Galvanize", "artist": "The Chemical Brothers", "genre": "big-beat" },
+      { "name": "Around the World", "artist": "Daft Punk", "genre": "french-house" }
+    ]
+  },
+  {
+    "id": "contemplative",
+    "name": "Contemplative",
+    "description": "Search others for their virtues, thyself for thy vices. For walks, journaling, and thinking about what matters.",
+    "tracks": [
+      { "name": "Holocene", "artist": "Bon Iver", "genre": "indie-folk" },
+      { "name": "Re: Stacks", "artist": "Bon Iver", "genre": "indie-folk" },
+      { "name": "The Night We Met", "artist": "Lord Huron", "genre": "indie-folk" },
+      { "name": "Agnes", "artist": "Glass Animals", "genre": "psychedelic-pop" },
+      { "name": "To Build a Home", "artist": "The Cinematic Orchestra", "genre": "trip-hop" },
+      { "name": "Clair de Lune", "artist": "Claude Debussy", "genre": "classical" },
+      { "name": "Outro", "artist": "M83", "genre": "ambient-electronic" }
+    ]
+  },
+  {
+    "id": "world-sounds",
+    "name": "World Sounds",
+    "description": "Borders are imaginary, music is not. Sounds from everywhere the mind wanders.",
+    "tracks": [
+      { "name": "Dil Se Re", "artist": "A.R. Rahman", "genre": "indian-film" },
+      { "name": "Katushka", "artist": "Red Army Choir", "genre": "russian-folk" },
+      { "name": "Chan Chan", "artist": "Buena Vista Social Club", "genre": "cuban-son" },
+      { "name": "Comptine d'un autre \u00e9t\u00e9", "artist": "Yann Tiersen", "genre": "french-cinema" },
+      { "name": "Baba Yetu", "artist": "Christopher Tin", "genre": "world-choral" },
+      { "name": "Misirlou", "artist": "Dick Dale", "genre": "surf-rock" }
     ]
   }
 ]

@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function () {
             renderInsights(data.audio_features, data.top_artists, data.top_tracks, data.recent_tracks);
             renderBarChart('top-artists', data.top_artists, 'name');
             renderBarChart('top-tracks', data.top_tracks, 'full');
+            if (window.MusicViews) window.MusicViews.init(data.top_tracks);
             renderVinylShelf(data.top_tracks);
             renderGenres(data.top_genres);
             renderPlaylists(data.playlists);

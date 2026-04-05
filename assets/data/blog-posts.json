@@ -5,9 +5,9 @@
     "date": "2026-03-01",
     "tags": ["ai-safety", "philosophy-of-mind"],
     "readTime": 8,
-    "status": "coming-soon",
+    "status": "hidden",
     "section": "blog",
-    "excerpt": "[to be placed]"
+    "excerpt": ""
   },
   {
     "title": "multi-agent systems and the south korean AI act's timing",
@@ -15,8 +15,8 @@
     "date": "2026-03-01",
     "tags": ["ai-governance", "multi-agent-systems"],
     "readTime": 10,
-    "status": "coming-soon",
+    "status": "hidden",
     "section": "blog",
-    "excerpt": "[to be placed]"
+    "excerpt": ""
   }
 ]
