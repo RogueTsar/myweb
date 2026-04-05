@@ -23,10 +23,12 @@ async function getAccessToken() {
     });
 
     if (!res.ok) {
-        throw new Error(`Token refresh failed: ${res.status}`);
+        const body = await res.json().catch(() => ({}));
+        throw new Error(`Token refresh failed: ${res.status} – ${body.error || 'unknown'}`);
     }
 
     const data = await res.json();
+    if (!data.access_token) throw new Error('No access_token in token response');
     return data.access_token;
 }
 
