@@ -836,7 +836,8 @@ a:hover {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    height: 2rem;
+    min-height: 2rem;
+    padding: 0.25rem 0;
 }
 
 .bar-chart-row__rank {
@@ -849,14 +850,18 @@ a:hover {
 
 .bar-chart-row__label {
     min-width: 140px;
-    max-width: 260px;
+    max-width: 300px;
     font-size: 0.8rem;
     color: var(--text);
     word-wrap: break-word;
     overflow-wrap: break-word;
     white-space: normal;
     flex-shrink: 0;
-    line-height: 1.4;
+    line-height: 1.6;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 3px;
 }
 
 .bar-chart-row__bar-container {
@@ -1862,13 +1867,15 @@ nav a:not(.active):hover::after {
 }
 
 .bar-chart-row__genre-hl {
-    display: inline;
+    display: inline-block;
     background: var(--color-genre-bg);
     color: var(--color-genre-text);
-    padding: 1px 6px;
+    padding: 1px 5px;
     border-radius: 3px;
-    font-size: 0.7rem;
+    font-size: 0.62rem;
     font-weight: 400;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
 }
 
 /* =========================================
