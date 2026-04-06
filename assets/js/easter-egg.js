@@ -1,46 +1,50 @@
-/* ── Easter Egg: Balatro Card Tracking → Retro Mode ── */
+/* ── Easter Egg: Balatro Card Tracking -> Retro Mode ── */
 (function () {
     var STORAGE_KEY = 'vs-cards-found';
 
     function getFound() {
-        try {
-            return JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '[]');
-        } catch (_) { return []; }
+        try { return JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '[]'); }
+        catch (_) { return []; }
     }
 
     function setFound(arr) {
         sessionStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
     }
 
-    // Hook into existing card clicks
-    document.querySelectorAll('.holo-card').forEach(function (card) {
-        card.addEventListener('click', function () {
-            var cardName = card.getAttribute('data-card');
-            if (!cardName) return;
+    function getTotalCards() {
+        return document.querySelectorAll('.holo-card').length;
+    }
 
-            var found = getFound();
-            if (found.indexOf(cardName) === -1) {
-                found.push(cardName);
-                setFound(found);
+    // Use event delegation since cards are built dynamically
+    document.addEventListener('click', function (e) {
+        var card = e.target.closest('.holo-card');
+        if (!card) return;
 
-                // Glow effect
-                card.classList.add('holo-card--found');
-                setTimeout(function () {
-                    card.classList.remove('holo-card--found');
-                }, 800);
-            }
+        var cardName = card.getAttribute('data-card');
+        if (!cardName) return;
 
-            // Check if all 3 found
-            if (found.length >= 3) {
-                showRetroButton();
-            }
-        });
+        var found = getFound();
+        if (found.indexOf(cardName) === -1) {
+            found.push(cardName);
+            setFound(found);
+
+            card.classList.add('holo-card--found');
+            setTimeout(function () { card.classList.remove('holo-card--found'); }, 800);
+        }
+
+        var total = getTotalCards();
+        if (total > 0 && found.length >= total) {
+            showRetroButton();
+        }
     });
 
-    // Check on load too
-    if (getFound().length >= 3) {
-        showRetroButton();
-    }
+    // Check on load too (delayed to wait for dynamic cards)
+    setTimeout(function () {
+        var total = getTotalCards();
+        if (total > 0 && getFound().length >= total) {
+            showRetroButton();
+        }
+    }, 1000);
 
     function showRetroButton() {
         if (document.getElementById('retro-btn')) return;
@@ -56,7 +60,6 @@
     function activateRetro() {
         document.documentElement.setAttribute('data-theme', 'retro');
         localStorage.setItem('vs-retro', 'true');
-        // Add retro CSS if not loaded
         if (!document.getElementById('retro-css')) {
             var link = document.createElement('link');
             link.id = 'retro-css';
@@ -66,7 +69,6 @@
         }
     }
 
-    // Check if retro was active
     if (localStorage.getItem('vs-retro') === 'true') {
         activateRetro();
     }

@@ -697,31 +697,86 @@
      TAB: Card Quotes
      ────────────────────────────────────── */
   function renderCardQuotes(el) {
-    var data = cache['card-quotes'] || {};
-    var cards = ['triboulet', 'canio', 'perkeo'];
-    var html = '<h2>Balatro Card Quotes</h2>';
+    var data = cache['card-quotes'] || { cards: [] };
+    if (!data.cards) data.cards = [];
 
-    cards.forEach(function (c) {
-      var q = data[c] || { quote: '[to be placed]', author: '[to be placed]' };
-      html += '<div class="card">' +
-        '<h4 style="text-transform:capitalize;margin-bottom:8px">' + c + '</h4>' +
-        '<label>Quote</label><textarea id="cq-' + c + '-q">' + esc(q.quote) + '</textarea>' +
-        '<label>Author</label><input id="cq-' + c + '-a" value="' + esc(q.author) + '">' +
+    var html = '<h2>Balatro Cards</h2>';
+    html += '<p style="color:var(--admin-text-dim);font-size:13px;margin-bottom:16px">Each card has separate quotes for light and dark mode. Add as many cards as you want.</p>';
+    html += '<button class="btn btn-primary btn-sm" id="btn-add-card">+ Add Card</button>';
+    html += '<div class="item-list" style="margin-top:16px">';
+
+    data.cards.forEach(function (c, i) {
+      html += '<div class="card" style="margin-bottom:16px">' +
+        '<div class="card-row" style="margin-bottom:12px">' +
+          '<h4 style="text-transform:capitalize;margin:0">' + esc(c.id) + '</h4>' +
+          '<button class="btn btn-sm btn-danger" data-action="del-card" data-idx="' + i + '">Delete Card</button>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
+          '<div>' +
+            '<label style="color:var(--admin-accent)">Light Mode Image Path</label>' +
+            '<input id="cq-' + i + '-limg" value="' + esc(c.lightImage || '') + '" placeholder="/assets/images/card.png">' +
+          '</div>' +
+          '<div>' +
+            '<label style="color:var(--admin-accent)">Dark Mode Image Path</label>' +
+            '<input id="cq-' + i + '-dimg" value="' + esc(c.darkImage || '') + '" placeholder="/assets/images/card-dark.png">' +
+          '</div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">' +
+          '<div style="border:1px solid var(--admin-border);border-radius:8px;padding:12px">' +
+            '<h5 style="margin:0 0 8px;color:var(--admin-text-dim)">Light Mode Quote</h5>' +
+            '<label>Quote</label><textarea id="cq-' + i + '-lq" rows="3">' + esc(c.light ? c.light.quote : '') + '</textarea>' +
+            '<label>Author, Work, Year. Context.</label><textarea id="cq-' + i + '-la" rows="2">' + esc(c.light ? c.light.author : '') + '</textarea>' +
+          '</div>' +
+          '<div style="border:1px solid var(--admin-border);border-radius:8px;padding:12px">' +
+            '<h5 style="margin:0 0 8px;color:var(--admin-text-dim)">Dark Mode Quote</h5>' +
+            '<label>Quote</label><textarea id="cq-' + i + '-dq" rows="3">' + esc(c.dark ? c.dark.quote : '') + '</textarea>' +
+            '<label>Author, Work, Year. Context.</label><textarea id="cq-' + i + '-da" rows="2">' + esc(c.dark ? c.dark.author : '') + '</textarea>' +
+          '</div>' +
+        '</div>' +
         '</div>';
     });
 
-    html += '<button class="btn btn-primary" id="btn-save-quotes">Save All Quotes</button>';
+    html += '</div>';
+    html += '<button class="btn btn-primary" id="btn-save-quotes" style="margin-top:12px">Save All Cards</button>';
     el.innerHTML = html;
 
+    document.getElementById('btn-add-card').onclick = function () {
+      var id = prompt('Card ID (slug, e.g. "emperor"):');
+      if (!id) return;
+      data.cards.push({
+        id: id,
+        lightImage: '/assets/images/' + id + '.png',
+        darkImage: '/assets/images/' + id + '-dark.png',
+        light: { quote: '', author: '' },
+        dark: { quote: '', author: '' }
+      });
+      saveFile('card-quotes', data).then(function () { renderCardQuotes(el); });
+    };
+
+    el.querySelectorAll('[data-action="del-card"]').forEach(function (btn) {
+      btn.onclick = function () {
+        var idx = parseInt(btn.getAttribute('data-idx'));
+        if (confirm('Delete card "' + data.cards[idx].id + '"?')) {
+          data.cards.splice(idx, 1);
+          saveFile('card-quotes', data).then(function () { renderCardQuotes(el); });
+        }
+      };
+    });
+
     document.getElementById('btn-save-quotes').onclick = function () {
-      var updated = {};
-      cards.forEach(function (c) {
-        updated[c] = {
-          quote: document.getElementById('cq-' + c + '-q').value,
-          author: document.getElementById('cq-' + c + '-a').value
+      data.cards.forEach(function (c, i) {
+        c.lightImage = document.getElementById('cq-' + i + '-limg').value;
+        c.darkImage = document.getElementById('cq-' + i + '-dimg').value;
+        c.light = {
+          quote: document.getElementById('cq-' + i + '-lq').value,
+          author: document.getElementById('cq-' + i + '-la').value
+        };
+        c.dark = {
+          quote: document.getElementById('cq-' + i + '-dq').value,
+          author: document.getElementById('cq-' + i + '-da').value
         };
       });
-      saveFile('card-quotes', updated).then(function () { renderCardQuotes(el); });
+      saveFile('card-quotes', data).then(function () { renderCardQuotes(el); });
     };
   }
 
