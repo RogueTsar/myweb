@@ -4,14 +4,14 @@
  *
  * Prerequisites:
  *   1. Go to https://developer.spotify.com/dashboard
- *   2. In app settings → Redirect URIs → confirm: http://127.0.0.1:3000/callback
+ *   2. In app settings, Redirect URIs, confirm: http://127.0.0.1:3000/callback
  *   3. Copy your Client ID and Client Secret
  *   4. Run this script and paste them in when prompted
  */
 
-import http from 'http';
-import { exec } from 'child_process';
-import readline from 'readline';
+const http = require('http');
+const { exec } = require('child_process');
+const readline = require('readline');
 
 const REDIRECT_URI = 'http://127.0.0.1:3000/callback';
 const SCOPES = [
@@ -31,32 +31,32 @@ function prompt(question) {
 function openBrowser(url) {
     const cmd = process.platform === 'darwin' ? 'open' :
                 process.platform === 'win32' ? 'start' : 'xdg-open';
-    exec(`${cmd} "${url}"`);
+    exec(cmd + ' "' + url + '"');
 }
 
 async function exchangeCode(clientId, clientSecret, code) {
-    const basic = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+    const basic = Buffer.from(clientId + ':' + clientSecret).toString('base64');
     const res = await fetch('https://accounts.spotify.com/api/token', {
         method: 'POST',
         headers: {
-            'Authorization': `Basic ${basic}`,
+            'Authorization': 'Basic ' + basic,
             'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
             grant_type: 'authorization_code',
-            code,
+            code: code,
             redirect_uri: REDIRECT_URI,
         }),
     });
     if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(`Token exchange failed: ${res.status} – ${err.error_description || err.error || 'unknown'}`);
+        const err = await res.json().catch(function () { return {}; });
+        throw new Error('Token exchange failed: ' + res.status + ' - ' + (err.error_description || err.error || 'unknown'));
     }
     return res.json();
 }
 
 async function main() {
-    console.log('\n── Spotify Setup ──────────────────────────────────\n');
+    console.log('\n-- Spotify Setup --\n');
     console.log('Make sure your Spotify app has this Redirect URI:');
     console.log('  http://127.0.0.1:3000/callback\n');
 
@@ -74,14 +74,13 @@ async function main() {
     console.log('If it does not open automatically, visit:\n' + authUrl + '\n');
     openBrowser(authUrl);
 
-    // Wait for the callback
-    const code = await new Promise((resolve, reject) => {
-        const server = http.createServer((req, res) => {
-            const url = new URL(req.url, 'http://localhost:8888');
+    var code = await new Promise(function (resolve, reject) {
+        var server = http.createServer(function (req, res) {
+            var url = new URL(req.url, 'http://localhost:3000');
             if (url.pathname !== '/callback') return;
 
-            const code = url.searchParams.get('code');
-            const error = url.searchParams.get('error');
+            var authCode = url.searchParams.get('code');
+            var error = url.searchParams.get('error');
 
             res.writeHead(200, { 'Content-Type': 'text/html' });
             if (error) {
@@ -92,19 +91,21 @@ async function main() {
             }
             res.end('<h2>All done!</h2><p>You can close this tab and check your terminal.</p>');
             server.close();
-            resolve(code);
+            resolve(authCode);
         });
-        server.listen(3000, '127.0.0.1', () => console.log('Waiting for Spotify callback on http://127.0.0.1:3000/callback ...'));
+        server.listen(3000, '127.0.0.1', function () {
+            console.log('Waiting for Spotify callback on http://127.0.0.1:3000/callback ...');
+        });
     });
 
     console.log('\nExchanging code for tokens...');
-    const tokens = await exchangeCode(clientId, clientSecret, code);
+    var tokens = await exchangeCode(clientId, clientSecret, code);
 
-    console.log('\n── Copy these into Vercel → Settings → Environment Variables ──\n');
-    console.log(`SPOTIFY_CLIENT_ID=${clientId}`);
-    console.log(`SPOTIFY_CLIENT_SECRET=${clientSecret}`);
-    console.log(`SPOTIFY_REFRESH_TOKEN=${tokens.refresh_token}`);
+    console.log('\n-- Copy these into Vercel > Settings > Environment Variables --\n');
+    console.log('SPOTIFY_CLIENT_ID=' + clientId);
+    console.log('SPOTIFY_CLIENT_SECRET=' + clientSecret);
+    console.log('SPOTIFY_REFRESH_TOKEN=' + tokens.refresh_token);
     console.log('\nDone! After adding the vars, redeploy Vercel for them to take effect.\n');
 }
 
-main().catch(err => { console.error('\nError:', err.message); process.exit(1); });
+main().catch(function (err) { console.error('\nError:', err.message); process.exit(1); });
