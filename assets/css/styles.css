@@ -2157,7 +2157,7 @@ nav a:not(.active):hover::after {
     color: var(--text);
     position: relative;
     transform-origin: center bottom;
-    transform: rotateX(4deg) translateY(calc(var(--i) * -6px));
+    transform: rotateX(4deg);
     transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1),
                 box-shadow 0.6s ease,
                 background 0.5s ease,
