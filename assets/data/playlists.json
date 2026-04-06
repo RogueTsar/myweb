@@ -1,71 +1,75 @@
 [
   {
-    "id": "deep-focus",
-    "name": "Deep Focus",
-    "description": "For late-night research sessions and long writing blocks. Minimal lyrics, maximal atmosphere.",
+    "id": "escapism",
+    "name": "Escapism",
+    "description": "Empty your mind, run away and be free. Nothing can ever limit or stop you, you will be okay :)",
     "tracks": [
-      { "name": "Nuvole Bianche", "artist": "Ludovico Einaudi", "genre": "neo-classical" },
-      { "name": "Intro", "artist": "The xx", "genre": "ambient-indie" },
-      { "name": "Experience", "artist": "Ludovico Einaudi", "genre": "neo-classical" },
-      { "name": "Avril 14th", "artist": "Aphex Twin", "genre": "ambient-electronic" },
-      { "name": "Gymnop\u00e9die No. 1", "artist": "Erik Satie", "genre": "classical" },
-      { "name": "An Ending (Ascent)", "artist": "Brian Eno", "genre": "ambient" },
-      { "name": "Dawn", "artist": "Nils Frahm", "genre": "neo-classical" }
+      { "name": "Ghost In The Circuit", "artist": "Velvet Acid Christ", "genre": "darkwave" },
+      { "name": "Too late, all gone", "artist": "How To Destroy Angels", "genre": "industrial" },
+      { "name": "Slo Fuzz", "artist": "Sol Seppy", "genre": "dream-pop" },
+      { "name": "Four Three", "artist": "All India Radio", "genre": "post-rock" },
+      { "name": "Empathy", "artist": "Crystal Castles", "genre": "electronic" },
+      { "name": "Huddle Formation", "artist": "The Go! Team", "genre": "indie-pop" },
+      { "name": "The Shire", "artist": "Howard Shore", "genre": "soundtrack" }
     ]
   },
   {
-    "id": "melancholy",
-    "name": "Melancholy",
-    "description": "The invincible summer Camus found in the middle of winter. Beautiful sadness you choose to sit with.",
+    "id": "sinners",
+    "name": "Sinners Relish The Sacrament Too",
+    "description": "2 halfs of a mind, 2 popes rule my life.",
     "tracks": [
-      { "name": "Motion Picture Soundtrack", "artist": "Radiohead", "genre": "art-rock" },
-      { "name": "Skinny Love", "artist": "Bon Iver", "genre": "indie-folk" },
-      { "name": "La Vie en Rose", "artist": "\u00c9dith Piaf", "genre": "chanson" },
-      { "name": "No Surprises", "artist": "Radiohead", "genre": "alt-rock" },
-      { "name": "Mystery of Love", "artist": "Sufjan Stevens", "genre": "indie-folk" },
-      { "name": "Saturn", "artist": "Sleeping At Last", "genre": "indie-ambient" },
-      { "name": "Liability", "artist": "Lorde", "genre": "art-pop" }
+      { "name": "Novelty", "artist": "Joy Division", "genre": "post-punk" },
+      { "name": "Winning", "artist": "The Sound", "genre": "post-punk" },
+      { "name": "New Dawn Fades", "artist": "Joy Division", "genre": "post-punk" },
+      { "name": "Flowers In Our Hair", "artist": "All About Eve", "genre": "gothic-rock" },
+      { "name": "Your Master is calling", "artist": "Pink Turns Blue", "genre": "darkwave" },
+      { "name": "Alice", "artist": "Sisters of Mercy", "genre": "gothic-rock" },
+      { "name": "Serpents Kiss", "artist": "The Mission", "genre": "gothic-rock" }
     ]
   },
   {
-    "id": "high-energy",
-    "name": "High Energy",
-    "description": "For when existence is a celebration and you're dancing in your own way. Unserious, unapologetic.",
+    "id": "on-6th",
+    "name": "On 6th",
+    "description": "I would give cool millions to be patiently understood without feeling like a nuisance.",
     "tracks": [
-      { "name": "Midnight City", "artist": "M83", "genre": "synth-pop" },
-      { "name": "Do I Wanna Know?", "artist": "Arctic Monkeys", "genre": "indie-rock" },
-      { "name": "Dangerous", "artist": "Big Data ft. Joywave", "genre": "alt-electronic" },
-      { "name": "Take Me Out", "artist": "Franz Ferdinand", "genre": "post-punk revival" },
-      { "name": "Electric Feel", "artist": "MGMT", "genre": "psychedelic-pop" },
-      { "name": "Galvanize", "artist": "The Chemical Brothers", "genre": "big-beat" },
-      { "name": "Around the World", "artist": "Daft Punk", "genre": "french-house" }
+      { "name": "Dearly Missed", "artist": "Searows", "genre": "indie-folk" },
+      { "name": "May The Landing Come Softly", "artist": "Sydney Ross Mitchell", "genre": "indie" },
+      { "name": "If It Isn't Killing Me", "artist": "Liang Lawrence", "genre": "indie-pop" },
+      { "name": "i'm a liar", "artist": "Keni Titus", "genre": "bedroom-pop" },
+      { "name": "Leave (Bonus Track)", "artist": "Jake Minch", "genre": "indie" },
+      { "name": "Worst Person in the World", "artist": "Carol Ades", "genre": "indie-pop" },
+      { "name": "Pure Bliss Forever", "artist": "Sydney Ross Mitchell", "genre": "indie" }
     ]
   },
   {
-    "id": "contemplative",
-    "name": "Contemplative",
-    "description": "Search others for their virtues, thyself for thy vices. For walks, journaling, and thinking about what matters.",
+    "id": "walk",
+    "name": "Walk Playlist",
+    "description": "15km every other day lets go.",
     "tracks": [
-      { "name": "Holocene", "artist": "Bon Iver", "genre": "indie-folk" },
-      { "name": "Re: Stacks", "artist": "Bon Iver", "genre": "indie-folk" },
-      { "name": "The Night We Met", "artist": "Lord Huron", "genre": "indie-folk" },
-      { "name": "Agnes", "artist": "Glass Animals", "genre": "psychedelic-pop" },
-      { "name": "To Build a Home", "artist": "The Cinematic Orchestra", "genre": "trip-hop" },
-      { "name": "Clair de Lune", "artist": "Claude Debussy", "genre": "classical" },
-      { "name": "Outro", "artist": "M83", "genre": "ambient-electronic" }
+      { "name": "Just Dance (Angelcore Remix)", "artist": "odex", "genre": "remix" },
+      { "name": "We Do What We Want", "artist": "Alan Fitzpatrick", "genre": "techno" },
+      { "name": "Real", "artist": "TENN", "genre": "electronic" },
+      { "name": "Stateside", "artist": "PinkPantheress, Zara Larsson", "genre": "pop" },
+      { "name": "iloveitiloveitiloveit", "artist": "Bella Kay", "genre": "hyperpop" },
+      { "name": "ROLE MODEL", "artist": "Brent Faiyaz", "genre": "r&b" },
+      { "name": "Right Now", "artist": "PARTYNEXTDOOR", "genre": "r&b" }
     ]
   },
   {
-    "id": "world-sounds",
-    "name": "World Sounds",
-    "description": "Borders are imaginary, music is not. Sounds from everywhere the mind wanders.",
+    "id": "interpol",
+    "name": "Interpol",
+    "description": "The best band. No further explanation needed.",
+    "image": "/assets/images/interpol.jpg",
     "tracks": [
-      { "name": "Dil Se Re", "artist": "A.R. Rahman", "genre": "indian-film" },
-      { "name": "Katushka", "artist": "Red Army Choir", "genre": "russian-folk" },
-      { "name": "Chan Chan", "artist": "Buena Vista Social Club", "genre": "cuban-son" },
-      { "name": "Comptine d'un autre \u00e9t\u00e9", "artist": "Yann Tiersen", "genre": "french-cinema" },
-      { "name": "Baba Yetu", "artist": "Christopher Tin", "genre": "world-choral" },
-      { "name": "Misirlou", "artist": "Dick Dale", "genre": "surf-rock" }
+      { "name": "Evil", "artist": "Interpol", "genre": "post-punk revival" },
+      { "name": "Obstacle 1", "artist": "Interpol", "genre": "post-punk revival" },
+      { "name": "Slow Hands", "artist": "Interpol", "genre": "post-punk revival" },
+      { "name": "NYC", "artist": "Interpol", "genre": "post-punk revival" },
+      { "name": "Untitled", "artist": "Interpol", "genre": "post-punk revival" },
+      { "name": "PDA", "artist": "Interpol", "genre": "post-punk revival" },
+      { "name": "Not Even Jail", "artist": "Interpol", "genre": "post-punk revival" },
+      { "name": "Stella Was a Diver and She Was Always Down", "artist": "Interpol", "genre": "post-punk revival" },
+      { "name": "Say Hello to the Angels", "artist": "Interpol", "genre": "post-punk revival" }
     ]
   }
 ]
