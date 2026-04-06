@@ -1,7 +1,16 @@
 const SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token';
 const SPOTIFY_API = 'https://api.spotify.com/v1';
 
+// Cache access token in memory (survives across requests within same serverless instance)
+let cachedToken = null;
+let tokenExpiry = 0;
+
 async function getAccessToken() {
+    // Return cached token if still valid (with 60s buffer)
+    if (cachedToken && Date.now() < tokenExpiry - 60000) {
+        return cachedToken;
+    }
+
     const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN } = process.env;
 
     if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET || !SPOTIFY_REFRESH_TOKEN) {
@@ -24,12 +33,20 @@ async function getAccessToken() {
 
     if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(`Token refresh failed: ${res.status} – ${body.error || 'unknown'}`);
+        // Clear cache on failure
+        cachedToken = null;
+        tokenExpiry = 0;
+        throw new Error(`Token refresh failed: ${res.status} - ${body.error || 'unknown'}. Run: cd ~/myweb && node scripts/get-spotify-token.js`);
     }
 
     const data = await res.json();
     if (!data.access_token) throw new Error('No access_token in token response');
-    return data.access_token;
+
+    // Cache for the duration Spotify specifies (usually 3600s)
+    cachedToken = data.access_token;
+    tokenExpiry = Date.now() + (data.expires_in || 3600) * 1000;
+
+    return cachedToken;
 }
 
 async function fetchSpotify(token, endpoint) {
