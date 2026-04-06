@@ -371,6 +371,14 @@ function renderGenres(genres) {
 
 /* ── Playlists with Vibe ── */
 
+function cleanDesc(str) {
+    if (!str) return '';
+    // Decode HTML entities, strip tags, clean up
+    var div = document.createElement('div');
+    div.innerHTML = str;
+    return div.textContent || div.innerText || '';
+}
+
 function renderPlaylists(playlists) {
     var container = document.getElementById('playlists');
     var section = document.getElementById('playlists-section');
@@ -378,20 +386,21 @@ function renderPlaylists(playlists) {
         if (section) section.style.display = 'none';
         return;
     }
-    var html = '<div class="playlist-drawer">';
+    var html = '<div class="playlist-stack">';
     for (var i = 0; i < playlists.length; i++) {
         var p = playlists[i];
         var imgHtml = p.image
-            ? '<img class="playlist-drawer-card__img" src="' + escapeHtml(p.image) + '" alt="" loading="lazy">'
-            : '<div class="playlist-drawer-card__img playlist-drawer-card__img--placeholder"></div>';
+            ? '<img class="playlist-stack__img" src="' + escapeHtml(p.image) + '" alt="" loading="lazy">'
+            : '<div class="playlist-stack__img playlist-stack__img--placeholder"></div>';
         var countText = p.track_count > 0 ? p.track_count + ' tracks' : '';
-        var descHtml = p.description ? '<div class="playlist-drawer-card__desc">' + escapeHtml(p.description) + '</div>' : '';
+        var desc = cleanDesc(p.description);
+        var descHtml = desc ? '<p class="playlist-stack__desc">' + escapeHtml(desc) + '</p>' : '';
         html +=
-            '<a class="playlist-drawer-card" href="' + escapeHtml(p.url) + '" target="_blank" rel="noopener">' +
+            '<a class="playlist-stack__card" href="' + escapeHtml(p.url) + '" target="_blank" rel="noopener" style="--i:' + i + '">' +
                 imgHtml +
-                '<div class="playlist-drawer-card__body">' +
-                    '<div class="playlist-drawer-card__name">' + escapeHtml(p.name) + '</div>' +
-                    (countText ? '<div class="playlist-drawer-card__count">' + countText + '</div>' : '') +
+                '<div class="playlist-stack__body">' +
+                    '<div class="playlist-stack__name">' + escapeHtml(p.name) + '</div>' +
+                    (countText ? '<div class="playlist-stack__count">' + countText + '</div>' : '') +
                     descHtml +
                 '</div>' +
             '</a>';

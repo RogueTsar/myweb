@@ -2137,83 +2137,106 @@ nav a:not(.active):hover::after {
 }
 
 /* =========================================
-   PLAYLIST DRAWER CARDS
+   PLAYLIST STACKED 3D CARDS
    ========================================= */
 
-.playlist-drawer {
-    perspective: 800px;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
+.playlist-stack {
+    perspective: 900px;
+    position: relative;
+    padding: 2rem 0 1rem;
 }
 
-.playlist-drawer-card {
+.playlist-stack__card {
     display: flex;
-    gap: 1rem;
-    padding: 1rem;
-    border: 1px solid var(--border);
-    border-bottom: none;
+    gap: 0.85rem;
+    padding: 1rem 1.1rem;
     background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-radius: 12px;
     text-decoration: none;
     color: var(--text);
-    transform-origin: bottom center;
-    transform: rotateX(0deg);
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-                box-shadow 0.3s ease,
-                z-index 0s;
     position: relative;
-    z-index: 1;
+    transform-origin: center bottom;
+    transform: rotateX(4deg) translateY(calc(var(--i) * -6px));
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.4s ease,
+                background 0.3s ease,
+                margin 0.4s ease;
+    z-index: calc(20 - var(--i));
+    margin-bottom: -18px;
 }
 
-.playlist-drawer-card:last-child {
-    border-bottom: 1px solid var(--border);
+.playlist-stack__card:last-child {
+    margin-bottom: 0;
 }
 
-.playlist-drawer-card:hover {
-    transform: rotateX(-8deg) translateY(-6px) scale(1.01);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-    z-index: 10;
-    border-color: var(--accent);
+/* On hover: card lifts out, goes glassy/frosty, background darkens */
+.playlist-stack__card:hover {
+    transform: rotateX(0deg) translateY(-12px) scale(1.02);
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-color: var(--glass-border);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2), 0 0 0 1px var(--glass-border);
+    z-index: 50;
+    margin-bottom: 8px;
+    margin-top: 8px;
 }
 
-.playlist-drawer-card__img {
-    width: 64px;
-    height: 64px;
+/* Dim siblings when one is hovered */
+.playlist-stack:hover .playlist-stack__card:not(:hover) {
+    opacity: 0.7;
+    filter: brightness(0.85);
+}
+
+.playlist-stack__img {
+    width: 56px;
+    height: 56px;
     object-fit: cover;
-    border-radius: 4px;
+    border-radius: 8px;
     flex-shrink: 0;
 }
 
-.playlist-drawer-card__img--placeholder {
+.playlist-stack__img--placeholder {
     background: var(--bg-subtle-2);
+    border-radius: 8px;
+    width: 56px;
+    height: 56px;
 }
 
-.playlist-drawer-card__body {
+.playlist-stack__body {
     flex: 1;
     min-width: 0;
 }
 
-.playlist-drawer-card__name {
-    font-size: 0.9rem;
+.playlist-stack__name {
+    font-size: 0.88rem;
     font-weight: 500;
     color: var(--text);
     margin-bottom: 2px;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
 }
 
-.playlist-drawer-card__count {
-    font-size: 0.72rem;
-    color: var(--text-secondary);
+.playlist-stack__count {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
     margin-bottom: 4px;
 }
 
-.playlist-drawer-card__desc {
+.playlist-stack__desc {
     font-size: 0.78rem;
     color: var(--text-secondary);
-    line-height: 1.5;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
+    line-height: 1.45;
+    margin: 0;
+}
+
+@media (max-width: 600px) {
+    .playlist-stack__card {
+        margin-bottom: -12px;
+    }
+    .playlist-stack__img {
+        width: 44px;
+        height: 44px;
+    }
 }
 
 /* =========================================
