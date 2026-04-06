@@ -399,7 +399,6 @@ function copyRecursive(src, dest) {
 }
 
 copyRecursive(path.join(BASE, 'assets'), path.join(SITE, 'assets'));
-copyRecursive(path.join(BASE, 'admin'), path.join(SITE, 'admin'));
 fs.copyFileSync(path.join(BASE, 'favicon.svg'), path.join(SITE, 'favicon.svg'));
 
 console.log(`Built ${fs.readdirSync(SITE).length} items to _site/`);

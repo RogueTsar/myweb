@@ -5,136 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Site Admin</title>
     <link rel="stylesheet" href="admin.css">
-    <style>
-        .auth-gate {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background: var(--admin-bg, #0d1117);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-        }
-        .auth-box {
-            background: var(--admin-surface, #161b22);
-            border: 1px solid var(--admin-border, #30363d);
-            border-radius: 12px;
-            padding: 32px;
-            width: 320px;
-            text-align: center;
-        }
-        .auth-box h2 {
-            color: #e6edf3;
-            font-size: 18px;
-            margin: 0 0 8px;
-        }
-        .auth-box p {
-            color: #8b949e;
-            font-size: 13px;
-            margin: 0 0 20px;
-        }
-        .auth-box input {
-            width: 100%;
-            padding: 10px 14px;
-            background: #0d1117;
-            border: 1px solid #30363d;
-            border-radius: 8px;
-            color: #e6edf3;
-            font-size: 14px;
-            margin-bottom: 12px;
-            box-sizing: border-box;
-        }
-        .auth-box input:focus {
-            outline: none;
-            border-color: #58a6ff;
-        }
-        .auth-box button {
-            width: 100%;
-            padding: 10px;
-            background: #58a6ff;
-            color: #0d1117;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .auth-box button:hover { background: #79c0ff; }
-        .auth-error {
-            color: #f85149;
-            font-size: 12px;
-            margin-top: 8px;
-            display: none;
-        }
-        .admin-app { display: none; }
-    </style>
 </head>
 <body>
-    <!-- Password Gate -->
-    <div class="auth-gate" id="auth-gate">
-        <div class="auth-box">
-            <h2>Admin Panel</h2>
-            <p>Enter password to continue</p>
-            <form id="auth-form">
-                <input type="password" id="auth-password" placeholder="Password" autofocus>
-                <button type="submit">Unlock</button>
-            </form>
-            <div class="auth-error" id="auth-error">Wrong password.</div>
-        </div>
-    </div>
-
-    <!-- Admin App (hidden until auth) -->
-    <div class="admin-app" id="admin-app">
-        <aside class="sidebar">
-            <div class="sidebar-header">vaishnavisingh.vercel.app</div>
-            <nav class="sidebar-nav" id="sidebar-nav"></nav>
-            <div style="padding:8px;margin-top:auto;border-top:1px solid var(--admin-border,#30363d)">
-                <button onclick="localStorage.removeItem('vs-admin-auth');location.reload()" style="background:none;border:none;color:#8b949e;font-size:12px;cursor:pointer;padding:8px 12px;width:100%;text-align:left">Lock Admin</button>
-            </div>
-        </aside>
-        <main class="main" id="main">
-            <div class="empty-state">Loading...</div>
-        </main>
-    </div>
+    <aside class="sidebar">
+        <div class="sidebar-header">vaishnavisingh.vercel.app</div>
+        <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    </aside>
+    <main class="main" id="main">
+        <div class="empty-state">Loading...</div>
+    </main>
     <div class="toast" id="toast"></div>
-
-    <script>
-    // Password check using SHA-256 hash (password never stored in plaintext)
-    // To change: update the hash below. Generate with: crypto.subtle.digest('SHA-256', new TextEncoder().encode('yourpassword'))
-    var ADMIN_HASH = '024e86843c3616d783756ded4c0be48b7c35b38c5215c7ea6cb8ca2344d9991a';
-
-    async function hashPassword(pw) {
-        var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
-        return Array.from(new Uint8Array(buf)).map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
-    }
-
-    function unlockAdmin() {
-        document.getElementById('auth-gate').style.display = 'none';
-        var app = document.getElementById('admin-app');
-        app.style.display = '';
-        app.classList.add('admin-unlocked');
-        // Load admin.js dynamically after auth
-        var s = document.createElement('script');
-        s.src = 'admin.js';
-        document.body.appendChild(s);
-    }
-
-    // Check if already authed this session
-    if (localStorage.getItem('vs-admin-auth') === 'true') {
-        unlockAdmin();
-    }
-
-    document.getElementById('auth-form').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        var pw = document.getElementById('auth-password').value;
-        var hash = await hashPassword(pw);
-        if (hash === ADMIN_HASH) {
-            localStorage.setItem('vs-admin-auth', 'true');
-            unlockAdmin();
-        } else {
-            document.getElementById('auth-error').style.display = 'block';
-            document.getElementById('auth-password').value = '';
-        }
-    });
-    </script>
+    <script src="admin.js"></script>
 </body>
 </html>
