@@ -70,15 +70,15 @@
             }
         });
 
-        // Insert AFTER the tracks container
-        section.after(btnGroup);
+        // Insert AFTER the tracks container (prompt first, then buttons)
         section.after(prompt);
+        prompt.after(btnGroup);
 
-        // Create alternate view container
+        // Create alternate view container (after buttons)
         viewContainer = document.createElement('div');
         viewContainer.id = 'top-tracks-alt-view';
         viewContainer.style.display = 'none';
-        section.parentNode.insertBefore(viewContainer, section.nextSibling);
+        btnGroup.after(viewContainer);
     }
 
     function switchView(viewKey) {
