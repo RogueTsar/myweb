@@ -2681,3 +2681,37 @@ footer p {
     padding: 1px 6px;
     border-radius: 3px;
 }
+
+/* =========================================
+   VIEW SWITCHER
+   ========================================= */
+
+.view-switcher-prompt {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    margin-top: 1rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.view-switcher-prompt:hover {
+    color: var(--accent);
+}
+
+.view-switcher-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.view-switcher-btn {
+    font-size: 0.78rem;
+    padding: 5px 14px;
+}
+
+.view-switcher-btn--active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}

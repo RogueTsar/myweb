@@ -70,13 +70,9 @@
             }
         });
 
-        if (subtitle && subtitle.nextSibling) {
-            wrapper.insertBefore(prompt, subtitle.nextSibling);
-            wrapper.insertBefore(btnGroup, prompt.nextSibling);
-        } else {
-            wrapper.insertBefore(prompt, section);
-            wrapper.insertBefore(btnGroup, section);
-        }
+        // Insert AFTER the tracks container
+        section.after(btnGroup);
+        section.after(prompt);
 
         // Create alternate view container
         viewContainer = document.createElement('div');
