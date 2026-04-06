@@ -9,7 +9,8 @@
     'research': '/assets/data/research-interests.json',
     'faq': '/assets/data/faq.json',
     'testimonials': '/assets/data/testimonials.json',
-    'card-quotes': '/assets/data/card-quotes.json'
+    'card-quotes': '/assets/data/card-quotes.json',
+    'bio': '/assets/data/bio.json'
   };
 
   var cache = {};
@@ -34,7 +35,9 @@
       { id: 'faq', label: 'FAQ' },
       { id: 'testimonials', label: 'Testimonials' },
       { id: 'research', label: 'Research Graph' },
-      { id: 'card-quotes', label: 'Card Quotes' }
+      { id: 'card-quotes', label: 'Card Quotes' },
+      { id: 'bio', label: 'Bio Editor' },
+      { id: 'spotify', label: 'Spotify' }
     ];
 
     var nav = document.getElementById('sidebar-nav');
@@ -64,6 +67,8 @@
       case 'testimonials': renderTestimonials(main); break;
       case 'research': renderResearch(main); break;
       case 'card-quotes': renderCardQuotes(main); break;
+      case 'bio': renderBioEditor(main); break;
+      case 'spotify': renderSpotify(main); break;
     }
   }
 
@@ -780,4 +785,214 @@
     };
   }
 
+  /* ──────────────────────────────────────
+     TAB: Bio Editor
+     ────────────────────────────────────── */
+  function renderBioEditor(el) {
+    var data = cache['bio'] || { paragraphs: [], contacts: [] };
+    if (!data.paragraphs) data.paragraphs = [];
+    if (!data.contacts) data.contacts = [];
+
+    var html = '<h2>Bio Editor</h2>';
+    html += '<p style="color:var(--admin-text-dim);font-size:13px;margin-bottom:16px">' +
+      'Use <code>{trigger text|expanded text}</code> syntax for telescopic (click-to-expand) words. ' +
+      'Example: <code>I study {Law|Law with a double major in Political Science}</code></p>';
+
+    html += '<h3>Paragraphs</h3>';
+    html += '<button class="btn btn-primary btn-sm" id="btn-add-para">+ Add Paragraph</button>';
+    html += '<div class="item-list" style="margin-top:12px">';
+    data.paragraphs.forEach(function (p, i) {
+      html += '<div class="card"><div class="card-row" style="margin-bottom:8px">' +
+        '<strong>Paragraph ' + (i + 1) + '</strong>' +
+        '<button class="btn btn-sm btn-danger" data-action="del-para" data-idx="' + i + '">Delete</button>' +
+        '</div>' +
+        '<textarea id="bio-p-' + i + '" rows="4" style="width:100%">' + esc(p.text) + '</textarea>' +
+        '</div>';
+    });
+    html += '</div>';
+
+    html += '<h3>Contact Links</h3>';
+    html += '<button class="btn btn-primary btn-sm" id="btn-add-contact">+ Add Link</button>';
+    html += '<div class="item-list" style="margin-top:12px">';
+    data.contacts.forEach(function (c, i) {
+      html += '<div class="card"><div style="display:grid;grid-template-columns:1fr 2fr 1fr auto;gap:8px;align-items:center">' +
+        '<input id="bio-c-' + i + '-label" value="' + esc(c.label) + '" placeholder="Label">' +
+        '<input id="bio-c-' + i + '-url" value="' + esc(c.url) + '" placeholder="URL">' +
+        '<input id="bio-c-' + i + '-class" value="' + esc(c.class || '') + '" placeholder="CSS class (optional)">' +
+        '<button class="btn btn-sm btn-danger" data-action="del-contact" data-idx="' + i + '">Del</button>' +
+        '</div></div>';
+    });
+    html += '</div>';
+
+    html += '<button class="btn btn-primary" id="btn-save-bio" style="margin-top:16px">Save Bio</button>';
+    html += '<div id="bio-preview" style="margin-top:24px;padding:20px;border:1px solid var(--admin-border);border-radius:8px;background:var(--admin-surface)"></div>';
+    el.innerHTML = html;
+
+    // Preview
+    updateBioPreview(data);
+
+    document.getElementById('btn-add-para').onclick = function () {
+      data.paragraphs.push({ text: '' });
+      saveFile('bio', data).then(function () { renderBioEditor(el); });
+    };
+
+    document.getElementById('btn-add-contact').onclick = function () {
+      data.contacts.push({ label: '', url: '', class: '' });
+      saveFile('bio', data).then(function () { renderBioEditor(el); });
+    };
+
+    el.querySelectorAll('[data-action="del-para"]').forEach(function (btn) {
+      btn.onclick = function () {
+        data.paragraphs.splice(parseInt(btn.getAttribute('data-idx')), 1);
+        saveFile('bio', data).then(function () { renderBioEditor(el); });
+      };
+    });
+
+    el.querySelectorAll('[data-action="del-contact"]').forEach(function (btn) {
+      btn.onclick = function () {
+        data.contacts.splice(parseInt(btn.getAttribute('data-idx')), 1);
+        saveFile('bio', data).then(function () { renderBioEditor(el); });
+      };
+    });
+
+    document.getElementById('btn-save-bio').onclick = function () {
+      data.paragraphs.forEach(function (p, i) {
+        p.text = document.getElementById('bio-p-' + i).value;
+      });
+      data.contacts.forEach(function (c, i) {
+        c.label = document.getElementById('bio-c-' + i + '-label').value;
+        c.url = document.getElementById('bio-c-' + i + '-url').value;
+        c.class = document.getElementById('bio-c-' + i + '-class').value || undefined;
+      });
+      saveFile('bio', data).then(function () {
+        renderBioEditor(el);
+        showToast('Bio saved! Push to GitHub to deploy.');
+      });
+    };
+
+    // Live preview on input
+    el.querySelectorAll('textarea, input').forEach(function (input) {
+      input.addEventListener('input', function () {
+        var preview = { paragraphs: [], contacts: [] };
+        data.paragraphs.forEach(function (p, i) {
+          var textarea = document.getElementById('bio-p-' + i);
+          preview.paragraphs.push({ text: textarea ? textarea.value : p.text });
+        });
+        updateBioPreview(preview);
+      });
+    });
+  }
+
+  function updateBioPreview(data) {
+    var container = document.getElementById('bio-preview');
+    if (!container || !data.paragraphs) return;
+    var html = '<h4 style="color:var(--admin-text-dim);margin-bottom:8px;font-size:12px">PREVIEW</h4>';
+    data.paragraphs.forEach(function (p) {
+      var rendered = esc(p.text).replace(/\{([^|]+)\|([^}]+)\}/g, function (_, trigger, expanded) {
+        return '<u style="color:var(--admin-accent);cursor:help" title="Expands to: ' + expanded + '">' + trigger + '</u>';
+      });
+      html += '<p style="margin-bottom:0.75rem;line-height:1.6">' + rendered + '</p>';
+    });
+    container.innerHTML = html;
+  }
+
+  /* ──────────────────────────────────────
+     TAB: Spotify
+     ────────────────────────────────────── */
+  function renderSpotify(el) {
+    var html = '<h2>Spotify Integration</h2>';
+
+    // Health check
+    html += '<h3>API Health Check</h3>';
+    html += '<button class="btn btn-primary" id="btn-spotify-check">Check Spotify API</button>';
+    html += '<div id="spotify-status" style="margin-top:12px"></div>';
+
+    // Auto-check toggle
+    var autoCheck = localStorage.getItem('vs-spotify-autocheck') === 'true';
+    html += '<div style="margin-top:12px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer">' +
+      '<input type="checkbox" id="spotify-autocheck"' + (autoCheck ? ' checked' : '') + '> ' +
+      '<span style="font-size:13px">Auto-check every 5 minutes when admin is open</span></label></div>';
+
+    // Fix guide
+    html += '<h3 style="margin-top:24px">If Spotify Is Not Working</h3>';
+    html += '<div class="card" style="font-size:13px;line-height:1.6">';
+    html += '<p><strong>Step 1: Check the API</strong><br>Click "Check Spotify API" above. If it says "Could not load" or shows an error, your refresh token is expired.</p>';
+    html += '<p style="margin-top:8px"><strong>Step 2: Generate a new token</strong><br>Open terminal and run:</p>';
+    html += '<pre style="background:var(--admin-bg);padding:12px;border-radius:6px;margin:8px 0;overflow-x:auto;font-size:12px">cd ~/myweb\nnode scripts/get-spotify-token.js</pre>';
+    html += '<p>It will open Spotify in your browser. Log in and approve. The script prints your new token.</p>';
+    html += '<p style="margin-top:8px"><strong>Step 3: Update Vercel</strong></p>';
+    html += '<ol style="padding-left:20px;margin:4px 0">';
+    html += '<li>Go to <a href="https://vercel.com" target="_blank" style="color:var(--admin-accent)">Vercel Dashboard</a> > your project > Settings > Environment Variables</li>';
+    html += '<li>Delete the old <code>SPOTIFY_REFRESH_TOKEN</code></li>';
+    html += '<li>Add the new one from the script output</li>';
+    html += '<li>Redeploy: push any change to <code>main</code> or click "Redeploy" in Vercel</li>';
+    html += '</ol>';
+    html += '<p style="margin-top:8px"><strong>Step 4: Verify</strong><br>Wait 1 minute, then click "Check Spotify API" again.</p>';
+    html += '</div>';
+
+    // Current API response preview
+    html += '<h3 style="margin-top:24px">Current API Response</h3>';
+    html += '<div id="spotify-raw" style="max-height:400px;overflow:auto;font-size:11px;background:var(--admin-bg);padding:12px;border-radius:6px;border:1px solid var(--admin-border)">Click "Check Spotify API" to load.</div>';
+
+    el.innerHTML = html;
+
+    document.getElementById('btn-spotify-check').onclick = function () { checkSpotify(); };
+    document.getElementById('spotify-autocheck').onchange = function () {
+      localStorage.setItem('vs-spotify-autocheck', this.checked ? 'true' : 'false');
+      if (this.checked) startAutoCheck();
+      else stopAutoCheck();
+    };
+
+    if (autoCheck) startAutoCheck();
+  }
+
+  var spotifyCheckInterval = null;
+
+  function startAutoCheck() {
+    stopAutoCheck();
+    spotifyCheckInterval = setInterval(checkSpotify, 5 * 60 * 1000);
+  }
+
+  function stopAutoCheck() {
+    if (spotifyCheckInterval) clearInterval(spotifyCheckInterval);
+    spotifyCheckInterval = null;
+  }
+
+  function checkSpotify() {
+    var statusEl = document.getElementById('spotify-status');
+    var rawEl = document.getElementById('spotify-raw');
+    if (statusEl) statusEl.innerHTML = '<span style="color:var(--admin-text-dim)">Checking...</span>';
+
+    fetch('/api/spotify')
+      .then(function (res) {
+        if (!res.ok) throw new Error('API returned ' + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        if (statusEl) {
+          var trackCount = (data.top_tracks || []).length;
+          var artistCount = (data.top_artists || []).length;
+          var playlistCount = (data.playlists || []).length;
+          var lastPlayed = data.last_played ? data.last_played.track + ' by ' + data.last_played.artist : 'None';
+          statusEl.innerHTML =
+            '<span class="badge badge-success">WORKING</span>' +
+            '<div style="margin-top:8px;font-size:13px;color:var(--admin-text-dim)">' +
+              'Top tracks: ' + trackCount + ' | Top artists: ' + artistCount + ' | Playlists: ' + playlistCount +
+              '<br>Last played: ' + esc(lastPlayed) +
+            '</div>';
+        }
+        if (rawEl) rawEl.textContent = JSON.stringify(data, null, 2);
+      })
+      .catch(function (err) {
+        if (statusEl) {
+          statusEl.innerHTML =
+            '<span class="badge badge-danger">NOT WORKING</span>' +
+            '<div style="margin-top:8px;font-size:13px;color:var(--admin-danger)">' + esc(err.message) + '</div>' +
+            '<p style="margin-top:8px;font-size:13px">Follow the fix guide below to regenerate your Spotify token.</p>';
+        }
+        if (rawEl) rawEl.textContent = 'Error: ' + err.message;
+      });
+  }
+
 })();
+

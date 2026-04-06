@@ -1,0 +1,19 @@
+{
+  "paragraphs": [
+    {
+      "text": "I'm Vaishnavi Singh. I study {Computing and Law|Computing and Law with a double major in Political Science} at SMU, in my final year. I work on AI safety and governance."
+    },
+    {
+      "text": "On the research side: I'm a {Georgia Tech AISI Technical Fellow|Georgia Tech AISI Technical Fellow, covering RL misspecification, AI control, oversight, and mechanistic interpretability}, and alumna of {OAISI|the Oxford AI Safety Initiative, where I completed the ARENA curriculum and did ML engineering for AI safety research at ARBOx3} and {BASIS Berkeley|the Berkeley AI Safety Student Initiative, where I worked on AI moral status and personhood. That research became a paper accepted to the FAST Workshop at AAAI 2025}."
+    },
+    {
+      "text": "In industry: I'm at {Confide|Confide Platform, building an AI governance product covering policy generation, evaluation tooling, and incident reporting}, and previously worked in technology risk at {KPMG|KPMG, in technology risk advisory, reviewing AI systems against the EU AI Act, NIST RMF, and related standards}."
+    }
+  ],
+  "contacts": [
+    { "label": "Email", "url": "mailto:vaishnavis.2022@scis.smu.edu.sg" },
+    { "label": "LinkedIn", "url": "https://www.linkedin.com/in/vaishnavisingh-/" },
+    { "label": "GitHub", "url": "https://github.com/RogueTsar" },
+    { "label": "Meet with me", "url": "https://calendar.notion.so/meet/vaish2003singh/72nx4ock", "class": "meet-btn" }
+  ]
+}

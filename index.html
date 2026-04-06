@@ -5,20 +5,14 @@ title: "Home"
 
 <div class="card-showcase" id="card-showcase"></div>
 
-<div class="telescopic-text">
-    <p>I'm Vaishnavi Singh. I study <span class="telescope"><span class="trigger" onclick="expand(this)">Computing and Law</span><span class="content">Computing and Law with a double major in Political Science</span></span> at SMU, in my final year. I work on AI safety and governance.</p>
-
-    <p style="margin-top: 1.25rem;">On the research side: I'm a <span class="telescope"><span class="trigger" onclick="expand(this)">Georgia Tech AISI Technical Fellow</span><span class="content">Georgia Tech AISI Technical Fellow, covering RL misspecification, AI control, oversight, and mechanistic interpretability</span></span>, and alumna of <span class="telescope"><span class="trigger" onclick="expand(this)">OAISI</span><span class="content">the Oxford AI Safety Initiative, where I completed the ARENA curriculum and did ML engineering for AI safety research at ARBOx3</span></span> and <span class="telescope"><span class="trigger" onclick="expand(this)">BASIS Berkeley</span><span class="content">the Berkeley AI Safety Student Initiative, where I worked on AI moral status and personhood. That research became a paper accepted to the FAST Workshop at AAAI 2025</span></span>.</p>
-
-    <p style="margin-top: 1.25rem;">In industry: I'm at <span class="telescope"><span class="trigger" onclick="expand(this)">Confide</span><span class="content">Confide Platform, building an AI governance product covering policy generation, evaluation tooling, and incident reporting</span></span>, and previously worked in technology risk at <span class="telescope"><span class="trigger" onclick="expand(this)">KPMG</span><span class="content">KPMG, in technology risk advisory, reviewing AI systems against the EU AI Act, NIST RMF, and related standards</span></span>.</p>
-</div>
+<div class="telescopic-text" id="bio-text"></div>
 
 <div id="research-graph-section" class="research-graph-section">
     <h2>Research Interests</h2>
     <div id="research-graph"></div>
 </div>
 
-<div class="contact-info">
+<div class="contact-info" id="bio-contacts">
     <a href="mailto:vaishnavis.2022@scis.smu.edu.sg">Email</a>
     <a href="https://www.linkedin.com/in/vaishnavisingh-/" target="_blank" rel="noopener">LinkedIn</a>
     <a href="https://github.com/RogueTsar" target="_blank" rel="noopener">GitHub</a>
@@ -27,4 +21,5 @@ title: "Home"
 
 <script src="{{ '/assets/js/telescopic.js' | relative_url }}"></script>
 <script src="{{ '/assets/js/holo-cards.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/bio-loader.js' | relative_url }}"></script>
 <script src="{{ '/assets/js/research-graph.js' | relative_url }}"></script>
