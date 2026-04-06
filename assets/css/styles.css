@@ -2865,8 +2865,8 @@ footer p {
 
 .wheel-view {
     position: relative;
-    height: 350px;
-    perspective: 600px;
+    height: 380px;
+    perspective: 800px;
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -2878,40 +2878,55 @@ footer p {
     width: 100%;
     height: 100%;
     transform-style: preserve-3d;
-    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.wheel-view__ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .wheel-view__item {
     position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 280px;
-    transform-origin: center center;
+    left: -160px;
+    top: -28px;
+    width: 320px;
     backface-visibility: hidden;
-    transition: transform 0.4s ease, opacity 0.4s ease;
-    padding: 0.6rem 1rem;
+    padding: 0.5rem 0.75rem;
     background: var(--bg-subtle);
     border: 1px solid var(--border);
     border-radius: 8px;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-left: -140px;
-    margin-top: -22px;
+    gap: 0.6rem;
 }
 
-.wheel-view__rank {
-    font-size: 0.7rem;
-    color: var(--text-tertiary);
-    width: 20px;
-    text-align: right;
+.wheel-view__art {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    object-fit: cover;
     flex-shrink: 0;
+}
+
+.wheel-view__label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
 }
 
 .wheel-view__name {
     font-size: 0.82rem;
     font-weight: 500;
     color: var(--color-song-name);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .wheel-view__artist {
@@ -2919,57 +2934,53 @@ footer p {
     color: var(--text-secondary);
 }
 
-.wheel-view__info {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    min-width: 0;
-}
-
 /* =========================================
    SHOWCASE VIEW
    ========================================= */
 
-.showcase-grid {
+.showcase-view {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 1rem;
-    perspective: 600px;
+    perspective: 800px;
 }
 
-.showcase-card {
+.showcase-view__card {
     border-radius: 10px;
     overflow: hidden;
     border: 1px solid var(--border);
     background: var(--bg-subtle);
     transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.5s ease;
-    transform: rotateY(0deg);
+    transform: rotateX(var(--tilt-y, 0deg)) rotateY(var(--tilt-x, 0deg));
     cursor: pointer;
 }
 
-.showcase-card:hover {
-    transform: rotateY(-6deg) scale(1.04);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+.showcase-view__card:hover {
+    transform: rotateX(0deg) rotateY(0deg) scale(1.06);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+    z-index: 2;
 }
 
-.showcase-card__img {
+.showcase-view__art {
     width: 100%;
     aspect-ratio: 1;
     object-fit: cover;
     display: block;
 }
 
-.showcase-card__img--placeholder {
-    width: 100%;
-    aspect-ratio: 1;
-    background: var(--bg-subtle-2);
-}
-
-.showcase-card__body {
+.showcase-view__info {
     padding: 0.5rem 0.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
 }
 
-.showcase-card__name {
+.showcase-view__rank {
+    font-size: 0.65rem;
+    color: var(--text-tertiary);
+}
+
+.showcase-view__name {
     font-size: 0.78rem;
     font-weight: 500;
     color: var(--text);
@@ -2978,7 +2989,7 @@ footer p {
     text-overflow: ellipsis;
 }
 
-.showcase-card__artist {
+.showcase-view__artist {
     font-size: 0.68rem;
     color: var(--text-secondary);
     white-space: nowrap;
@@ -2990,5 +3001,6 @@ footer p {
     .cd-disc { width: 120px; height: 120px; }
     .cd-carousel { height: 200px; }
     .cd-carousel__arrow { width: 30px; height: 30px; font-size: 1.1rem; }
-    .showcase-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+    .showcase-view { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+    .wheel-view__item { width: 260px; left: -130px; }
 }
