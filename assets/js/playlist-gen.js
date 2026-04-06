@@ -85,8 +85,9 @@
                 html +=
                     '<li class="vibe-card__track">' +
                         '<span class="vibe-card__track-name">' + escapeHtml(track.name) + '</span>' +
+                        ' <span class="vibe-card__track-sep">&middot;</span> ' +
                         '<span class="vibe-card__track-artist">' + escapeHtml(track.artist) + '</span>' +
-                        (track.genre ? '<span class="vibe-card__track-genre">' + escapeHtml(track.genre) + '</span>' : '') +
+                        (track.genre ? ' <span class="vibe-card__track-sep">&middot;</span> <span class="vibe-card__track-genre">' + escapeHtml(track.genre) + '</span>' : '') +
                     '</li>';
             }
             html += '</ul></div>';
