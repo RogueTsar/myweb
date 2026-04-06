@@ -30,10 +30,9 @@
 
         // Create the switcher prompt (insert after subtitle)
         var subtitle = wrapper.querySelector('.music-subtitle');
-        var prompt = document.createElement('p');
-        prompt.className = 'view-switcher-prompt';
-        prompt.textContent = 'want to see more cool views? :)';
-        prompt.style.cursor = 'pointer';
+        var prompt = document.createElement('button');
+        prompt.className = 'btn-glass view-switcher-prompt';
+        prompt.textContent = 'more views :)';
 
         var btnGroup = document.createElement('div');
         btnGroup.className = 'view-switcher-buttons';

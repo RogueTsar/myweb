@@ -2158,10 +2158,12 @@ nav a:not(.active):hover::after {
     position: relative;
     transform-origin: center bottom;
     transform: rotateX(4deg) translateY(calc(var(--i) * -6px));
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-                box-shadow 0.4s ease,
-                background 0.3s ease,
-                margin 0.4s ease;
+    transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1),
+                box-shadow 0.6s ease,
+                background 0.5s ease,
+                margin 0.6s ease,
+                opacity 0.5s ease,
+                filter 0.5s ease;
     z-index: calc(20 - var(--i));
     margin-bottom: -18px;
 }
@@ -2710,15 +2712,9 @@ footer p {
    ========================================= */
 
 .view-switcher-prompt {
-    font-size: 0.82rem;
-    color: var(--text-secondary);
-    margin-top: 1rem;
-    cursor: pointer;
-    transition: color 0.2s;
-}
-
-.view-switcher-prompt:hover {
-    color: var(--accent);
+    font-size: 0.78rem;
+    margin-top: 1.25rem;
+    padding: 6px 16px;
 }
 
 .view-switcher-buttons {
