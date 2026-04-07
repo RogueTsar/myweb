@@ -3,23 +3,125 @@ layout: default
 title: "Home"
 ---
 
-<div class="card-showcase" id="card-showcase"></div>
+<script>document.body.classList.add('home-page');</script>
 
-<div class="telescopic-text" id="bio-text"></div>
+<!-- Hidden SVG fluid distortion filter for glass effect -->
+<svg style="display:none" aria-hidden="true">
+    <filter id="glass-distortion" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.025" numOctaves="2" seed="7" result="noise"/>
+        <feGaussianBlur in="noise" stdDeviation="3" result="blurred"/>
+        <feDisplacementMap in="SourceGraphic" in2="blurred" scale="6" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+</svg>
 
-<div id="research-graph-section" class="research-graph-section">
-    <h2>Research Interests</h2>
-    <div id="research-graph"></div>
-</div>
+<div class="home-page-inner">
 
-<div class="contact-info" id="bio-contacts">
-    <a href="mailto:vaishnavis.2022@scis.smu.edu.sg">Email</a>
-    <a href="https://www.linkedin.com/in/vaishnavisingh-/" target="_blank" rel="noopener">LinkedIn</a>
-    <a href="https://github.com/RogueTsar" target="_blank" rel="noopener">GitHub</a>
-    <a href="https://calendar.notion.so/meet/vaish2003singh/72nx4ock" target="_blank" rel="noopener" class="meet-btn">Meet with me</a>
-</div>
+    <!-- ── HERO ── -->
+    <section class="hero" id="hero">
+        <p class="hero__eyebrow">Computing &amp; Law &middot; AI Safety &middot; SMU</p>
+        <h2 class="hero__name">Vaishnavi Singh</h2>
+        <p class="hero__tagline">
+            Final year at SMU. I work on AI safety and governance —<br>
+            research, policy, and tooling.
+        </p>
+        <div class="hero__cards">
+            <div class="card-showcase" id="card-showcase"></div>
+        </div>
+        <a class="hero__scroll-hint" href="#about" aria-label="Scroll to about">&#8595;</a>
+    </section>
+
+    <!-- ── ABOUT + BENTO SIDEBAR ── -->
+    <section class="bento-section" id="about">
+        <p class="bento-section__header">About</p>
+        <div class="bento-grid">
+
+            <!-- Main column: telescopic bio + contacts -->
+            <div class="bento-main">
+                <div class="telescopic-text" id="bio-text"></div>
+                <div class="contact-info" id="bio-contacts" style="margin-top:1.75rem;"></div>
+            </div>
+
+            <!-- Sidebar: glass widgets -->
+            <aside class="bento-sidebar">
+
+                <!-- Work widget -->
+                <div class="glass widget">
+                    <div class="widget__label">Work &amp; Research</div>
+                    <div class="widget-work-item">
+                        <span class="widget-work-item__role">AI Governance Intern</span>
+                        <span class="widget-work-item__org">Confide Platform</span>
+                        <span class="widget-work-item__date">2024 &ndash; Present</span>
+                    </div>
+                    <div class="widget-work-item">
+                        <span class="widget-work-item__role">AISI Technical Fellow</span>
+                        <span class="widget-work-item__org">Georgia Tech</span>
+                        <span class="widget-work-item__date">2025</span>
+                    </div>
+                    <div class="widget-work-item">
+                        <span class="widget-work-item__role">AI Safety Fellowship</span>
+                        <span class="widget-work-item__org">BASIS Berkeley</span>
+                        <span class="widget-work-item__date">2025</span>
+                    </div>
+                    <div class="widget-work-item">
+                        <span class="widget-work-item__role">ML Engineering, ARBOx3</span>
+                        <span class="widget-work-item__org">OAISI Oxford</span>
+                        <span class="widget-work-item__date">2026</span>
+                    </div>
+                    <a class="home-section-link" href="/work.html">All experience &rarr;</a>
+                </div>
+
+                <!-- Now playing widget -->
+                <div class="glass widget">
+                    <div class="widget__label">Now Playing</div>
+                    <div id="widget-now-playing">
+                        <div class="loading-skeleton" style="height:42px;border-radius:6px;"></div>
+                    </div>
+                    <a class="home-section-link" href="#music">Music section &rarr;</a>
+                </div>
+
+                <!-- Publication widget -->
+                <div class="glass widget">
+                    <div class="widget__label">Latest Publication</div>
+                    <div class="widget__title">From Object to Other: AI Moral Status</div>
+                    <div class="widget__sub">FAST Workshop &middot; AAAI 2026</div>
+                    <a class="home-section-link" href="/assets/papers/from-object-to-other-fast-aaai-2026.pdf" target="_blank" rel="noopener">View PDF &rarr;</a>
+                </div>
+
+            </aside>
+        </div>
+    </section>
+
+    <!-- ── RESEARCH INTERESTS ── -->
+    <section class="bento-section" id="research">
+        <p class="bento-section__header">Research Interests</p>
+        <div id="research-graph"></div>
+    </section>
+
+    <!-- ── MUSIC PREVIEW ── -->
+    <section class="home-music-section" id="music">
+        <p class="bento-section__header">Music</p>
+        <div class="home-music-grid">
+            <div class="glass music-panel">
+                <h3>Last Played</h3>
+                <div id="home-last-played">
+                    <div class="loading-skeleton" style="height:80px;border-radius:8px;"></div>
+                </div>
+            </div>
+            <div class="glass music-panel">
+                <h3>Top Tracks This Month</h3>
+                <div id="home-top-tracks">
+                    <div class="loading-skeleton" style="height:180px;border-radius:8px;"></div>
+                </div>
+            </div>
+        </div>
+        <a class="home-section-link" href="/music.html">Full music dashboard &rarr;</a>
+    </section>
+
+</div><!-- /.home-page-inner -->
 
 <script src="{{ '/assets/js/telescopic.js' | relative_url }}"></script>
 <script src="{{ '/assets/js/holo-cards.js' | relative_url }}"></script>
 <script src="{{ '/assets/js/bio-loader.js' | relative_url }}"></script>
 <script src="{{ '/assets/js/research-graph.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/home-music-widget.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/scroll-gradient.js' | relative_url }}"></script>

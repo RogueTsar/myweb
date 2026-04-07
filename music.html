@@ -6,79 +6,76 @@ title: "Music"
 <h2>Music</h2>
 <p class="music-intro">What I've been listening to.</p>
 
-<div class="music-section">
-    <h3>Last Played</h3>
-    <div id="last-played">
-        <div class="loading-skeleton" style="height: 90px;"></div>
-    </div>
-    <details class="history-dropdown" id="history-details">
-        <summary class="history-toggle">Recent history</summary>
-        <div id="recent-history">
-            <div class="loading-skeleton" style="height: 200px; margin-top: 0.75rem;"></div>
+<!-- Row 1: Last Played + Listening Personality / Genres (2 col) -->
+<div class="music-glass-grid music-glass-grid--2col" style="margin-bottom:1rem;">
+
+    <div class="glass music-panel">
+        <h3>Last Played</h3>
+        <div id="last-played">
+            <div class="loading-skeleton" style="height:90px;border-radius:8px;"></div>
         </div>
-    </details>
+        <details class="history-dropdown" id="history-details" style="margin-top:0.75rem;">
+            <summary class="history-toggle">Recent history</summary>
+            <div id="recent-history">
+                <div class="loading-skeleton" style="height:180px;margin-top:0.75rem;border-radius:6px;"></div>
+            </div>
+        </details>
+    </div>
+
+    <div class="glass music-panel" id="insights-placeholder">
+        <h3 id="insights-panel-title">Taste Profile</h3>
+        <p class="music-subtitle">Genres across all time</p>
+        <div id="top-genres">
+            <div class="loading-skeleton" style="height:32px;border-radius:6px;"></div>
+        </div>
+        <div id="insights-teaser" style="margin-top:0.75rem;"></div>
+        <details class="insights-dropdown" id="insights-section" style="display:none;margin-top:0.5rem;">
+            <summary class="history-toggle">See personality breakdown</summary>
+            <div id="insights-grid"></div>
+        </details>
+    </div>
+
 </div>
 
-<div class="music-section" id="insights-section" style="display:none;">
-    <h3>Listening Personality</h3>
-    <p class="music-subtitle">What your music says about you</p>
-    <div id="insights-teaser"></div>
-    <details class="insights-dropdown">
-        <summary class="history-toggle">See full breakdown</summary>
-        <div id="insights-grid"></div>
-    </details>
-</div>
-
-<div class="music-section">
+<!-- Row 2: Top Artists (full width) -->
+<div class="glass music-panel" style="margin-bottom:1rem;">
     <h3>Top Artists</h3>
     <p class="music-subtitle">Over the last month</p>
     <div id="top-artists">
-        <div class="loading-skeleton" style="height: 300px;"></div>
+        <div class="loading-skeleton" style="height:300px;border-radius:8px;"></div>
     </div>
 </div>
 
-<div class="music-section">
+<!-- Row 3: Top Tracks + view switcher (full width) -->
+<div class="glass music-panel" style="margin-bottom:1rem;">
     <h3>Top Tracks</h3>
     <p class="music-subtitle">Over the last month</p>
     <div id="top-tracks">
-        <div class="loading-skeleton" style="height: 300px;"></div>
+        <div class="loading-skeleton" style="height:300px;border-radius:8px;"></div>
     </div>
 </div>
 
-<div class="music-section" id="past-months-section" style="display:none;">
-    <h3>Past Months</h3>
-    <p class="music-subtitle">Your listening history, month by month</p>
-    <div id="past-months-nav"></div>
-    <div id="past-months-content"></div>
-</div>
-
-<div class="music-section" id="vinyl-section" style="display:none;">
+<!-- Row 4: Vinyl Shelf (hidden until data loads) -->
+<div class="glass music-panel" id="vinyl-section" style="display:none;margin-bottom:1rem;">
     <h3>The Shelf</h3>
     <p class="music-subtitle">Your top albums on vinyl</p>
     <div id="vinyl-shelf"></div>
 </div>
 
-<div class="music-section">
-    <h3>Taste Profile</h3>
-    <p class="music-subtitle">Genres across all time</p>
-    <div id="top-genres">
-        <div class="loading-skeleton" style="height: 32px;"></div>
-    </div>
-</div>
-
-<div class="music-section" id="playlists-section">
+<!-- Row 5: Playlists -->
+<div class="glass music-panel" id="playlists-section" style="margin-bottom:1rem;">
     <h3>Playlists</h3>
     <div id="playlists">
-        <div class="loading-skeleton" style="height: 200px;"></div>
+        <div class="loading-skeleton" style="height:200px;border-radius:8px;"></div>
     </div>
 </div>
 
-<div class="music-section" id="vibe-section">
-    <h3>Get to Know My Vibe</h3>
-    <p class="music-subtitle">Curated playlists for every mood</p>
-    <div id="vibe-playlists">
-        <div class="loading-skeleton" style="height: 120px;"></div>
-    </div>
+<!-- Row 6: Past Months (hidden until history exists) -->
+<div class="glass music-panel" id="past-months-section" style="display:none;margin-bottom:1rem;">
+    <h3>Past Months</h3>
+    <p class="music-subtitle">Your listening history, month by month</p>
+    <div id="past-months-nav"></div>
+    <div id="past-months-content"></div>
 </div>
 
 <div class="music-profiles">
@@ -97,6 +94,24 @@ title: "Music"
     </a>
 </div>
 
+<script>
+// Show insights breakdown when data loads; hide the "Taste Profile" placeholder label
+(function () {
+    var origRenderInsights = window.renderInsights;
+    document.addEventListener('DOMContentLoaded', function () {
+        var section = document.getElementById('insights-section');
+        var obs = new MutationObserver(function () {
+            if (section && section.style.display !== 'none') {
+                var title = document.getElementById('insights-panel-title');
+                if (title) title.textContent = 'Listening Personality';
+            }
+        });
+        if (section) obs.observe(section, { attributes: true, attributeFilter: ['style'] });
+    });
+})();
+</script>
+
 <script src="{{ '/assets/js/music.js' | relative_url }}"></script>
 <script src="{{ '/assets/js/music-views.js' | relative_url }}"></script>
 <script src="{{ '/assets/js/playlist-gen.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/scroll-gradient.js' | relative_url }}"></script>
