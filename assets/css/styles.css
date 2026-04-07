@@ -2874,8 +2874,8 @@ footer p {
 
 .wheel-view {
     position: relative;
-    height: 300px;
-    perspective: 600px;
+    height: 380px;
+    perspective: 800px;
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -2901,11 +2901,11 @@ footer p {
 
 .wheel-view__item {
     position: absolute;
-    left: -140px;
-    top: -22px;
-    width: 280px;
+    left: -160px;
+    top: -28px;
+    width: 320px;
     backface-visibility: hidden;
-    padding: 0.35rem 0.6rem;
+    padding: 0.5rem 0.75rem;
     background: var(--bg-subtle);
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -2941,6 +2941,29 @@ footer p {
 .wheel-view__artist {
     font-size: 0.72rem;
     color: var(--text-secondary);
+}
+
+.wheel-view__rank {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--accent);
+    flex-shrink: 0;
+    min-width: 1.8rem;
+}
+
+.wheel-view__genres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 3px;
+}
+
+.wheel-view__genre-tag {
+    font-size: 0.6rem;
+    padding: 1px 5px;
+    background: var(--accent-hover);
+    color: var(--accent);
+    border-radius: 3px;
 }
 
 /* =========================================
@@ -3017,6 +3040,28 @@ footer p {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.showcase-view__genres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    margin-top: 2px;
+}
+
+.showcase-view__genre-tag {
+    font-size: 0.55rem;
+    padding: 1px 4px;
+    background: var(--accent-hover);
+    color: var(--accent);
+    border-radius: 3px;
+}
+
+.past-months-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 @media (max-width: 600px) {

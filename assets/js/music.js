@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
             renderVinylShelf(data.top_tracks);
             renderGenres(data.top_genres);
             renderPlaylists(data.playlists);
+            loadPastMonths();
             if (data.spotify_url) {
                 var link = document.getElementById('spotify-profile-link');
                 if (link) link.href = data.spotify_url;
@@ -487,6 +488,72 @@ function renderVibePanel(id, vibe) {
         '</div>';
 
     panel.innerHTML = html;
+}
+
+/* ── Past Months ── */
+
+function loadPastMonths() {
+    fetch('/assets/data/history/index.json')
+        .then(function (res) {
+            if (!res.ok) return [];
+            return res.json();
+        })
+        .then(function (months) {
+            if (!months || months.length === 0) return;
+
+            var section = document.getElementById('past-months-section');
+            if (section) section.style.display = '';
+
+            var nav = document.getElementById('past-months-nav');
+            if (!nav) return;
+
+            var html = '<div class="past-months-nav">';
+            months.forEach(function (entry) {
+                var label = entry.label || formatMonthLabel(entry.month);
+                html += '<button class="btn-glass history-month-btn" data-month="' + escapeHtml(entry.month) + '">' + escapeHtml(label) + '</button>';
+            });
+            html += '</div>';
+            nav.innerHTML = html;
+
+            nav.querySelectorAll('.history-month-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var month = btn.getAttribute('data-month');
+                    fetch('/assets/data/history/' + month + '.json')
+                        .then(function (res) { return res.json(); })
+                        .then(function (data) { renderHistoricalMonth(data); })
+                        .catch(function () {
+                            var content = document.getElementById('past-months-content');
+                            if (content) content.innerHTML = '<p class="music-error">Could not load data for this month.</p>';
+                        });
+                });
+            });
+        })
+        .catch(function () {
+            // Silently fail — section stays hidden
+        });
+}
+
+function formatMonthLabel(yyyymm) {
+    if (!yyyymm) return yyyymm;
+    var parts = yyyymm.split('-');
+    if (parts.length !== 2) return yyyymm;
+    var date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1);
+    return date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+}
+
+function renderHistoricalMonth(data) {
+    var content = document.getElementById('past-months-content');
+    if (!content) return;
+
+    content.innerHTML =
+        '<p class="music-subtitle">' + escapeHtml(data.label) + '</p>' +
+        '<div id="history-tracks-chart"></div>';
+
+    renderBarChart('history-tracks-chart', data.top_tracks, 'full');
+
+    document.querySelectorAll('.history-month-btn').forEach(function (b) {
+        b.classList.toggle('view-switcher-btn--active', b.getAttribute('data-month') === data.month);
+    });
 }
 
 /* ── Utilities ── */

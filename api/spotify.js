@@ -75,7 +75,7 @@ export default async function handler(req, res) {
         const settled = await Promise.allSettled([
             fetchSpotify(token, '/me/player/currently-playing'),
             fetchSpotify(token, '/me/top/artists?time_range=short_term&limit=10'),
-            fetchSpotify(token, '/me/top/tracks?time_range=short_term&limit=10'),
+            fetchSpotify(token, '/me/top/tracks?time_range=short_term&limit=20'),
             fetchSpotify(token, '/me/top/artists?time_range=long_term&limit=50'),
             fetchSpotify(token, '/me/player/recently-played?limit=10'),
             fetchSpotify(token, '/me/playlists?limit=50'),

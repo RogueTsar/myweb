@@ -274,7 +274,7 @@
         wheelAngle = 0;
         var count = topTracksData.length;
         var angleStep = 360 / count;
-        var radius = 150;
+        var radius = 200;
 
         var html = '<div class="wheel-view">' +
             '<div class="wheel-view__stage">' +
@@ -284,13 +284,23 @@
             var t = topTracksData[i];
             var art = t.album_art || '';
             var angle = i * angleStep;
+            var genresHtml = '';
+            if (t.genres && t.genres.length > 0) {
+                genresHtml = '<div class="wheel-view__genres">';
+                for (var gi = 0; gi < t.genres.length; gi++) {
+                    genresHtml += '<span class="wheel-view__genre-tag">' + escapeHtml(t.genres[gi]) + '</span>';
+                }
+                genresHtml += '</div>';
+            }
             html +=
                 '<div class="wheel-view__item" data-index="' + i + '" style="' +
                     'transform: rotateX(' + angle + 'deg) translateZ(' + radius + 'px);">' +
+                    '<span class="wheel-view__rank">#' + t.rank + '</span>' +
                     '<img class="wheel-view__art" src="' + escapeAttr(art) + '" alt="" loading="lazy">' +
                     '<div class="wheel-view__label">' +
                         '<span class="wheel-view__name">' + escapeHtml(t.name) + '</span>' +
                         '<span class="wheel-view__artist">' + escapeHtml(t.artist) + '</span>' +
+                        genresHtml +
                     '</div>' +
                 '</div>';
         }
@@ -335,6 +345,14 @@
             // Alternating perspective tilt
             var tiltX = (i % 3 - 1) * 8;
             var tiltY = (Math.floor(i / 3) % 2 === 0 ? 1 : -1) * 5;
+            var scGenresHtml = '';
+            if (t.genres && t.genres.length > 0) {
+                scGenresHtml = '<div class="showcase-view__genres">';
+                for (var sgi = 0; sgi < t.genres.length; sgi++) {
+                    scGenresHtml += '<span class="showcase-view__genre-tag">' + escapeHtml(t.genres[sgi]) + '</span>';
+                }
+                scGenresHtml += '</div>';
+            }
             html +=
                 '<div class="showcase-view__card" style="--tilt-x:' + tiltX + 'deg; --tilt-y:' + tiltY + 'deg; --i:' + i + ';">' +
                     '<img class="showcase-view__art" src="' + escapeAttr(art) + '" alt="" loading="lazy">' +
@@ -342,6 +360,7 @@
                         '<span class="showcase-view__rank">#' + t.rank + '</span>' +
                         '<span class="showcase-view__name">' + escapeHtml(t.name) + '</span>' +
                         '<span class="showcase-view__artist">' + escapeHtml(t.artist) + '</span>' +
+                        scGenresHtml +
                     '</div>' +
                 '</div>';
         }
