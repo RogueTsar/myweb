@@ -173,9 +173,9 @@ h3 {
    ========================================= */
 
 body {
-    max-width: 640px;
+    max-width: 860px;
     margin: 60px auto;
-    padding: 0 24px;
+    padding: 0 32px;
 }
 
 .page-content {

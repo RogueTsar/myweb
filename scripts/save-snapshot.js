@@ -132,9 +132,22 @@ async function main() {
         .slice(0, 10)
         .map(([name]) => name);
 
-    // Determine current month
+    // Determine target month:
+    // If SNAPSHOT_MONTH env var is set, use it (format: YYYY-MM).
+    // If run on the 1st of the month (e.g. via cron), save as the PREVIOUS month
+    // since Spotify short_term data reflects the last 4 weeks = last month.
+    // Otherwise save as the current month.
     const now = new Date();
-    const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    let month;
+    if (process.env.SNAPSHOT_MONTH) {
+        month = process.env.SNAPSHOT_MONTH;
+    } else if (now.getDate() <= 3) {
+        // Near start of month → save as previous month
+        const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        month = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}`;
+    } else {
+        month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    }
     const label = monthLabel(month);
 
     const snapshot = {
