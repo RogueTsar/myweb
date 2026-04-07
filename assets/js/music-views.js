@@ -274,7 +274,7 @@
         wheelAngle = 0;
         var count = topTracksData.length;
         var angleStep = 360 / count;
-        var radius = 220;
+        var radius = 150;
 
         var html = '<div class="wheel-view">' +
             '<div class="wheel-view__stage">' +
@@ -336,7 +336,7 @@
             var tiltX = (i % 3 - 1) * 8;
             var tiltY = (Math.floor(i / 3) % 2 === 0 ? 1 : -1) * 5;
             html +=
-                '<div class="showcase-view__card" style="--tilt-x:' + tiltX + 'deg; --tilt-y:' + tiltY + 'deg;">' +
+                '<div class="showcase-view__card" style="--tilt-x:' + tiltX + 'deg; --tilt-y:' + tiltY + 'deg; --i:' + i + ';">' +
                     '<img class="showcase-view__art" src="' + escapeAttr(art) + '" alt="" loading="lazy">' +
                     '<div class="showcase-view__info">' +
                         '<span class="showcase-view__rank">#' + t.rank + '</span>' +
