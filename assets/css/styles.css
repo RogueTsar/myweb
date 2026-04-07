@@ -499,7 +499,7 @@ a:hover {
     font-weight: 300;
     line-height: 1.5;
     color: #d4d0e0;
-    font-style: italic;
+    font-style: normal;
     margin-bottom: 6px;
 }
 
@@ -507,7 +507,11 @@ a:hover {
     font-size: 0.48rem;
     font-weight: 400;
     letter-spacing: 0.04em;
-    color: #C9A96E;
+    color: #8b2020;
+}
+
+[data-theme="dark"] .holo-card__author {
+    color: #8faadc;
 }
 
 .holo-card__inner img {
