@@ -283,6 +283,8 @@ function assemblePage(pageFile, activeNav) {
     <script src="/assets/js/theme.js"></script>
     <script src="/assets/js/name-scatter.js"></script>
     <script src="/assets/js/scroll-gradient.js"></script>
+    <script src="/assets/js/header-info.js"></script>
+    <script src="/assets/js/bg-mesh.js"></script>
 </body>
 </html>`;
 }

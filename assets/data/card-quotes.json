@@ -38,19 +38,6 @@
         "quote": "Man is always prey to his truths. Once he has admitted them, he cannot free himself from them.",
         "author": "Albert Camus, The Myth of Sisyphus, 1942. On the inescapable weight of confronting the absurd."
       }
-    },
-    {
-      "id": "chicot",
-      "lightImage": "/assets/images/chicot.png",
-      "darkImage": "/assets/images/joker.png",
-      "light": {
-        "quote": "Let gratitude be the pillow upon which you kneel to say your nightly prayer.",
-        "author": "Maya Angelou, Celebrations: Rituals of Peace and Prayer, 2006. On the discipline of thankfulness."
-      },
-      "dark": {
-        "quote": "You think your pain and your heartbreak are unprecedented in the history of the world, but then you read.",
-        "author": "James Baldwin, interview with Life Magazine, 1963. On literature as solace and perspective."
-      }
     }
   ]
 }

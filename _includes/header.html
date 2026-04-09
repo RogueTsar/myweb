@@ -1,5 +1,10 @@
 <header>
     <h1><a href="{{ '/' | relative_url }}" class="name-scatter" id="name-scatter">Vaishnavi Singh</a></h1>
+    <div class="header-info" id="header-info" aria-label="Date, time and weather">
+        <span class="header-info__date" id="header-date"></span>
+        <span class="header-info__sep">·</span>
+        <span class="header-info__weather" id="header-weather"></span>
+    </div>
     <nav>
         <a href="{{ '/' | relative_url }}" {% if page.url == '/' or page.url == '/index.html' %}class="active"{% endif %}>Home</a>
         <a href="{{ '/work.html' | relative_url }}" {% if page.url == '/work.html' %}class="active"{% endif %}>Work</a>
