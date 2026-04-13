@@ -45,7 +45,8 @@ function getFrontMatter(content) {
 }
 
 function parseTags(fm) {
-    const raw = fm.tags || '';
+    const raw = (fm.tags || '').trim();
+    if (!raw || raw === '[]') return [];
     // Handle [tag1, tag2] format
     const match = raw.match(/^\[(.+)\]$/);
     if (match) {
@@ -53,7 +54,7 @@ function parseTags(fm) {
     }
     // Handle comma-separated
     if (raw.includes(',')) return raw.split(',').map(t => t.trim()).filter(Boolean);
-    return raw ? [raw.trim()] : [];
+    return [raw];
 }
 
 function fixUrls(text) {
@@ -202,10 +203,12 @@ function readAllPosts() {
             filename: f,
             title: pfm.title || slug,
             date: formatted,
+            dateIso: dateStr,
             excerpt: rawExcerpt + '...',
             slug,
             tags,
             section,
+            status: (pfm.status || 'published').trim(),
             bodyMd: postBody,
             fm: pfm,
         });
@@ -403,5 +406,28 @@ function copyRecursive(src, dest) {
 
 copyRecursive(path.join(BASE, 'assets'), path.join(SITE, 'assets'));
 fs.copyFileSync(path.join(BASE, 'favicon.svg'), path.join(SITE, 'favicon.svg'));
+
+// Copy CMS admin files
+if (fs.existsSync(path.join(BASE, 'cms'))) {
+    copyRecursive(path.join(BASE, 'cms'), path.join(SITE, 'cms'));
+}
+
+// Auto-generate blog-posts.json from _posts/ so it stays in sync with Markdown files
+const blogPostsData = allPosts.map(post => {
+    const wordCount = post.bodyMd.trim().split(/\s+/).filter(Boolean).length;
+    const readTime = Math.max(1, Math.ceil(wordCount / 200));
+    const baseUrl = post.section === 'personal' ? '/personal' : '/blog';
+    return {
+        title: post.title,
+        url: `${baseUrl}/${post.slug}.html`,
+        date: post.dateIso,
+        tags: post.tags,
+        readTime,
+        status: post.status,
+        section: post.section,
+        excerpt: post.excerpt,
+    };
+});
+writeOut('assets/data/blog-posts.json', JSON.stringify(blogPostsData, null, 2));
 
 console.log(`Built ${fs.readdirSync(SITE).length} items to _site/`);

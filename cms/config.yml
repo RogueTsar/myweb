@@ -1,0 +1,104 @@
+backend:
+  name: github
+  repo: roguetsar/myweb
+  branch: main
+  base_url: https://vaishnavisingh.vercel.app
+  auth_endpoint: /api/auth
+
+media_folder: "assets/images"
+public_folder: "/assets/images"
+
+collections:
+  - name: "blog"
+    label: "Blog Posts"
+    folder: "_posts"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    filter:
+      field: "section"
+      value: "blog"
+    fields:
+      - { label: "Layout", name: "layout", widget: "hidden", default: "post" }
+      - { label: "Title", name: "title", widget: "string" }
+      - label: "Date"
+        name: "date"
+        widget: "datetime"
+        format: "YYYY-MM-DD"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+      - label: "Tags"
+        name: "tags"
+        widget: "select"
+        multiple: true
+        required: false
+        options:
+          - "ai-safety"
+          - "ai-control"
+          - "ai-policy"
+          - "ai-law"
+          - "ai-welfare"
+          - "governance"
+          - "international-agreements"
+          - "multi-agent-systems"
+          - "research"
+          - "rationality"
+          - "philosophy-of-mind"
+          - "opinion-in-progress"
+      - { label: "Section", name: "section", widget: "hidden", default: "blog" }
+      - label: "Status"
+        name: "status"
+        widget: "select"
+        default: "published"
+        options:
+          - { label: "Published", value: "published" }
+          - { label: "Coming Soon", value: "coming-soon" }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "personal"
+    label: "Personal Posts"
+    folder: "_posts"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    filter:
+      field: "section"
+      value: "personal"
+    fields:
+      - { label: "Layout", name: "layout", widget: "hidden", default: "post" }
+      - { label: "Title", name: "title", widget: "string" }
+      - label: "Date"
+        name: "date"
+        widget: "datetime"
+        format: "YYYY-MM-DD"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+      - label: "Tags"
+        name: "tags"
+        widget: "select"
+        multiple: true
+        required: false
+        options:
+          - "philosophy"
+          - "history"
+          - "religion"
+          - "politics"
+          - "science"
+          - "poetry"
+          - "math"
+          - "art"
+          - "flora-fauna"
+          - "music"
+          - "food"
+          - "films"
+          - "literature"
+          - "reflections"
+          - "life"
+          - "pictures"
+      - { label: "Section", name: "section", widget: "hidden", default: "personal" }
+      - label: "Status"
+        name: "status"
+        widget: "select"
+        default: "published"
+        options:
+          - { label: "Published", value: "published" }
+          - { label: "Coming Soon", value: "coming-soon" }
+      - { label: "Body", name: "body", widget: "markdown" }
