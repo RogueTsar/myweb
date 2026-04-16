@@ -278,7 +278,7 @@
         wheelAngle = 0;
         var count     = topTracksData.length;
         var angleStep = 360 / count;
-        var radius    = 200;
+        var radius    = 220;
         var mx        = maxPlays();
 
         var html = '<div class="wheel-view"><div class="wheel-view__stage"><div class="wheel-view__ring">';
@@ -300,7 +300,7 @@
             var genresHtml = '';
             if (t.genres && t.genres.length > 0) {
                 genresHtml = '<div class="wheel-view__genres">';
-                for (var gi = 0; gi < t.genres.length; gi++) {
+                for (var gi = 0; gi < Math.min(t.genres.length, 3); gi++) {
                     genresHtml += '<span class="wheel-view__genre-tag">' + escapeHtml(t.genres[gi]) + '</span>';
                 }
                 genresHtml += '</div>';
@@ -325,20 +325,67 @@
 
         var stage = viewContainer.querySelector('.wheel-view__stage');
         var ring  = viewContainer.querySelector('.wheel-view__ring');
+        var velocity = 0;
+        var rafId = null;
+
+        function applyWheelAngle(angle) {
+            ring.style.transform = 'rotateX(' + angle + 'deg)';
+            // Update opacity based on proximity to front face (rotateX = 0)
+            var items = ring.querySelectorAll('.wheel-view__item');
+            items.forEach(function (item, idx) {
+                var itemAngle = idx * angleStep;
+                // Normalize to [-180, 180] relative to current angle
+                var rel = ((itemAngle - (-angle)) % 360 + 540) % 360 - 180;
+                var proximity = 1 - Math.abs(rel) / 100;
+                var opacity = Math.max(0.15, Math.min(1, proximity * 1.4));
+                item.style.opacity = opacity;
+                if (Math.abs(rel) < 20) {
+                    item.style.boxShadow = '0 4px 24px rgba(0,0,0,0.18)';
+                } else {
+                    item.style.boxShadow = 'none';
+                }
+            });
+        }
+
+        function momentumLoop() {
+            if (Math.abs(velocity) < 0.1) { velocity = 0; return; }
+            wheelAngle += velocity;
+            velocity *= 0.92;
+            applyWheelAngle(wheelAngle);
+            rafId = requestAnimationFrame(momentumLoop);
+        }
+
+        applyWheelAngle(0);
 
         stage.addEventListener('wheel', function (e) {
             e.preventDefault();
-            wheelAngle += e.deltaY > 0 ? angleStep : -angleStep;
-            ring.style.transform = 'rotateX(' + wheelAngle + 'deg)';
-        });
+            if (rafId) cancelAnimationFrame(rafId);
+            velocity = e.deltaY * 0.08;
+            wheelAngle += e.deltaY * 0.4;
+            applyWheelAngle(wheelAngle);
+            rafId = requestAnimationFrame(momentumLoop);
+        }, { passive: false });
 
         var lastY = 0;
-        stage.addEventListener('touchstart', function (e) { lastY = e.touches[0].clientY; }, { passive: true });
-        stage.addEventListener('touchmove',  function (e) {
-            var diff = e.touches[0].clientY - lastY;
+        var dragVelocity = 0;
+        var lastMoveTime = 0;
+        stage.addEventListener('touchstart', function (e) {
             lastY = e.touches[0].clientY;
-            wheelAngle -= diff * 0.5;
-            ring.style.transform = 'rotateX(' + wheelAngle + 'deg)';
+            if (rafId) cancelAnimationFrame(rafId);
+            velocity = 0;
+        }, { passive: true });
+        stage.addEventListener('touchmove', function (e) {
+            var now = Date.now();
+            var diff = e.touches[0].clientY - lastY;
+            dragVelocity = diff / Math.max(1, now - lastMoveTime);
+            lastY = e.touches[0].clientY;
+            lastMoveTime = now;
+            wheelAngle -= diff * 0.8;
+            applyWheelAngle(wheelAngle);
+        }, { passive: true });
+        stage.addEventListener('touchend', function () {
+            velocity = -dragVelocity * 12;
+            rafId = requestAnimationFrame(momentumLoop);
         }, { passive: true });
     }
 

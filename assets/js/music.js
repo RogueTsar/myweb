@@ -529,19 +529,28 @@ function renderPlaylists(playlists) {
         var descHtml = desc ? '<p class="playlist-stack__desc">' + escapeHtml(desc) + '</p>' : '';
 
         // Build metadata chips row
+        var iconPlay    = '<svg width="9" height="9" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><polygon points="2,1 9,5 2,9"/></svg>';
+        var iconCal     = '<svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="1" y="2" width="10" height="9" rx="1.5"/><line x1="4" y1="1" x2="4" y2="3"/><line x1="8" y1="1" x2="8" y2="3"/><line x1="1" y1="5" x2="11" y2="5"/></svg>';
+        var iconNote    = '<svg width="9" height="9" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M9 1v6.5A2 2 0 1 1 7 9V4L4 5V9.5A2 2 0 1 1 2 11V3l7-2z"/></svg>';
+        var iconPerson  = '<svg width="9" height="9" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><circle cx="6" cy="3.5" r="2.5"/><path d="M1 11c0-2.76 2.24-5 5-5s5 2.24 5 5"/></svg>';
+        var iconTracks  = '<svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><line x1="1" y1="3" x2="11" y2="3"/><line x1="1" y1="6" x2="8" y2="6"/><line x1="1" y1="9" x2="9" y2="9"/></svg>';
+
         var metaChips = '';
+        if (p.track_count > 0) {
+            metaChips += '<span class="pl-meta-chip" title="Number of tracks">' + iconTracks + p.track_count + ' tracks</span>';
+        }
         if (p.last_played_rel) {
             metaChips += '<span class="pl-meta-chip pl-meta-chip--played" title="Last time I played a track from this playlist">' +
-                '<span class="pl-meta-chip__dot"></span>played ' + escapeHtml(p.last_played_rel) + '</span>';
+                iconPlay + 'played ' + escapeHtml(p.last_played_rel) + '</span>';
         }
         if (p.last_updated_rel) {
-            metaChips += '<span class="pl-meta-chip" title="Most recent track added">updated ' + escapeHtml(p.last_updated_rel) + '</span>';
+            metaChips += '<span class="pl-meta-chip pl-meta-chip--updated" title="Most recent track added">' + iconCal + 'updated ' + escapeHtml(p.last_updated_rel) + '</span>';
         }
         if (p.top_genre) {
-            metaChips += '<span class="pl-meta-chip pl-meta-chip--genre">' + escapeHtml(p.top_genre) + '</span>';
+            metaChips += '<span class="pl-meta-chip pl-meta-chip--genre">' + iconNote + escapeHtml(p.top_genre) + '</span>';
         }
         if (p.top_artist) {
-            metaChips += '<span class="pl-meta-chip pl-meta-chip--artist" title="Most frequent artist in this playlist">♫ ' + escapeHtml(p.top_artist) + '</span>';
+            metaChips += '<span class="pl-meta-chip pl-meta-chip--artist" title="Most frequent artist in this playlist">' + iconPerson + escapeHtml(p.top_artist) + '</span>';
         }
         var metaHtml = metaChips ? '<div class="pl-meta-row">' + metaChips + '</div>' : '';
 
