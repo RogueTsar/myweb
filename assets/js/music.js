@@ -16,14 +16,16 @@ document.addEventListener('DOMContentLoaded', function () {
             return res.json();
         })
         .then(function (data) {
+            window.__musicData = data; // expose for debugging + evolution chart
             renderLastPlayed(data.last_played);
             renderRecentHistory(data.recent_tracks);
-            renderInsights(data.audio_features, data.top_artists, data.top_tracks, data.recent_tracks);
+            renderInsights(data.audio_features, data.top_artists, data.top_tracks, data.recent_tracks, data.personality);
             renderBarChart('top-artists', data.top_artists, 'name');
             renderBarChart('top-tracks', data.top_tracks, 'full');
             if (window.MusicViews) window.MusicViews.init(data.top_tracks);
             renderVinylShelf(data.top_tracks);
             renderGenres(data.top_genres);
+            renderGenresAcrossTime(data.genres_by_range);
             renderPlaylists(data.playlists);
             loadPastMonths();
             if (data.spotify_url) {
@@ -137,7 +139,7 @@ function getLabel(metric, value) {
     return { text: tiers[tiers.length - 1][1] };
 }
 
-function renderInsights(audioFeatures, topArtists, topTracks, recentTracks) {
+function renderInsights(audioFeatures, topArtists, topTracks, recentTracks, serverPersonality) {
     var section = document.getElementById('insights-section');
     var teaser = document.getElementById('insights-teaser');
     var grid = document.getElementById('insights-grid');
@@ -252,6 +254,18 @@ function renderInsights(audioFeatures, topArtists, topTracks, recentTracks) {
             '</div>';
     });
     html += '</div>';
+
+    // Richer metadata row: genre breadth, unique artist count, top genre
+    var uniqueArtists = Object.keys(allArtists).length;
+    var genreBreadth = serverPersonality && serverPersonality.genre_breadth != null ? serverPersonality.genre_breadth : null;
+    html += '<div class="insights-meta">';
+    html += '<div class="insights-meta__item"><span class="insights-meta__num">' + uniqueArtists + '</span><span class="insights-meta__label">unique artists seen</span></div>';
+    if (genreBreadth != null) {
+        html += '<div class="insights-meta__item"><span class="insights-meta__num">' + genreBreadth + '</span><span class="insights-meta__label">distinct genres</span></div>';
+    }
+    html += '<div class="insights-meta__item"><span class="insights-meta__num">' + (topTracks ? topTracks.length : 0) + '</span><span class="insights-meta__label">top tracks this month</span></div>';
+    html += '</div>';
+
     grid.innerHTML = html;
 
     requestAnimationFrame(function () {
@@ -260,6 +274,106 @@ function renderInsights(audioFeatures, topArtists, topTracks, recentTracks) {
             bars[k].style.width = bars[k].getAttribute('data-width');
         }
     });
+
+    // Fire-and-forget: load personality evolution from history snapshots
+    renderPersonalityEvolution({
+        obscurity: obscurity, mainstream: mainstream, loyalty: loyalty, diversity: diversity
+    });
+}
+
+/* ── Personality Evolution (reads /assets/data/history/*.json snapshots) ── */
+
+function renderPersonalityEvolution(currentMetrics) {
+    var target = document.getElementById('insights-evolution');
+    if (!target) return;
+
+    fetch('/assets/data/history/index.json')
+        .then(function (r) { return r.ok ? r.json() : []; })
+        .then(function (months) {
+            if (!months || months.length === 0) {
+                target.innerHTML = '<p class="insights-evolution__empty">Evolution chart will fill in as monthly snapshots accumulate. Current month is your first data point.</p>';
+                return;
+            }
+            // Load each snapshot & compute metrics
+            return Promise.all(months.slice(0, 12).map(function (m) {
+                return fetch('/assets/data/history/' + m.month + '.json')
+                    .then(function (r) { return r.ok ? r.json() : null; })
+                    .catch(function () { return null; });
+            })).then(function (snapshots) {
+                var points = snapshots.filter(Boolean).map(function (s) {
+                    // Try to use stored personality; else compute from snapshot data
+                    if (s.personality) return { month: s.month, label: s.label, p: s.personality };
+                    // Fallback compute
+                    var ta = s.top_artists || [];
+                    var tt = s.top_tracks || [];
+                    var popAvg = ta.length ? Math.round(ta.reduce(function (x, a) { return x + (a.popularity || 50); }, 0) / ta.length) : 50;
+                    var aset = {}; tt.forEach(function (t) { aset[t.artist] = true; });
+                    var loy = tt.length ? Math.round((1 - Object.keys(aset).length / tt.length) * 100) : 50;
+                    return {
+                        month: s.month, label: s.label,
+                        p: { obscurity: 100 - popAvg, mainstream: popAvg, loyalty: loy, diversity: 50 }
+                    };
+                });
+
+                // Append current month as the most recent point
+                var nowLabel = new Date().toLocaleString('en-US', { month: 'short', year: 'numeric' });
+                points.push({ month: 'current', label: nowLabel + ' (now)', p: currentMetrics });
+
+                drawEvolutionChart(target, points);
+            });
+        })
+        .catch(function () {
+            target.innerHTML = '';
+        });
+}
+
+function drawEvolutionChart(target, points) {
+    if (points.length === 0) return;
+
+    var w = 420, h = 140, pad = { t: 10, r: 10, b: 24, l: 32 };
+    var iw = w - pad.l - pad.r, ih = h - pad.t - pad.b;
+    var metrics = ['obscurity', 'mainstream', 'loyalty', 'diversity'];
+    var colors = {
+        obscurity: 'var(--accent)',
+        mainstream: 'var(--accent-light)',
+        loyalty: 'var(--gold)',
+        diversity: 'var(--green)'
+    };
+
+    function x(i) { return pad.l + (points.length === 1 ? iw / 2 : (i / (points.length - 1)) * iw); }
+    function y(v) { return pad.t + ih - (v / 100) * ih; }
+
+    var svg = '<svg class="insights-evolution__svg" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="xMidYMid meet">';
+    // Y grid
+    [0, 25, 50, 75, 100].forEach(function (v) {
+        svg += '<line x1="' + pad.l + '" y1="' + y(v) + '" x2="' + (w - pad.r) + '" y2="' + y(v) + '" stroke="var(--border)" stroke-width="0.5"/>';
+        svg += '<text x="' + (pad.l - 4) + '" y="' + (y(v) + 3) + '" font-size="8" fill="var(--text-tertiary)" text-anchor="end">' + v + '</text>';
+    });
+    // X labels
+    points.forEach(function (p, i) {
+        svg += '<text x="' + x(i) + '" y="' + (h - 6) + '" font-size="8" fill="var(--text-tertiary)" text-anchor="middle">' +
+            (p.label || p.month).replace(' (now)', '*') + '</text>';
+    });
+    // Each metric line
+    metrics.forEach(function (m) {
+        var path = points.map(function (p, i) {
+            var v = p.p && p.p[m] != null ? p.p[m] : 50;
+            return (i === 0 ? 'M' : 'L') + x(i) + ' ' + y(v);
+        }).join(' ');
+        svg += '<path d="' + path + '" fill="none" stroke="' + colors[m] + '" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>';
+        points.forEach(function (p, i) {
+            var v = p.p && p.p[m] != null ? p.p[m] : 50;
+            svg += '<circle cx="' + x(i) + '" cy="' + y(v) + '" r="2.5" fill="' + colors[m] + '"/>';
+        });
+    });
+    svg += '</svg>';
+
+    var legend = '<div class="insights-evolution__legend">' +
+        metrics.map(function (m) {
+            return '<span class="insights-evolution__key"><span class="insights-evolution__dot" style="background:' + colors[m] + '"></span>' + m + '</span>';
+        }).join('') + '</div>';
+
+    target.innerHTML = '<div class="insights-evolution__title">Evolution over time</div>' + svg + legend;
 }
 
 /* ── Bar Chart ── */
@@ -293,10 +407,22 @@ function renderBarChart(containerId, items, mode) {
             });
         }
 
+        // Play count badge (only for full-mode tracks with play data)
+        var playHtml = '';
+        if (mode === 'full' && (item.est_plays || item.recent_plays)) {
+            var plays = item.est_plays || item.recent_plays || 0;
+            var exactLabel = item.recent_plays > 0
+                ? item.recent_plays + ' in last 50 plays · ~' + plays + ' this month'
+                : '~' + plays + ' plays this month (est.)';
+            playHtml = ' <span class="bar-chart-row__plays" title="' + escapeHtml(exactLabel) + '">' +
+                '<svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>' +
+                plays + '</span>';
+        }
+
         html +=
             '<div class="bar-chart-row">' +
                 '<span class="bar-chart-row__rank">' + item.rank + '</span>' +
-                '<span class="bar-chart-row__label">' + labelHtml + genreHtml + '</span>' +
+                '<span class="bar-chart-row__label">' + labelHtml + genreHtml + playHtml + '</span>' +
                 '<div class="bar-chart-row__bar-container">' +
                     '<div class="bar-chart-row__bar" data-width="' + pct + '%"></div>' +
                 '</div>' +
@@ -396,17 +522,105 @@ function renderPlaylists(playlists) {
         var countText = p.track_count > 0 ? p.track_count + ' tracks' : '';
         var desc = cleanDesc(p.description);
         var descHtml = desc ? '<p class="playlist-stack__desc">' + escapeHtml(desc) + '</p>' : '';
+
+        // Build metadata chips row
+        var metaChips = '';
+        if (p.last_played_rel) {
+            metaChips += '<span class="pl-meta-chip pl-meta-chip--played" title="Last time I played a track from this playlist">' +
+                '<span class="pl-meta-chip__dot"></span>played ' + escapeHtml(p.last_played_rel) + '</span>';
+        }
+        if (p.last_updated_rel) {
+            metaChips += '<span class="pl-meta-chip" title="Most recent track added">updated ' + escapeHtml(p.last_updated_rel) + '</span>';
+        }
+        if (p.top_genre) {
+            metaChips += '<span class="pl-meta-chip pl-meta-chip--genre">' + escapeHtml(p.top_genre) + '</span>';
+        }
+        if (p.top_artist) {
+            metaChips += '<span class="pl-meta-chip pl-meta-chip--artist" title="Most frequent artist in this playlist">♫ ' + escapeHtml(p.top_artist) + '</span>';
+        }
+        var metaHtml = metaChips ? '<div class="pl-meta-row">' + metaChips + '</div>' : '';
+
         html +=
             '<a class="playlist-stack__card" href="' + escapeHtml(p.url) + '" target="_blank" rel="noopener" style="--i:' + i + '">' +
                 imgHtml +
                 '<div class="playlist-stack__body">' +
                     '<div class="playlist-stack__name">' + escapeHtml(p.name) + '</div>' +
                     (countText ? '<div class="playlist-stack__count">' + countText + '</div>' : '') +
+                    metaHtml +
                     descHtml +
                 '</div>' +
             '</a>';
     }
     html += '</div>';
+    container.innerHTML = html;
+}
+
+/* ── Genres Across Time ── */
+
+function renderGenresAcrossTime(byRange) {
+    var container = document.getElementById('genres-time');
+    var section = document.getElementById('genres-time-section');
+    if (!container) return;
+    if (!byRange || (!byRange.short?.length && !byRange.medium?.length && !byRange.long?.length)) {
+        if (section) section.style.display = 'none';
+        return;
+    }
+
+    var cols = [
+        { key: 'short', title: 'Last month', items: byRange.short || [] },
+        { key: 'medium', title: 'Last six months', items: byRange.medium || [] },
+        { key: 'long', title: 'All time', items: byRange.long || [] }
+    ];
+
+    var html = '<div class="genres-time-grid">';
+    cols.forEach(function (c) {
+        html += '<div class="genres-time-col">' +
+                '<div class="genres-time-col__title">' + escapeHtml(c.title) + '</div>' +
+                '<div class="genres-time-col__tags">';
+        if (c.items.length === 0) {
+            html += '<span class="genres-time__empty">no data</span>';
+        } else {
+            c.items.slice(0, 8).forEach(function (g, i) {
+                var intensity = Math.max(30, 100 - i * 10);
+                html += '<span class="genre-tag genre-tag--timeslot" style="--intensity:' + intensity + '%">' +
+                    escapeHtml(g.name) +
+                    (g.count > 1 ? '<span class="genre-tag__count">' + g.count + '</span>' : '') +
+                    '</span>';
+            });
+        }
+        html += '</div></div>';
+    });
+    html += '</div>';
+
+    // Add a delta note (genres that appeared in short but not long = emerging)
+    var emerging = [];
+    var fading = [];
+    var longSet = {};
+    (byRange.long || []).forEach(function (g) { longSet[g.name] = true; });
+    var shortSet = {};
+    (byRange.short || []).forEach(function (g) { shortSet[g.name] = true; });
+    (byRange.short || []).slice(0, 10).forEach(function (g) {
+        if (!longSet[g.name]) emerging.push(g.name);
+    });
+    (byRange.long || []).slice(0, 10).forEach(function (g) {
+        if (!shortSet[g.name]) fading.push(g.name);
+    });
+
+    if (emerging.length > 0 || fading.length > 0) {
+        html += '<div class="genres-time-delta">';
+        if (emerging.length > 0) {
+            html += '<div class="genres-time-delta__row"><span class="genres-time-delta__label">↑ Emerging</span>' +
+                emerging.slice(0, 5).map(function (n) { return '<span class="genre-tag genre-tag--emerging">' + escapeHtml(n) + '</span>'; }).join('') +
+                '</div>';
+        }
+        if (fading.length > 0) {
+            html += '<div class="genres-time-delta__row"><span class="genres-time-delta__label">↓ Fading</span>' +
+                fading.slice(0, 5).map(function (n) { return '<span class="genre-tag genre-tag--fading">' + escapeHtml(n) + '</span>'; }).join('') +
+                '</div>';
+        }
+        html += '</div>';
+    }
+
     container.innerHTML = html;
 }
 

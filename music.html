@@ -32,9 +32,19 @@ title: "Music"
         <details class="insights-dropdown" id="insights-section" style="display:none;margin-top:0.5rem;">
             <summary class="history-toggle">See personality breakdown</summary>
             <div id="insights-grid"></div>
+            <div id="insights-evolution" style="margin-top:1rem;"></div>
         </details>
     </div>
 
+</div>
+
+<!-- Row: Genres Across Time -->
+<div class="glass music-panel" id="genres-time-section" style="margin-bottom:1.75rem;">
+    <h3>Genres Across Time</h3>
+    <p class="music-subtitle">How my taste has shifted — month, six months, all-time</p>
+    <div id="genres-time">
+        <div class="loading-skeleton" style="height:180px;border-radius:8px;"></div>
+    </div>
 </div>
 
 <!-- Row 2: Top Artists (full width) -->
@@ -49,7 +59,7 @@ title: "Music"
 <!-- Row 3: Top Tracks + view switcher (full width) -->
 <div class="glass music-panel" style="margin-bottom:1.75rem;">
     <h3>Top Tracks</h3>
-    <p class="music-subtitle">Over the last month</p>
+    <p class="music-subtitle">Over the last month · with play counts</p>
     <div id="top-tracks">
         <div class="loading-skeleton" style="height:300px;border-radius:8px;"></div>
     </div>
@@ -65,6 +75,7 @@ title: "Music"
 <!-- Row 5: Playlists -->
 <div class="glass music-panel" id="playlists-section" style="margin-bottom:1.75rem;">
     <h3>Playlists</h3>
+    <p class="music-subtitle">Last played, last updated, top artist, and dominant genre</p>
     <div id="playlists">
         <div class="loading-skeleton" style="height:200px;border-radius:8px;"></div>
     </div>
@@ -97,7 +108,6 @@ title: "Music"
 <script>
 // Show insights breakdown when data loads; hide the "Taste Profile" placeholder label
 (function () {
-    var origRenderInsights = window.renderInsights;
     document.addEventListener('DOMContentLoaded', function () {
         var section = document.getElementById('insights-section');
         var obs = new MutationObserver(function () {

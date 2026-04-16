@@ -24,9 +24,12 @@
         var section = document.getElementById('top-tracks');
         if (!section) return;
 
-        // Find the music-section wrapper
-        var wrapper = section.closest('.music-section');
+        // Find the wrapper — supports both legacy .music-section and new .glass.music-panel
+        var wrapper = section.closest('.music-panel') || section.closest('.music-section');
         if (!wrapper) return;
+
+        // Guard against double-init
+        if (wrapper.querySelector('.view-switcher-prompt')) return;
 
         // Create the switcher prompt (insert after subtitle)
         var subtitle = wrapper.querySelector('.music-subtitle');
