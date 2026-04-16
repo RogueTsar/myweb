@@ -4,9 +4,18 @@
  */
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 const BASE = __dirname;
 const SITE = path.join(BASE, '_site');
+
+// Cache-busting version string — git short hash, falls back to timestamp
+let BUILD_VER;
+try {
+    BUILD_VER = execSync('git rev-parse --short HEAD', { cwd: BASE }).toString().trim();
+} catch (_) {
+    BUILD_VER = Date.now().toString(36);
+}
 
 function read(relPath) {
     return fs.readFileSync(path.join(BASE, relPath), 'utf8');
@@ -59,6 +68,9 @@ function parseTags(fm) {
 function fixUrls(text) {
     text = text.replace(/\{\{\s*'([^']+)'\s*\|\s*relative_url\s*\}\}/g, '$1');
     text = text.replace(/\{\{\s*"([^"]+)"\s*\|\s*relative_url\s*\}\}/g, '$1');
+    // Append cache-busting version to all local CSS/JS assets
+    text = text.replace(/((?:src|href)=")(\/assets\/(?:css|js)\/[^"?]+)(")/g,
+        '$1$2?v=' + BUILD_VER + '$3');
     return text;
 }
 
@@ -280,11 +292,11 @@ function assemblePage(pageFile, activeNav) {
         ${bodyFixed}
     </main>
     ${footer}
-    <script src="/assets/js/theme.js"></script>
-    <script src="/assets/js/name-scatter.js"></script>
-    <script src="/assets/js/scroll-gradient.js"></script>
-    <script src="/assets/js/header-info.js"></script>
-    <script src="/assets/js/bg-mesh.js"></script>
+    <script src="/assets/js/theme.js?v=${BUILD_VER}"></script>
+    <script src="/assets/js/name-scatter.js?v=${BUILD_VER}"></script>
+    <script src="/assets/js/scroll-gradient.js?v=${BUILD_VER}"></script>
+    <script src="/assets/js/header-info.js?v=${BUILD_VER}"></script>
+    <script src="/assets/js/bg-mesh.js?v=${BUILD_VER}"></script>
 </body>
 </html>`;
 }
