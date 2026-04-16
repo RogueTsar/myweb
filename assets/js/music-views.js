@@ -4,7 +4,7 @@
     'use strict';
 
     /* ── State ── */
-    var currentView = null; // null = bar chart (default), 'cd', 'wheel', 'showcase'
+    var currentView = null; // null = bar chart, 'cd', 'wheel', 'showcase'
     var topTracksData = null;
     var viewContainer = null;
     var autoScrollTimer = null;
@@ -24,28 +24,21 @@
         var section = document.getElementById('top-tracks');
         if (!section) return;
 
-        // Find the wrapper — supports both legacy .music-section and new .glass.music-panel
         var wrapper = section.closest('.music-panel') || section.closest('.music-section');
         if (!wrapper) return;
 
-        // Guard against double-init
-        if (wrapper.querySelector('.view-switcher-prompt')) return;
+        if (wrapper.querySelector('.view-switcher-buttons')) return;
 
-        // Create the switcher prompt (insert after subtitle)
         var subtitle = wrapper.querySelector('.music-subtitle');
-        var prompt = document.createElement('button');
-        prompt.className = 'btn-glass view-switcher-prompt';
-        prompt.textContent = 'more views :)';
 
         var btnGroup = document.createElement('div');
         btnGroup.className = 'view-switcher-buttons';
-        btnGroup.style.display = 'none';
 
         var views = [
-            { key: 'cd', label: 'CD View' },
-            { key: 'wheel', label: 'Wheel View' },
+            { key: 'cd',       label: 'CD View' },
+            { key: 'wheel',    label: 'Wheel View' },
             { key: 'showcase', label: 'Showcase View' },
-            { key: null, label: 'Bar Chart' }
+            { key: null,       label: 'Bar Chart' }
         ];
 
         views.forEach(function (v) {
@@ -53,50 +46,38 @@
             btn.className = 'btn-glass view-switcher-btn';
             btn.textContent = v.label;
             btn.setAttribute('data-view', v.key || 'bar');
-            if (v.key === null) btn.classList.add('view-switcher-btn--active');
+            if (v.key === 'cd') btn.classList.add('view-switcher-btn--active');
             btn.addEventListener('click', function () {
                 switchView(v.key);
-                var allBtns = btnGroup.querySelectorAll('.view-switcher-btn');
-                for (var i = 0; i < allBtns.length; i++) {
-                    allBtns[i].classList.remove('view-switcher-btn--active');
-                }
+                btnGroup.querySelectorAll('.view-switcher-btn').forEach(function (b) {
+                    b.classList.remove('view-switcher-btn--active');
+                });
                 btn.classList.add('view-switcher-btn--active');
             });
             btnGroup.appendChild(btn);
         });
 
-        prompt.addEventListener('click', function () {
-            if (btnGroup.style.display === 'none') {
-                btnGroup.style.display = '';
-                prompt.style.display = 'none';
-            }
-        });
+        section.after(btnGroup);
 
-        // Insert AFTER the tracks container (prompt first, then buttons)
-        section.after(prompt);
-        prompt.after(btnGroup);
-
-        // Create alternate view container (after buttons)
         viewContainer = document.createElement('div');
         viewContainer.id = 'top-tracks-alt-view';
         viewContainer.style.display = 'none';
         btnGroup.after(viewContainer);
+
+        // Default to CD view — hide bar chart, show carousel
+        switchView('cd');
     }
 
     function switchView(viewKey) {
         var barChart = document.getElementById('top-tracks');
         stopAutoScroll();
 
-        // Fade out
         var outEl = currentView === null ? barChart : viewContainer;
         outEl.style.transition = 'opacity 200ms ease';
         outEl.style.opacity = '0';
 
         setTimeout(function () {
-            // Hide old
-            if (currentView === null) {
-                barChart.style.display = 'none';
-            }
+            if (currentView === null) barChart.style.display = 'none';
             viewContainer.innerHTML = '';
             viewContainer.style.display = 'none';
 
@@ -112,8 +93,8 @@
             } else {
                 viewContainer.style.display = '';
                 viewContainer.style.opacity = '0';
-                if (viewKey === 'cd') renderCDCarousel();
-                else if (viewKey === 'wheel') renderWheel();
+                if (viewKey === 'cd')       renderCDCarousel();
+                else if (viewKey === 'wheel')    renderWheel();
                 else if (viewKey === 'showcase') renderShowcase();
                 requestAnimationFrame(function () {
                     viewContainer.style.transition = 'opacity 200ms ease';
@@ -123,8 +104,22 @@
         }, 200);
     }
 
+    /* ── Play count helpers ── */
+    function maxPlays() {
+        var m = 0;
+        (topTracksData || []).forEach(function (t) {
+            var p = t.est_plays || t.recent_plays || 0;
+            if (p > m) m = p;
+        });
+        return m || 1;
+    }
+
+    function trackPlays(t) {
+        return t.est_plays || t.recent_plays || 0;
+    }
+
     /* ════════════════════════════════════════
-       CD CAROUSEL VIEW
+       CD CAROUSEL VIEW  — arc ring in details
        ════════════════════════════════════════ */
 
     function renderCDCarousel() {
@@ -158,43 +153,33 @@
         viewContainer.innerHTML = html;
 
         var carousel = viewContainer.querySelector('.cd-carousel');
-        var leftBtn = viewContainer.querySelector('.cd-carousel__arrow--left');
+        var leftBtn  = viewContainer.querySelector('.cd-carousel__arrow--left');
         var rightBtn = viewContainer.querySelector('.cd-carousel__arrow--right');
 
-        leftBtn.addEventListener('click', function () { cdNavigate(-1); });
+        leftBtn.addEventListener('click',  function () { cdNavigate(-1); });
         rightBtn.addEventListener('click', function () { cdNavigate(1); });
 
-        // Keyboard
         carousel.addEventListener('keydown', function (e) {
-            if (e.key === 'ArrowLeft') { cdNavigate(-1); e.preventDefault(); }
-            if (e.key === 'ArrowRight') { cdNavigate(1); e.preventDefault(); }
+            if (e.key === 'ArrowLeft')  { cdNavigate(-1); e.preventDefault(); }
+            if (e.key === 'ArrowRight') { cdNavigate(1);  e.preventDefault(); }
         });
 
-        // Click on item
         var items = viewContainer.querySelectorAll('.cd-carousel__item');
         for (var j = 0; j < items.length; j++) {
             items[j].addEventListener('click', function () {
-                var idx = parseInt(this.getAttribute('data-index'), 10);
-                cdIndex = idx;
+                cdIndex = parseInt(this.getAttribute('data-index'), 10);
                 updateCDPositions();
             });
         }
 
-        // Touch/swipe
         var touchStartX = 0;
-        carousel.addEventListener('touchstart', function (e) {
-            touchStartX = e.touches[0].clientX;
-            stopAutoScroll();
-        }, { passive: true });
-        carousel.addEventListener('touchend', function (e) {
+        carousel.addEventListener('touchstart', function (e) { touchStartX = e.touches[0].clientX; stopAutoScroll(); }, { passive: true });
+        carousel.addEventListener('touchend',   function (e) {
             var diff = e.changedTouches[0].clientX - touchStartX;
-            if (Math.abs(diff) > 40) {
-                cdNavigate(diff > 0 ? -1 : 1);
-            }
+            if (Math.abs(diff) > 40) cdNavigate(diff > 0 ? -1 : 1);
             startAutoScroll();
         }, { passive: true });
 
-        // Hover pause
         carousel.addEventListener('mouseenter', function () { stopAutoScroll(); });
         carousel.addEventListener('mouseleave', function () { startAutoScroll(); });
 
@@ -214,16 +199,15 @@
 
         for (var i = 0; i < items.length; i++) {
             var offset = i - cdIndex;
-            // Wrap for infinite feel
-            if (offset > total / 2) offset -= total;
+            if (offset >  total / 2) offset -= total;
             if (offset < -total / 2) offset += total;
 
-            var absOff = Math.abs(offset);
-            var rotateY = offset * 45;
+            var absOff    = Math.abs(offset);
+            var rotateY   = offset * 45;
             var translateX = offset * 140;
             var translateZ = -absOff * 120;
-            var scale = Math.max(0.5, 1 - absOff * 0.2);
-            var opacity = Math.max(0, 1 - absOff * 0.3);
+            var scale     = Math.max(0.5, 1 - absOff * 0.2);
+            var opacity   = Math.max(0, 1 - absOff * 0.3);
 
             if (absOff > 3) {
                 items[i].style.display = 'none';
@@ -232,28 +216,48 @@
                 items[i].style.transform =
                     'translateX(' + translateX + 'px) translateZ(' + translateZ + 'px) rotateY(' + rotateY + 'deg) scale(' + scale + ')';
                 items[i].style.opacity = opacity;
-                items[i].style.zIndex = 100 - absOff;
+                items[i].style.zIndex  = 100 - absOff;
             }
 
-            if (offset === 0) {
-                items[i].classList.add('cd-carousel__item--active');
-            } else {
-                items[i].classList.remove('cd-carousel__item--active');
-            }
+            if (offset === 0) items[i].classList.add('cd-carousel__item--active');
+            else              items[i].classList.remove('cd-carousel__item--active');
         }
 
-        // Update details
-        var t = topTracksData[cdIndex];
+        /* Detail panel with SVG arc play count */
+        var t       = topTracksData[cdIndex];
         var details = viewContainer.querySelector('.cd-carousel__details');
-        if (details && t) {
-            details.innerHTML =
-                '<div class="cd-detail">' +
-                    '<span class="cd-detail__rank">#' + t.rank + '</span>' +
-                    '<span class="cd-detail__name">' + escapeHtml(t.name) + '</span>' +
-                    '<span class="cd-detail__artist">' + escapeHtml(t.artist) + '</span>' +
-                    (t.album ? '<span class="cd-detail__album">' + escapeHtml(t.album) + '</span>' : '') +
-                '</div>';
-        }
+        if (!details || !t) return;
+
+        var plays   = trackPlays(t);
+        var ratio   = plays / maxPlays();
+        var r       = 36;
+        var circ    = Math.round(2 * Math.PI * r); // 226
+        var offset2 = Math.round(circ * (1 - ratio));
+        var arcColor = plays > 0 ? 'var(--accent)' : 'transparent';
+
+        var arcHtml = plays > 0
+            ? '<div class="cd-plays-ring">' +
+                '<svg viewBox="0 0 80 80" class="cd-plays-ring__svg" aria-hidden="true">' +
+                    '<circle cx="40" cy="40" r="' + r + '" stroke="rgba(128,0,32,0.12)" stroke-width="4" fill="none"/>' +
+                    '<circle cx="40" cy="40" r="' + r + '" stroke="' + arcColor + '" stroke-width="4" fill="none"' +
+                        ' stroke-dasharray="' + circ + '" stroke-dashoffset="' + offset2 + '"' +
+                        ' stroke-linecap="round" transform="rotate(-90 40 40)"/>' +
+                '</svg>' +
+                '<div class="cd-plays-ring__text">' +
+                    '<span class="cd-plays-ring__num">' + plays + '</span>' +
+                    '<span class="cd-plays-ring__label">plays</span>' +
+                '</div>' +
+              '</div>'
+            : '';
+
+        details.innerHTML =
+            '<div class="cd-detail">' +
+                '<span class="cd-detail__rank">#' + t.rank + '</span>' +
+                '<span class="cd-detail__name">'   + escapeHtml(t.name)   + '</span>' +
+                '<span class="cd-detail__artist">' + escapeHtml(t.artist) + '</span>' +
+                (t.album ? '<span class="cd-detail__album">' + escapeHtml(t.album) + '</span>' : '') +
+                arcHtml +
+            '</div>';
     }
 
     function startAutoScroll() {
@@ -262,31 +266,37 @@
     }
 
     function stopAutoScroll() {
-        if (autoScrollTimer) {
-            clearInterval(autoScrollTimer);
-            autoScrollTimer = null;
-        }
+        if (autoScrollTimer) { clearInterval(autoScrollTimer); autoScrollTimer = null; }
     }
 
     /* ════════════════════════════════════════
-       WHEEL VIEW (3D vertical wheel)
+       WHEEL VIEW — dot-intensity level meters
        ════════════════════════════════════════ */
 
     function renderWheel() {
         if (!topTracksData || topTracksData.length === 0) return;
         wheelAngle = 0;
-        var count = topTracksData.length;
+        var count     = topTracksData.length;
         var angleStep = 360 / count;
-        var radius = 200;
+        var radius    = 200;
+        var mx        = maxPlays();
 
-        var html = '<div class="wheel-view">' +
-            '<div class="wheel-view__stage">' +
-            '<div class="wheel-view__ring">';
+        var html = '<div class="wheel-view"><div class="wheel-view__stage"><div class="wheel-view__ring">';
 
         for (var i = 0; i < count; i++) {
-            var t = topTracksData[i];
-            var art = t.album_art || '';
+            var t     = topTracksData[i];
+            var art   = t.album_art || '';
             var angle = i * angleStep;
+            var plays = trackPlays(t);
+            var dots  = 5;
+            var filled = Math.round((plays / mx) * dots);
+
+            var meterHtml = '<div class="wheel-plays-meter" title="~' + plays + ' plays">';
+            for (var d = 0; d < dots; d++) {
+                meterHtml += '<span class="wheel-plays-dot' + (d < filled ? ' wheel-plays-dot--on' : '') + '"></span>';
+            }
+            meterHtml += '</div>';
+
             var genresHtml = '';
             if (t.genres && t.genres.length > 0) {
                 genresHtml = '<div class="wheel-view__genres">';
@@ -295,14 +305,16 @@
                 }
                 genresHtml += '</div>';
             }
+
             html +=
                 '<div class="wheel-view__item" data-index="' + i + '" style="' +
                     'transform: rotateX(' + angle + 'deg) translateZ(' + radius + 'px);">' +
                     '<span class="wheel-view__rank">#' + t.rank + '</span>' +
                     '<img class="wheel-view__art" src="' + escapeAttr(art) + '" alt="" loading="lazy">' +
                     '<div class="wheel-view__label">' +
-                        '<span class="wheel-view__name">' + escapeHtml(t.name) + '</span>' +
+                        '<span class="wheel-view__name">'   + escapeHtml(t.name)   + '</span>' +
                         '<span class="wheel-view__artist">' + escapeHtml(t.artist) + '</span>' +
+                        meterHtml +
                         genresHtml +
                     '</div>' +
                 '</div>';
@@ -312,21 +324,17 @@
         viewContainer.innerHTML = html;
 
         var stage = viewContainer.querySelector('.wheel-view__stage');
-        var ring = viewContainer.querySelector('.wheel-view__ring');
+        var ring  = viewContainer.querySelector('.wheel-view__ring');
 
-        // Scroll to rotate
         stage.addEventListener('wheel', function (e) {
             e.preventDefault();
             wheelAngle += e.deltaY > 0 ? angleStep : -angleStep;
             ring.style.transform = 'rotateX(' + wheelAngle + 'deg)';
         });
 
-        // Touch drag
         var lastY = 0;
-        stage.addEventListener('touchstart', function (e) {
-            lastY = e.touches[0].clientY;
-        }, { passive: true });
-        stage.addEventListener('touchmove', function (e) {
+        stage.addEventListener('touchstart', function (e) { lastY = e.touches[0].clientY; }, { passive: true });
+        stage.addEventListener('touchmove',  function (e) {
             var diff = e.touches[0].clientY - lastY;
             lastY = e.touches[0].clientY;
             wheelAngle -= diff * 0.5;
@@ -335,19 +343,30 @@
     }
 
     /* ════════════════════════════════════════
-       SHOWCASE VIEW (3D perspective grid)
+       SHOWCASE VIEW — translucent badge overlay
        ════════════════════════════════════════ */
 
     function renderShowcase() {
         if (!topTracksData || topTracksData.length === 0) return;
+        var mx = maxPlays();
 
         var html = '<div class="showcase-view">';
         for (var i = 0; i < topTracksData.length; i++) {
-            var t = topTracksData[i];
-            var art = t.album_art || '';
-            // Alternating perspective tilt
+            var t     = topTracksData[i];
+            var art   = t.album_art || '';
             var tiltX = (i % 3 - 1) * 8;
             var tiltY = (Math.floor(i / 3) % 2 === 0 ? 1 : -1) * 5;
+            var plays = trackPlays(t);
+            var barW  = mx > 0 ? Math.round((plays / mx) * 100) : 0;
+
+            var playsOverlay = plays > 0
+                ? '<div class="showcase-plays-badge">' +
+                    '<svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><polygon points="2,1 9,5 2,9" fill="currentColor"/></svg>' +
+                    '<span>' + plays + '</span>' +
+                  '</div>' +
+                  '<div class="showcase-plays-bar"><div class="showcase-plays-bar__fill" style="width:' + barW + '%"></div></div>'
+                : '';
+
             var scGenresHtml = '';
             if (t.genres && t.genres.length > 0) {
                 scGenresHtml = '<div class="showcase-view__genres">';
@@ -356,13 +375,17 @@
                 }
                 scGenresHtml += '</div>';
             }
+
             html +=
                 '<div class="showcase-view__card" style="--tilt-x:' + tiltX + 'deg; --tilt-y:' + tiltY + 'deg; --i:' + i + ';">' +
-                    '<img class="showcase-view__art" src="' + escapeAttr(art) + '" alt="" loading="lazy">' +
+                    '<div class="showcase-view__art-wrap">' +
+                        '<img class="showcase-view__art" src="' + escapeAttr(art) + '" alt="" loading="lazy">' +
+                        playsOverlay +
+                    '</div>' +
                     '<div class="showcase-view__info">' +
-                        '<span class="showcase-view__rank">#' + t.rank + '</span>' +
-                        '<span class="showcase-view__name">' + escapeHtml(t.name) + '</span>' +
-                        '<span class="showcase-view__artist">' + escapeHtml(t.artist) + '</span>' +
+                        '<span class="showcase-view__rank">#'    + t.rank            + '</span>' +
+                        '<span class="showcase-view__name">'     + escapeHtml(t.name)   + '</span>' +
+                        '<span class="showcase-view__artist">'   + escapeHtml(t.artist) + '</span>' +
                         scGenresHtml +
                     '</div>' +
                 '</div>';
@@ -371,14 +394,11 @@
         viewContainer.innerHTML = html;
     }
 
-    /* ── Helpers (same as music.js) ── */
+    /* ── Helpers ── */
     function escapeHtml(str) {
         if (!str) return '';
         return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
-
-    function escapeAttr(str) {
-        return escapeHtml(str).replace(/'/g, '&#39;');
-    }
+    function escapeAttr(str) { return escapeHtml(str).replace(/'/g, '&#39;'); }
 
 })();

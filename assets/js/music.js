@@ -291,7 +291,12 @@ function renderPersonalityEvolution(currentMetrics) {
         .then(function (r) { return r.ok ? r.json() : []; })
         .then(function (months) {
             if (!months || months.length === 0) {
-                target.innerHTML = '<p class="insights-evolution__empty">Evolution chart will fill in as monthly snapshots accumulate. Current month is your first data point.</p>';
+                // Show just the current month as a single point with a note
+                var nowLabel = new Date().toLocaleString('en-US', { month: 'short', year: 'numeric' });
+                var singlePoint = [{ month: 'current', label: nowLabel + ' (now)', p: currentMetrics }];
+                drawEvolutionChart(target, singlePoint);
+                target.insertAdjacentHTML('beforeend',
+                    '<p class="insights-evolution__empty" style="margin-top:0.5rem;">Chart will grow as monthly snapshots accumulate.</p>');
                 return;
             }
             // Load each snapshot & compute metrics
@@ -561,7 +566,10 @@ function renderGenresAcrossTime(byRange) {
     var container = document.getElementById('genres-time');
     var section = document.getElementById('genres-time-section');
     if (!container) return;
-    if (!byRange || (!byRange.short?.length && !byRange.medium?.length && !byRange.long?.length)) {
+    var hasShort  = byRange && byRange.short  && byRange.short.length  > 0;
+    var hasMedium = byRange && byRange.medium && byRange.medium.length > 0;
+    var hasLong   = byRange && byRange.long   && byRange.long.length   > 0;
+    if (!hasShort && !hasMedium && !hasLong) {
         if (section) section.style.display = 'none';
         return;
     }
