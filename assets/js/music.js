@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (window.MusicViews) window.MusicViews.init(data.top_tracks);
             renderVinylShelf(data.top_tracks);
             renderGenres(data.top_genres);
-            renderGenresAcrossTime(data.genres_by_range);
+            renderGenresAcrossTime(data.genres_by_range, data.top_artists_by_range);
             renderPlaylists(data.playlists);
             loadPastMonths();
             if (data.spotify_url) {
@@ -569,25 +569,51 @@ function renderPlaylists(playlists) {
     container.innerHTML = html;
 }
 
-/* ── Genres Across Time ── */
+/* ── Genres / Artists Across Time ── */
 
-function renderGenresAcrossTime(byRange) {
+function renderGenresAcrossTime(byRange, artistsByRange) {
     var container = document.getElementById('genres-time');
     var section = document.getElementById('genres-time-section');
     if (!container) return;
-    var hasShort  = byRange && byRange.short  && byRange.short.length  > 0;
-    var hasMedium = byRange && byRange.medium && byRange.medium.length > 0;
-    var hasLong   = byRange && byRange.long   && byRange.long.length   > 0;
-    if (!hasShort && !hasMedium && !hasLong) {
+
+    var hasGenreShort  = byRange && byRange.short  && byRange.short.length  > 0;
+    var hasGenreMedium = byRange && byRange.medium && byRange.medium.length > 0;
+    var hasGenreLong   = byRange && byRange.long   && byRange.long.length   > 0;
+    var hasGenres = hasGenreShort || hasGenreMedium || hasGenreLong;
+
+    var hasArtistShort  = artistsByRange && artistsByRange.short  && artistsByRange.short.length  > 0;
+    var hasArtistMedium = artistsByRange && artistsByRange.medium && artistsByRange.medium.length > 0;
+    var hasArtistLong   = artistsByRange && artistsByRange.long   && artistsByRange.long.length   > 0;
+    var hasArtists = hasArtistShort || hasArtistMedium || hasArtistLong;
+
+    if (!hasGenres && !hasArtists) {
         if (section) section.style.display = 'none';
         return;
     }
 
-    var cols = [
-        { key: 'short', title: 'Last month', items: byRange.short || [] },
-        { key: 'medium', title: 'Last six months', items: byRange.medium || [] },
-        { key: 'long', title: 'All time', items: byRange.long || [] }
-    ];
+    // Use genres if available, otherwise fall back to top artists per time range
+    var usingArtistFallback = !hasGenres && hasArtists;
+
+    // Update the section heading to reflect what's actually being shown
+    var heading = section && section.querySelector('h3');
+    if (heading) {
+        heading.textContent = usingArtistFallback ? 'TOP ARTISTS OVER TIME' : 'GENRES ACROSS TIME';
+    }
+
+    var cols;
+    if (usingArtistFallback) {
+        cols = [
+            { key: 'short',  title: 'Last month',      items: (artistsByRange.short  || []).map(function (a) { return { name: a.name, count: 1 }; }) },
+            { key: 'medium', title: 'Last 6 months',   items: (artistsByRange.medium || []).map(function (a) { return { name: a.name, count: 1 }; }) },
+            { key: 'long',   title: 'All time',         items: (artistsByRange.long   || []).map(function (a) { return { name: a.name, count: 1 }; }) },
+        ];
+    } else {
+        cols = [
+            { key: 'short',  title: 'Last month',      items: byRange.short  || [] },
+            { key: 'medium', title: 'Last 6 months',   items: byRange.medium || [] },
+            { key: 'long',   title: 'All time',         items: byRange.long   || [] },
+        ];
+    }
 
     var html = '<div class="genres-time-grid">';
     cols.forEach(function (c) {
@@ -601,7 +627,7 @@ function renderGenresAcrossTime(byRange) {
                 var intensity = Math.max(30, 100 - i * 10);
                 html += '<span class="genre-tag genre-tag--timeslot" style="--intensity:' + intensity + '%">' +
                     escapeHtml(g.name) +
-                    (g.count > 1 ? '<span class="genre-tag__count">' + g.count + '</span>' : '') +
+                    (!usingArtistFallback && g.count > 1 ? '<span class="genre-tag__count">' + g.count + '</span>' : '') +
                     '</span>';
             });
         }
@@ -609,33 +635,49 @@ function renderGenresAcrossTime(byRange) {
     });
     html += '</div>';
 
-    // Add a delta note (genres that appeared in short but not long = emerging)
-    var emerging = [];
-    var fading = [];
-    var longSet = {};
-    (byRange.long || []).forEach(function (g) { longSet[g.name] = true; });
-    var shortSet = {};
-    (byRange.short || []).forEach(function (g) { shortSet[g.name] = true; });
-    (byRange.short || []).slice(0, 10).forEach(function (g) {
-        if (!longSet[g.name]) emerging.push(g.name);
-    });
-    (byRange.long || []).slice(0, 10).forEach(function (g) {
-        if (!shortSet[g.name]) fading.push(g.name);
-    });
+    // Delta analysis (only meaningful for genres, not artists)
+    if (!usingArtistFallback) {
+        var emerging = [];
+        var fading = [];
+        var longSet = {};
+        (byRange.long || []).forEach(function (g) { longSet[g.name] = true; });
+        var shortSet = {};
+        (byRange.short || []).forEach(function (g) { shortSet[g.name] = true; });
+        (byRange.short || []).slice(0, 10).forEach(function (g) {
+            if (!longSet[g.name]) emerging.push(g.name);
+        });
+        (byRange.long || []).slice(0, 10).forEach(function (g) {
+            if (!shortSet[g.name]) fading.push(g.name);
+        });
 
-    if (emerging.length > 0 || fading.length > 0) {
-        html += '<div class="genres-time-delta">';
-        if (emerging.length > 0) {
-            html += '<div class="genres-time-delta__row"><span class="genres-time-delta__label">↑ Emerging</span>' +
-                emerging.slice(0, 5).map(function (n) { return '<span class="genre-tag genre-tag--emerging">' + escapeHtml(n) + '</span>'; }).join('') +
-                '</div>';
+        if (emerging.length > 0 || fading.length > 0) {
+            html += '<div class="genres-time-delta">';
+            if (emerging.length > 0) {
+                html += '<div class="genres-time-delta__row"><span class="genres-time-delta__label">↑ Emerging</span>' +
+                    emerging.slice(0, 5).map(function (n) { return '<span class="genre-tag genre-tag--emerging">' + escapeHtml(n) + '</span>'; }).join('') +
+                    '</div>';
+            }
+            if (fading.length > 0) {
+                html += '<div class="genres-time-delta__row"><span class="genres-time-delta__label">↓ Fading</span>' +
+                    fading.slice(0, 5).map(function (n) { return '<span class="genre-tag genre-tag--fading">' + escapeHtml(n) + '</span>'; }).join('') +
+                    '</div>';
+            }
+            html += '</div>';
         }
-        if (fading.length > 0) {
-            html += '<div class="genres-time-delta__row"><span class="genres-time-delta__label">↓ Fading</span>' +
-                fading.slice(0, 5).map(function (n) { return '<span class="genre-tag genre-tag--fading">' + escapeHtml(n) + '</span>'; }).join('') +
-                '</div>';
+    } else {
+        // For artist fallback: show artists that appear in short but not long (= recently discovered)
+        var newArtists = [];
+        var longArtistSet = {};
+        (artistsByRange.long || []).forEach(function (a) { longArtistSet[a.name] = true; });
+        (artistsByRange.short || []).slice(0, 10).forEach(function (a) {
+            if (!longArtistSet[a.name]) newArtists.push(a.name);
+        });
+        if (newArtists.length > 0) {
+            html += '<div class="genres-time-delta">' +
+                '<div class="genres-time-delta__row"><span class="genres-time-delta__label">✦ New this month</span>' +
+                newArtists.slice(0, 5).map(function (n) { return '<span class="genre-tag genre-tag--emerging">' + escapeHtml(n) + '</span>'; }).join('') +
+                '</div></div>';
         }
-        html += '</div>';
     }
 
     container.innerHTML = html;

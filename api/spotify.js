@@ -41,11 +41,16 @@ async function getAccessToken() {
     return cachedToken;
 }
 
-async function fetchSpotify(token, endpoint) {
+async function fetchSpotify(token, endpoint, retries = 1) {
     const res = await fetch(`${SPOTIFY_API}${endpoint}`, {
         headers: { 'Authorization': `Bearer ${token}` },
     });
     if (res.status === 204) return null;
+    if (res.status === 429 && retries > 0) {
+        const retryAfter = parseInt(res.headers.get('retry-after') || '1', 10);
+        await new Promise(r => setTimeout(r, Math.min(retryAfter * 1000, 4000)));
+        return fetchSpotify(token, endpoint, retries - 1);
+    }
     if (!res.ok) throw new Error(`Spotify API error: ${res.status} on ${endpoint}`);
     return res.json();
 }
@@ -136,11 +141,26 @@ async function enrichPlaylist(token, playlist, artistGenreCache, token2ForArtist
             last_updated_rel: latest ? relativeTime(new Date(latest).toISOString()) : null,
             top_artist: topArtist,
             top_genre: topGenre,
+            track_count: items.length,
             track_names: items.slice(0, 50).map(i => i.track?.name).filter(Boolean),
         };
     } catch (_) {
-        return { last_updated_iso: null, last_updated_rel: null, top_artist: null, top_genre: null, track_names: [] };
+        return { last_updated_iso: null, last_updated_rel: null, top_artist: null, top_genre: null, track_count: 0, track_names: [] };
     }
+}
+
+/** Run enrichment in sequential batches to avoid Spotify rate limiting (429) */
+async function enrichBatched(token, playlists, artistGenreCache, batchSize = 3) {
+    const results = [];
+    for (let i = 0; i < playlists.length; i += batchSize) {
+        const batch = playlists.slice(i, i + batchSize);
+        const batchResults = await Promise.all(batch.map(p => enrichPlaylist(token, p, artistGenreCache)));
+        results.push(...batchResults);
+        if (i + batchSize < playlists.length) {
+            await new Promise(r => setTimeout(r, 350)); // brief pause between batches
+        }
+    }
+    return results;
 }
 
 export default async function handler(req, res) {
@@ -303,9 +323,9 @@ export default async function handler(req, res) {
 
         const playlistItems = (playlistsRaw?.items || []).filter(p => p && p.name);
 
-        // Enrich top ~15 playlists in parallel (cap to keep under function timeout)
-        const toEnrich = playlistItems.slice(0, 15);
-        const enriched = await Promise.all(toEnrich.map(p => enrichPlaylist(token, p, artistGenreCache)));
+        // Enrich top 9 playlists in batches of 3 to respect Spotify rate limits
+        const toEnrich = playlistItems.slice(0, 9);
+        const enriched = await enrichBatched(token, toEnrich, artistGenreCache, 3);
 
         // Build playlist list with new metadata
         const recentTrackNames = new Set((recentlyPlayed?.items || [])
@@ -333,11 +353,16 @@ export default async function handler(req, res) {
                 });
             });
 
+            // track_count: prefer Spotify's stated total, fallback to enrichment item count
+            const spotifyTotal = typeof p.tracks?.total === 'number' ? p.tracks.total : null;
+            const enrichCount  = (e.track_count != null && e.track_count > 0) ? e.track_count : null;
+            const trackCount   = spotifyTotal ?? enrichCount ?? 0;
+
             return {
                 id: p.id,
                 name: p.name,
                 description: p.description || '',
-                track_count: p.tracks?.total ?? 0,
+                track_count: trackCount,
                 image: p.images?.[0]?.url || null,
                 url: p.external_urls?.spotify || 'https://open.spotify.com/',
                 last_updated_iso: e.last_updated_iso || null,
@@ -386,18 +411,32 @@ export default async function handler(req, res) {
             computed_at: new Date().toISOString(),
         };
 
+        // Debug: raw tracks field from first playlist
+        const _debug_tracks = playlistItems[0]
+            ? { tracks_raw: playlistItems[0].tracks, id: playlistItems[0].id, name: playlistItems[0].name }
+            : null;
+
+        // Top artists by time range (fallback for when genre data is unavailable)
+        const top_artists_by_range = {
+            short:  (topArtistsShort?.items || []).slice(0, 10).map(a => ({ name: a.name, genres: a.genres || [] })),
+            medium: (topArtistsMed?.items  || []).slice(0, 10).map(a => ({ name: a.name, genres: a.genres || [] })),
+            long:   (topArtistsLong?.items || []).slice(0, 10).map(a => ({ name: a.name, genres: a.genres || [] })),
+        };
+
         return res.status(200).json({
             last_played,
             top_artists,
             top_tracks,
             top_genres,
             genres_by_range,
+            top_artists_by_range,
             top_tracks_by_range,
             recent_tracks,
             playlists: playlist_list,
             spotify_url,
             audio_features,
             personality,
+            _debug_tracks,
         });
     } catch (err) {
         console.error('Spotify API error:', err.message);
