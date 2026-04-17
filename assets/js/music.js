@@ -381,7 +381,13 @@ function drawEvolutionChart(target, points) {
     target.innerHTML = '<div class="insights-evolution__title">Evolution over time</div>' + svg + legend;
 }
 
-/* ── F1 Podium (Top Artists) ── */
+/* ── F1 Podium (Top Artists) — broadcast graphic style ── */
+
+var F1_DRIVERS = {
+    p1: { name: 'Fernando Alonso', short: 'ALO', team: 'Aston Martin', color: '#00665e', photo: '/assets/img/drivers/alonso.jpg' },
+    p2: { name: 'Lewis Hamilton',  short: 'HAM', team: 'Ferrari',       color: '#e8002d', photo: '/assets/img/drivers/hamilton.jpg' },
+    p3: { name: 'Max Verstappen',  short: 'VER', team: 'Red Bull Racing', color: '#3671c6', photo: '/assets/img/drivers/verstappen.jpg' },
+};
 
 function renderF1Podium(artists) {
     var container = document.getElementById('top-artists');
@@ -391,54 +397,63 @@ function renderF1Podium(artists) {
         return;
     }
 
-    // P2 | P1 | P3 layout — left center right, P1 tallest
-    var p1 = artists[0]; // rank 1 → center
-    var p2 = artists[1]; // rank 2 → left
-    var p3 = artists[2]; // rank 3 → right
+    var p1Artist = artists[0];
+    var p2Artist = artists[1];
+    var p3Artist = artists[2];
 
-    function podiumCard(artist, posClass, posLabel, posColorClass) {
-        if (!artist) return '<div class="f1-podium__step ' + posClass + '"><div class="f1-podium__card"></div><div class="f1-podium__block"></div></div>';
-        var genreStr = (artist.genres && artist.genres.length > 0)
-            ? artist.genres.slice(0, 2).join(' · ')
-            : '';
-        return '<div class="f1-podium__step ' + posClass + '">' +
-            '<div class="f1-podium__card">' +
-                '<span class="f1-podium__pos ' + posColorClass + '">' + posLabel + '</span>' +
-                '<div class="f1-podium__name">' + escapeHtml(artist.name) + '</div>' +
-                (genreStr ? '<div class="f1-podium__genres">' + escapeHtml(genreStr) + '</div>' : '') +
+    function driverCard(artist, pos) {
+        if (!artist) return '';
+        var d = F1_DRIVERS[pos];
+        var genreStr = (artist.genres && artist.genres.length > 0) ? artist.genres.slice(0, 2).join(' · ') : '';
+        var posNum = pos === 'p1' ? '1' : pos === 'p2' ? '2' : '3';
+        return '<div class="f1-card f1-card--' + pos + '">' +
+            '<div class="f1-card__photo" style="background-image:url(\'' + d.photo + '\')"></div>' +
+            '<div class="f1-card__gradient"></div>' +
+            '<div class="f1-card__team-bar" style="background:' + d.color + '"></div>' +
+            '<span class="f1-card__pos-ghost">' + posNum + '</span>' +
+            '<div class="f1-card__content">' +
+                '<div class="f1-card__artist">' + escapeHtml(artist.name) + '</div>' +
+                (genreStr ? '<div class="f1-card__genres">' + escapeHtml(genreStr) + '</div>' : '') +
+                '<div class="f1-card__driver-row">' +
+                    '<span class="f1-card__driver-code" style="color:' + d.color + '">' + d.short + '</span>' +
+                    '<span class="f1-card__driver-name">' + d.name + '</span>' +
+                    '<span class="f1-card__team">' + d.team + '</span>' +
+                '</div>' +
             '</div>' +
-            '<div class="f1-podium__block"><span class="f1-podium__rank-badge">' + posLabel + '</span></div>' +
         '</div>';
     }
 
-    var podiumHtml =
-        '<div class="f1-podium-wrap">' +
-        '<div class="f1-podium">' +
-            '<div class="f1-podium__stage">' +
-                podiumCard(p2, 'f1-podium__step--p2', 'P2', 'f1-podium__pos--silver') +
-                podiumCard(p1, 'f1-podium__step--p1', 'P1', 'f1-podium__pos--gold') +
-                podiumCard(p3, 'f1-podium__step--p3', 'P3', 'f1-podium__pos--bronze') +
-            '</div>' +
+    // Header bar mimicking F1 broadcast style
+    var html =
+        '<div class="f1-broadcast">' +
+        '<div class="f1-broadcast__header">' +
+            '<span class="f1-broadcast__f1logo">F1</span>' +
+            '<span class="f1-broadcast__label">CONSTRUCTOR STANDINGS · LAST MONTH</span>' +
+        '</div>' +
+        '<div class="f1-broadcast__podium">' +
+            driverCard(p2Artist, 'p2') +   // left
+            driverCard(p1Artist, 'p1') +   // centre — P1 is taller via CSS
+            driverCard(p3Artist, 'p3') +   // right
         '</div>';
 
-    // F1 leaderboard for P4+
+    // F1 leaderboard for P4 – P10
     if (artists.length > 3) {
-        podiumHtml += '<div class="f1-leaderboard">';
-        for (var i = 3; i < artists.length; i++) {
+        html += '<div class="f1-leaderboard">';
+        for (var i = 3; i < Math.min(artists.length, 10); i++) {
             var a = artists[i];
             var genreLabel = (a.genres && a.genres.length > 0) ? a.genres.slice(0, 2).join(' · ') : '';
-            podiumHtml +=
+            html +=
                 '<div class="f1-lb-row">' +
                     '<span class="f1-lb-pos">P' + (i + 1) + '</span>' +
                     '<span class="f1-lb-name">' + escapeHtml(a.name) + '</span>' +
                     '<span class="f1-lb-genres">' + escapeHtml(genreLabel) + '</span>' +
                 '</div>';
         }
-        podiumHtml += '</div>';
+        html += '</div>';
     }
 
-    podiumHtml += '</div>'; // close f1-podium-wrap
-    container.innerHTML = podiumHtml;
+    html += '</div>'; // close f1-broadcast
+    container.innerHTML = html;
 }
 
 /* ── Bar Chart ── */

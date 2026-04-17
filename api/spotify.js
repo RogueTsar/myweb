@@ -383,13 +383,12 @@ export default async function handler(req, res) {
 
         const playlistItems = (playlistsRaw?.items || []).filter(p => p && p.name);
 
-        // Enrich top 9 playlists in batches of 3 to respect Spotify rate limits
-        const toEnrich = playlistItems.slice(0, 9);
+        // Enrich top 15 playlists in batches of 3 to respect Spotify rate limits
+        // (15 is the sweet-spot: ~5 batches × 350ms gap = ~2s extra, well within Vercel's 30s limit)
+        const toEnrich = playlistItems.slice(0, 15);
         const enriched = await enrichBatched(token, toEnrich, artistGenreCache, 3);
 
-        // Build playlist list with new metadata
-        const recentTrackNames = new Set((recentlyPlayed?.items || [])
-            .map(i => `${i.track?.name}|${i.track?.artists?.[0]?.name || ''}`.toLowerCase()));
+        // Build recent-track lookup for "last played" approximation
         const recentTrackTimeMap = {};
         (recentlyPlayed?.items || []).forEach(i => {
             const k = `${i.track?.name}|${i.track?.artists?.[0]?.name || ''}`.toLowerCase();
@@ -400,11 +399,10 @@ export default async function handler(req, res) {
 
         const playlist_list = playlistItems.slice(0, 30).map((p, idx) => {
             const e = enriched[idx] || {};
-            // Best-effort last-played: any track from this playlist in recent_tracks?
+
+            // Best-effort last-played: scan playlist's track names against recent history
             let lastPlayedIso = null;
             (e.track_names || []).forEach(name => {
-                // approximate match: only have first artist from playlist in track_names
-                // so scan by name
                 Object.keys(recentTrackTimeMap).forEach(key => {
                     if (key.startsWith(name.toLowerCase() + '|')) {
                         const iso = recentTrackTimeMap[key];
@@ -413,10 +411,18 @@ export default async function handler(req, res) {
                 });
             });
 
-            // track_count: prefer Spotify's stated total, fallback to enrichment item count
-            const spotifyTotal = typeof p.tracks?.total === 'number' ? p.tracks.total : null;
-            const enrichCount  = (e.track_count != null && e.track_count > 0) ? e.track_count : null;
-            const trackCount   = spotifyTotal ?? enrichCount ?? 0;
+            // track_count: Spotify often returns 0 for tracks.total on /me/playlists.
+            // Use || instead of ?? so that a falsy 0 falls through to the enrichment count.
+            const spotifyTotal = typeof p.tracks?.total === 'number' && p.tracks.total > 0 ? p.tracks.total : 0;
+            const enrichCount  = (e.track_count != null && e.track_count > 0) ? e.track_count : 0;
+            const trackCount   = spotifyTotal || enrichCount || 0;
+
+            // Genre fallback: if enrichment found a top_artist but no genre, look up
+            // in artistNameToGenres (already enriched via Last.fm in the main handler)
+            let topGenre = e.top_genre || null;
+            if (!topGenre && e.top_artist && artistNameToGenres[e.top_artist]) {
+                topGenre = artistNameToGenres[e.top_artist][0] || null;
+            }
 
             return {
                 id: p.id,
@@ -430,7 +436,7 @@ export default async function handler(req, res) {
                 last_played_iso: lastPlayedIso,
                 last_played_rel: lastPlayedIso ? relativeTime(lastPlayedIso) : null,
                 top_artist: e.top_artist || null,
-                top_genre: e.top_genre || null,
+                top_genre: topGenre,
             };
         });
 
