@@ -1,6 +1,8 @@
 # myweb
 
-my personal website :') it does way too much for a personal website but i genuinely cannot stop adding things to it
+my personal website B^) it does way too much for a personal website but i genuinely cannot stop adding things to it, i am a frontend crackhead at heart who was one of the Framer OGs and had a website that was basically just one long Apple advertisement (not sorry)
+
+stay tuned to see all the cool apis, integrations and the eventual CMS i will put in lol 
 
 live at **[vaishnavi-singh.com](https://vaishnavi-singh.com)**
 
