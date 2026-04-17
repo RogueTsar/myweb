@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
             renderLastPlayed(data.last_played);
             renderRecentHistory(data.recent_tracks);
             renderInsights(data.audio_features, data.top_artists, data.top_tracks, data.recent_tracks, data.personality);
-            renderBarChart('top-artists', data.top_artists, 'name');
+            renderF1Podium(data.top_artists);
             renderBarChart('top-tracks', data.top_tracks, 'full');
             if (window.MusicViews) window.MusicViews.init(data.top_tracks);
             renderVinylShelf(data.top_tracks);
@@ -381,6 +381,66 @@ function drawEvolutionChart(target, points) {
     target.innerHTML = '<div class="insights-evolution__title">Evolution over time</div>' + svg + legend;
 }
 
+/* ── F1 Podium (Top Artists) ── */
+
+function renderF1Podium(artists) {
+    var container = document.getElementById('top-artists');
+    if (!container) return;
+    if (!artists || artists.length === 0) {
+        container.innerHTML = '<p class="music-error">No artist data available.</p>';
+        return;
+    }
+
+    // P2 | P1 | P3 layout — left center right, P1 tallest
+    var p1 = artists[0]; // rank 1 → center
+    var p2 = artists[1]; // rank 2 → left
+    var p3 = artists[2]; // rank 3 → right
+
+    function podiumCard(artist, posClass, posLabel, posColorClass) {
+        if (!artist) return '<div class="f1-podium__step ' + posClass + '"><div class="f1-podium__card"></div><div class="f1-podium__block"></div></div>';
+        var genreStr = (artist.genres && artist.genres.length > 0)
+            ? artist.genres.slice(0, 2).join(' · ')
+            : '';
+        return '<div class="f1-podium__step ' + posClass + '">' +
+            '<div class="f1-podium__card">' +
+                '<span class="f1-podium__pos ' + posColorClass + '">' + posLabel + '</span>' +
+                '<div class="f1-podium__name">' + escapeHtml(artist.name) + '</div>' +
+                (genreStr ? '<div class="f1-podium__genres">' + escapeHtml(genreStr) + '</div>' : '') +
+            '</div>' +
+            '<div class="f1-podium__block"><span class="f1-podium__rank-badge">' + posLabel + '</span></div>' +
+        '</div>';
+    }
+
+    var podiumHtml =
+        '<div class="f1-podium-wrap">' +
+        '<div class="f1-podium">' +
+            '<div class="f1-podium__stage">' +
+                podiumCard(p2, 'f1-podium__step--p2', 'P2', 'f1-podium__pos--silver') +
+                podiumCard(p1, 'f1-podium__step--p1', 'P1', 'f1-podium__pos--gold') +
+                podiumCard(p3, 'f1-podium__step--p3', 'P3', 'f1-podium__pos--bronze') +
+            '</div>' +
+        '</div>';
+
+    // F1 leaderboard for P4+
+    if (artists.length > 3) {
+        podiumHtml += '<div class="f1-leaderboard">';
+        for (var i = 3; i < artists.length; i++) {
+            var a = artists[i];
+            var genreLabel = (a.genres && a.genres.length > 0) ? a.genres.slice(0, 2).join(' · ') : '';
+            podiumHtml +=
+                '<div class="f1-lb-row">' +
+                    '<span class="f1-lb-pos">P' + (i + 1) + '</span>' +
+                    '<span class="f1-lb-name">' + escapeHtml(a.name) + '</span>' +
+                    '<span class="f1-lb-genres">' + escapeHtml(genreLabel) + '</span>' +
+                '</div>';
+        }
+        podiumHtml += '</div>';
+    }
+
+    podiumHtml += '</div>'; // close f1-podium-wrap
+    container.innerHTML = podiumHtml;
+}
+
 /* ── Bar Chart ── */
 
 function renderBarChart(containerId, items, mode) {
@@ -511,6 +571,36 @@ function cleanDesc(str) {
     return div.textContent || div.innerText || '';
 }
 
+/* ── Playlist chip icon constants ── */
+var PL_ICON_PLAY   = '<svg width="8" height="8" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><polygon points="2,1 9,5 2,9"/></svg>';
+var PL_ICON_CAL    = '<svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="1" y="2" width="10" height="9" rx="1.5"/><line x1="4" y1="1" x2="4" y2="3"/><line x1="8" y1="1" x2="8" y2="3"/><line x1="1" y1="5" x2="11" y2="5"/></svg>';
+var PL_ICON_NOTE   = '<svg width="8" height="8" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M9 1v6.5A2 2 0 1 1 7 9V4L4 5V9.5A2 2 0 1 1 2 11V3l7-2z"/></svg>';
+var PL_ICON_PERSON = '<svg width="8" height="8" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><circle cx="6" cy="3.5" r="2.5"/><path d="M1 11c0-2.76 2.24-5 5-5s5 2.24 5 5"/></svg>';
+var PL_ICON_TRACKS = '<svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><line x1="1" y1="3" x2="11" y2="3"/><line x1="1" y1="6" x2="8" y2="6"/><line x1="1" y1="9" x2="9" y2="9"/></svg>';
+
+function buildPlaylistChips(p) {
+    var chips = '';
+    if (p.track_count > 0) {
+        chips += '<span class="pl-meta-chip" title="Track count">' + PL_ICON_TRACKS + p.track_count + ' tracks</span>';
+    }
+    if (p.last_played_rel) {
+        chips += '<span class="pl-meta-chip pl-meta-chip--played" title="Last played">' +
+            PL_ICON_PLAY + 'played ' + escapeHtml(p.last_played_rel) + '</span>';
+    }
+    if (p.last_updated_rel) {
+        chips += '<span class="pl-meta-chip pl-meta-chip--updated" title="Last track added">' +
+            PL_ICON_CAL + 'updated ' + escapeHtml(p.last_updated_rel) + '</span>';
+    }
+    if (p.top_genre) {
+        chips += '<span class="pl-meta-chip pl-meta-chip--genre">' + PL_ICON_NOTE + escapeHtml(p.top_genre) + '</span>';
+    }
+    if (p.top_artist) {
+        chips += '<span class="pl-meta-chip pl-meta-chip--artist" title="Top artist">' +
+            PL_ICON_PERSON + escapeHtml(p.top_artist) + '</span>';
+    }
+    return chips;
+}
+
 function renderPlaylists(playlists) {
     var container = document.getElementById('playlists');
     var section = document.getElementById('playlists-section');
@@ -518,51 +608,32 @@ function renderPlaylists(playlists) {
         if (section) section.style.display = 'none';
         return;
     }
-    var html = '<div class="playlist-stack">';
+
+    // Update subtitle to reflect count dynamically
+    var subtitle = section && section.querySelector('.music-subtitle');
+    if (subtitle) {
+        subtitle.textContent = playlists.length + ' playlists · metadata per card';
+    }
+
+    var html = '<div class="pl-grid">';
     for (var i = 0; i < playlists.length; i++) {
         var p = playlists[i];
-        var imgHtml = p.image
-            ? '<img class="playlist-stack__img" src="' + escapeHtml(p.image) + '" alt="" loading="lazy">'
-            : '<div class="playlist-stack__img playlist-stack__img--placeholder"></div>';
-        var countText = p.track_count > 0 ? p.track_count + ' tracks' : '';
+        var artHtml = p.image
+            ? '<img class="pl-card__art" src="' + escapeHtml(p.image) + '" alt="" loading="lazy">'
+            : '<div class="pl-card__art pl-card__art--placeholder"></div>';
         var desc = cleanDesc(p.description);
-        var descHtml = desc ? '<p class="playlist-stack__desc">' + escapeHtml(desc) + '</p>' : '';
-
-        // Build metadata chips row
-        var iconPlay    = '<svg width="9" height="9" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><polygon points="2,1 9,5 2,9"/></svg>';
-        var iconCal     = '<svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="1" y="2" width="10" height="9" rx="1.5"/><line x1="4" y1="1" x2="4" y2="3"/><line x1="8" y1="1" x2="8" y2="3"/><line x1="1" y1="5" x2="11" y2="5"/></svg>';
-        var iconNote    = '<svg width="9" height="9" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M9 1v6.5A2 2 0 1 1 7 9V4L4 5V9.5A2 2 0 1 1 2 11V3l7-2z"/></svg>';
-        var iconPerson  = '<svg width="9" height="9" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><circle cx="6" cy="3.5" r="2.5"/><path d="M1 11c0-2.76 2.24-5 5-5s5 2.24 5 5"/></svg>';
-        var iconTracks  = '<svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><line x1="1" y1="3" x2="11" y2="3"/><line x1="1" y1="6" x2="8" y2="6"/><line x1="1" y1="9" x2="9" y2="9"/></svg>';
-
-        var metaChips = '';
-        if (p.track_count > 0) {
-            metaChips += '<span class="pl-meta-chip" title="Number of tracks">' + iconTracks + p.track_count + ' tracks</span>';
-        }
-        if (p.last_played_rel) {
-            metaChips += '<span class="pl-meta-chip pl-meta-chip--played" title="Last time I played a track from this playlist">' +
-                iconPlay + 'played ' + escapeHtml(p.last_played_rel) + '</span>';
-        }
-        if (p.last_updated_rel) {
-            metaChips += '<span class="pl-meta-chip pl-meta-chip--updated" title="Most recent track added">' + iconCal + 'updated ' + escapeHtml(p.last_updated_rel) + '</span>';
-        }
-        if (p.top_genre) {
-            metaChips += '<span class="pl-meta-chip pl-meta-chip--genre">' + iconNote + escapeHtml(p.top_genre) + '</span>';
-        }
-        if (p.top_artist) {
-            metaChips += '<span class="pl-meta-chip pl-meta-chip--artist" title="Most frequent artist in this playlist">' + iconPerson + escapeHtml(p.top_artist) + '</span>';
-        }
-        var metaHtml = metaChips ? '<div class="pl-meta-row">' + metaChips + '</div>' : '';
+        var chips = buildPlaylistChips(p);
 
         html +=
-            '<a class="playlist-stack__card" href="' + escapeHtml(p.url) + '" target="_blank" rel="noopener" style="--i:' + i + '">' +
-                imgHtml +
-                '<div class="playlist-stack__body">' +
-                    '<div class="playlist-stack__name">' + escapeHtml(p.name) + '</div>' +
-                    (countText ? '<div class="playlist-stack__count">' + countText + '</div>' : '') +
-                    metaHtml +
-                    descHtml +
+            '<a class="pl-card" href="' + escapeHtml(p.url || '#') + '" target="_blank" rel="noopener">' +
+                '<div class="pl-card__header">' +
+                    artHtml +
+                    '<div class="pl-card__info">' +
+                        '<span class="pl-card__name">' + escapeHtml(p.name) + '</span>' +
+                        (desc ? '<p class="pl-card__desc">' + escapeHtml(desc) + '</p>' : '') +
+                    '</div>' +
                 '</div>' +
+                (chips ? '<div class="pl-card__chips">' + chips + '</div>' : '') +
             '</a>';
     }
     html += '</div>';
