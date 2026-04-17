@@ -149,6 +149,30 @@ async function enrichPlaylist(token, playlist, artistGenreCache, token2ForArtist
     }
 }
 
+/**
+ * Fetch crowd-sourced genre tags from Last.fm for a single artist.
+ * Used as fallback when Spotify returns empty genres[] for indie/niche artists.
+ */
+async function lastfmGenres(artistName, apiKey) {
+    if (!apiKey || !artistName) return [];
+    try {
+        const url = `https://ws.audioscrobbler.com/2.0/?method=artist.gettoptags&artist=${encodeURIComponent(artistName)}&api_key=${encodeURIComponent(apiKey)}&format=json&autocorrect=1`;
+        const res = await fetch(url);
+        if (!res.ok) return [];
+        const data = await res.json();
+        const tags = data?.toptags?.tag || [];
+        const arr = Array.isArray(tags) ? tags : [tags];
+        // Skip meta-tags that aren't real genres
+        const skip = new Set(['seen live','favorites','favourite','my favourite','good','love','awesome','cool','beautiful','under 2000 listeners','amazing','great']);
+        return arr
+            .filter(t => t.count > 10 && !skip.has((t.name || '').toLowerCase()))
+            .slice(0, 4)
+            .map(t => t.name.toLowerCase());
+    } catch (_) {
+        return [];
+    }
+}
+
 /** Run enrichment in sequential batches to avoid Spotify rate limiting (429) */
 async function enrichBatched(token, playlists, artistGenreCache, batchSize = 3) {
     const results = [];
@@ -245,6 +269,42 @@ export default async function handler(req, res) {
                 if (a?.name && a.genres?.length) artistNameToGenres[a.name] = a.genres;
             });
         });
+
+        // Last.fm genre enrichment — fill in genres for artists Spotify left empty
+        // (Spotify increasingly omits genres for indie/niche artists)
+        const LASTFM_KEY = process.env.LASTFM_API_KEY;
+        if (LASTFM_KEY) {
+            // Collect all unique artist names across all time ranges
+            const allArtistNames = new Set();
+            [topArtistsLong, topArtistsMed, topArtistsShort].forEach(src => {
+                (src?.items || []).forEach(a => { if (a?.name) allArtistNames.add(a.name); });
+            });
+            // Only fetch for artists with no genres from Spotify
+            const needsGenres = [...allArtistNames].filter(name => !artistNameToGenres[name] || artistNameToGenres[name].length === 0);
+            // Batch in groups of 5 to respect Last.fm rate limit (5 req/s)
+            for (let i = 0; i < needsGenres.length; i += 5) {
+                const batch = needsGenres.slice(i, i + 5);
+                const results = await Promise.all(batch.map(name => lastfmGenres(name, LASTFM_KEY)));
+                batch.forEach((name, idx) => {
+                    if (results[idx].length > 0) artistNameToGenres[name] = results[idx];
+                });
+                if (i + 5 < needsGenres.length) await new Promise(r => setTimeout(r, 250));
+            }
+            // Mutate the artist objects so genresFrom() picks up Last.fm data
+            [topArtistsLong, topArtistsMed, topArtistsShort].forEach(src => {
+                (src?.items || []).forEach(a => {
+                    if (a?.name && artistNameToGenres[a.name]?.length && (!a.genres || a.genres.length === 0)) {
+                        a.genres = artistNameToGenres[a.name];
+                    }
+                });
+            });
+            // Also rebuild artistGenreCache with new data
+            [topArtistsLong, topArtistsMed, topArtistsShort].forEach(src => {
+                (src?.items || []).forEach(a => {
+                    if (a?.id && a.genres?.length) artistGenreCache[a.id] = a.genres;
+                });
+            });
+        }
 
         // Derive play-count proxy from recent_tracks (last 50 plays)
         const playCountByTrackId = {};
@@ -411,11 +471,6 @@ export default async function handler(req, res) {
             computed_at: new Date().toISOString(),
         };
 
-        // Debug: raw tracks field from first playlist
-        const _debug_tracks = playlistItems[0]
-            ? { tracks_raw: playlistItems[0].tracks, id: playlistItems[0].id, name: playlistItems[0].name }
-            : null;
-
         // Top artists by time range (fallback for when genre data is unavailable)
         const top_artists_by_range = {
             short:  (topArtistsShort?.items || []).slice(0, 10).map(a => ({ name: a.name, genres: a.genres || [] })),
@@ -436,7 +491,6 @@ export default async function handler(req, res) {
             spotify_url,
             audio_features,
             personality,
-            _debug_tracks,
         });
     } catch (err) {
         console.error('Spotify API error:', err.message);
