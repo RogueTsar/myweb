@@ -384,10 +384,21 @@ function drawEvolutionChart(target, points) {
 /* ── F1 Podium (Top Artists) — broadcast graphic style ── */
 
 var F1_DRIVERS = {
-    p1: { name: 'Fernando Alonso', short: 'ALO', team: 'Aston Martin', color: '#00665e', photo: '/assets/img/drivers/alonso.jpg' },
-    p2: { name: 'Lewis Hamilton',  short: 'HAM', team: 'Ferrari',       color: '#e8002d', photo: '/assets/img/drivers/hamilton.jpg' },
-    p3: { name: 'Max Verstappen',  short: 'VER', team: 'Red Bull Racing', color: '#3671c6', photo: '/assets/img/drivers/verstappen.jpg' },
+    p1: { name: 'Fernando Alonso', short: 'ALO', team: 'Aston Martin',   flag: '🇪🇸', color: '#00897b', photo: '/assets/img/drivers/alonso.jpg' },
+    p2: { name: 'Lewis Hamilton',  short: 'HAM', team: 'Ferrari',         flag: '🇬🇧', color: '#e8002d', photo: '/assets/img/drivers/hamilton.jpg' },
+    p3: { name: 'Max Verstappen',  short: 'VER', team: 'Red Bull Racing', flag: '🇳🇱', color: '#3671c6', photo: '/assets/img/drivers/verstappen.jpg' },
 };
+
+/* P4–P10 drivers — fixed roster, cycling through artist slots */
+var F1_LB_DRIVERS = [
+    { name: 'Charles Leclerc',  short: 'LEC', team: 'Ferrari',         flag: '🇲🇨', color: '#e8002d', photo: '/assets/img/drivers/leclerc.jpg'   },
+    { name: 'Kimi Räikkönen',   short: 'RAI', team: 'Alfa Romeo',      flag: '🇫🇮', color: '#9b0000', photo: '/assets/img/drivers/raikkonen.jpg' },
+    { name: 'Jenson Button',    short: 'BUT', team: 'McLaren',         flag: '🇬🇧', color: '#ff8000', photo: '/assets/img/drivers/button.jpg'    },
+    { name: 'Mark Webber',      short: 'WEB', team: 'Red Bull Racing', flag: '🇦🇺', color: '#3671c6', photo: '/assets/img/drivers/webber.jpg'    },
+    { name: 'Oscar Piastri',    short: 'PIA', team: 'McLaren',         flag: '🇦🇺', color: '#ff8000', photo: '/assets/img/drivers/piastri.jpg'   },
+    { name: 'Sebastian Vettel', short: 'VET', team: 'Red Bull Racing', flag: '🇩🇪', color: '#3671c6', photo: '/assets/img/drivers/vettel.jpg'    },
+    { name: 'Lando Norris',     short: 'NOR', team: 'McLaren',         flag: '🇬🇧', color: '#ff8000', photo: '/assets/img/drivers/norris.jpg'    },
+];
 
 function renderF1Podium(artists) {
     var container = document.getElementById('top-artists');
@@ -415,6 +426,7 @@ function renderF1Podium(artists) {
                 '<div class="f1-card__artist">' + escapeHtml(artist.name) + '</div>' +
                 (genreStr ? '<div class="f1-card__genres">' + escapeHtml(genreStr) + '</div>' : '') +
                 '<div class="f1-card__driver-row">' +
+                    '<span class="f1-card__flag">' + d.flag + '</span>' +
                     '<span class="f1-card__driver-code" style="color:' + d.color + '">' + d.short + '</span>' +
                     '<span class="f1-card__driver-name">' + d.name + '</span>' +
                     '<span class="f1-card__team">' + d.team + '</span>' +
@@ -436,17 +448,24 @@ function renderF1Podium(artists) {
             driverCard(p3Artist, 'p3') +   // right
         '</div>';
 
-    // F1 leaderboard for P4 – P10
+    // F1 leaderboard for P4–P10 — each slot gets a real driver from the roster
     if (artists.length > 3) {
         html += '<div class="f1-leaderboard">';
         for (var i = 3; i < Math.min(artists.length, 10); i++) {
             var a = artists[i];
+            var lb = F1_LB_DRIVERS[i - 3] || { name: 'Driver', short: '???', team: '', flag: '', color: '#888', photo: '' };
             var genreLabel = (a.genres && a.genres.length > 0) ? a.genres.slice(0, 2).join(' · ') : '';
             html +=
                 '<div class="f1-lb-row">' +
+                    (lb.photo ? '<img class="f1-lb-avatar" src="' + lb.photo + '" alt="' + lb.name + '" loading="lazy">' : '<div class="f1-lb-avatar f1-lb-avatar--empty"></div>') +
+                    '<span class="f1-lb-flag">' + lb.flag + '</span>' +
                     '<span class="f1-lb-pos">P' + (i + 1) + '</span>' +
-                    '<span class="f1-lb-name">' + escapeHtml(a.name) + '</span>' +
-                    '<span class="f1-lb-genres">' + escapeHtml(genreLabel) + '</span>' +
+                    '<span class="f1-lb-code" style="color:' + lb.color + '">' + lb.short + '</span>' +
+                    '<div class="f1-lb-info">' +
+                        '<span class="f1-lb-name">' + escapeHtml(a.name) + '</span>' +
+                        '<span class="f1-lb-driver">' + lb.name + ' · ' + lb.team + '</span>' +
+                    '</div>' +
+                    (genreLabel ? '<span class="f1-lb-genres">' + escapeHtml(genreLabel) + '</span>' : '') +
                 '</div>';
         }
         html += '</div>';
