@@ -654,12 +654,14 @@ function buildPlaylistChips(p) {
         chips += '<span class="pl-meta-chip pl-meta-chip--updated" title="Last track added">' +
             PL_ICON_CAL + 'updated ' + escapeHtml(p.last_updated_rel) + '</span>';
     }
-    if (p.top_genre) {
-        chips += '<span class="pl-meta-chip pl-meta-chip--genre">' + PL_ICON_NOTE + escapeHtml(p.top_genre) + '</span>';
-    }
     if (p.top_artist) {
         chips += '<span class="pl-meta-chip pl-meta-chip--artist" title="Top artist">' +
             PL_ICON_PERSON + escapeHtml(p.top_artist) + '</span>';
+    }
+    var genres = p.top_genres && p.top_genres.length > 0 ? p.top_genres : (p.top_genre ? [p.top_genre] : []);
+    if (genres.length > 0) {
+        chips += '<span class="pl-meta-chip pl-meta-chip--genres">' + PL_ICON_NOTE +
+            genres.map(function (g) { return escapeHtml(g); }).join(' · ') + '</span>';
     }
     return chips;
 }

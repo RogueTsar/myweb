@@ -134,13 +134,16 @@ async function enrichPlaylist(token, playlist, artistGenreCache, token2ForArtist
                 });
             } catch (_) { /* skip batch */ }
         }
-        topGenre = Object.entries(genreCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+        const sortedGenres = Object.entries(genreCounts).sort((a, b) => b[1] - a[1]);
+        topGenre = sortedGenres[0]?.[0] || null;
+        const top_genres = sortedGenres.slice(0, 4).map(([name]) => name);
 
         return {
             last_updated_iso: latest ? new Date(latest).toISOString() : null,
             last_updated_rel: latest ? relativeTime(new Date(latest).toISOString()) : null,
             top_artist: topArtist,
             top_genre: topGenre,
+            top_genres,
             track_count: items.length,
             track_names: items.slice(0, 50).map(i => i.track?.name).filter(Boolean),
         };
@@ -437,6 +440,7 @@ export default async function handler(req, res) {
                 last_played_rel: lastPlayedIso ? relativeTime(lastPlayedIso) : null,
                 top_artist: e.top_artist || null,
                 top_genre: topGenre,
+                top_genres: e.top_genres || (topGenre ? [topGenre] : []),
             };
         });
 
