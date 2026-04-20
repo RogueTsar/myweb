@@ -41,10 +41,13 @@ export default async function handler(req, res) {
         ]);
 
         // User genre landscape from scrobble tags
-        const user_top_tags = toArr(tagsData?.toptags?.tag)
-            .filter(t => parseInt(t.count || 0) > 0 && !TAG_SKIP.has((t.name || '').toLowerCase()))
-            .slice(0, 80)
-            .map(t => ({ name: (t.name || '').toLowerCase(), count: parseInt(t.count) }));
+        const allTags = toArr(tagsData?.toptags?.tag)
+            .map(t => ({ name: (t.name || '').toLowerCase(), count: parseInt(t.count || 0) }));
+        const maxCount = allTags[0]?.count || 1;
+        // Only count tags with >5% of the top tag's weight — filters noise/one-offs
+        const user_top_tags = allTags
+            .filter(t => t.count >= Math.max(2, Math.ceil(maxCount * 0.05)) && !TAG_SKIP.has(t.name))
+            .slice(0, 60);
 
         // Group weekly charts into calendar months, skip current partial month
         const now = new Date();

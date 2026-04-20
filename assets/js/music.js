@@ -303,10 +303,12 @@ function renderInsights(audioFeatures, topArtists, topTracks, recentTracks, serv
         }
     });
 
-    // Fire-and-forget: load personality evolution from history snapshots
-    renderPersonalityEvolution({
-        obscurity: obscurity, mainstream: mainstream, loyalty: loyalty, diversity: diversity
-    });
+    // Evolution chart: Last.fm version (drawn later) takes priority; only use static snapshots as fallback
+    if (!lfmData || !lfmData.monthly_history || lfmData.monthly_history.length === 0) {
+        renderPersonalityEvolution({
+            obscurity: obscurity, mainstream: mainstream, loyalty: loyalty, diversity: diversity
+        });
+    }
 }
 
 /* ── Personality Evolution (reads /assets/data/history/*.json snapshots) ── */
