@@ -3,7 +3,7 @@
 var vibeCache = {};
 
 document.addEventListener('DOMContentLoaded', function () {
-    fetch('/api/spotify')
+    var spotifyReq = fetch('/api/spotify')
         .then(function (res) {
             if (!res.ok) {
                 return res.json().then(function (body) {
@@ -14,27 +14,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             }
             return res.json();
-        })
-        .then(function (data) {
-            window.__musicData = data; // expose for debugging + evolution chart
-            renderLastPlayed(data.last_played);
-            renderRecentHistory(data.recent_tracks);
-            renderInsights(data.audio_features, data.top_artists, data.top_tracks, data.recent_tracks, data.personality);
-            renderF1Podium(data.top_artists);
-            renderBarChart('top-tracks', data.top_tracks, 'full');
-            if (window.MusicViews) window.MusicViews.init(data.top_tracks);
-            renderVinylShelf(data.top_tracks);
-            renderGenres(data.top_genres);
-            renderGenresAcrossTime(data.genres_by_range, data.top_artists_by_range);
-            renderPlaylists(data.playlists);
-            loadPastMonths();
-            if (data.spotify_url) {
-                var link = document.getElementById('spotify-profile-link');
-                if (link) link.href = data.spotify_url;
-            }
-        })
-        .catch(function (err) {
-            var msg = err && err.message ? err.message : 'Could not load data.';
+        });
+
+    var lastfmReq = fetch('/api/lastfm')
+        .then(function (res) { return res.ok ? res.json() : null; })
+        .catch(function () { return null; });
+
+    Promise.allSettled([spotifyReq, lastfmReq]).then(function (results) {
+        var spotifyResult = results[0];
+        var lfmResult     = results[1];
+
+        if (spotifyResult.status === 'rejected') {
+            var msg = spotifyResult.reason && spotifyResult.reason.message
+                ? spotifyResult.reason.message : 'Could not load data.';
             var lp = document.getElementById('last-played');
             if (lp) lp.innerHTML = '<p class="music-error">' + escapeHtml(msg) + '</p>';
             showError('recent-history');
@@ -42,7 +34,37 @@ document.addEventListener('DOMContentLoaded', function () {
             showError('top-tracks');
             showError('top-genres');
             showError('playlists');
-        });
+            return;
+        }
+
+        var data    = spotifyResult.value;
+        var lfmData = lfmResult.status === 'fulfilled' ? lfmResult.value : null;
+
+        window.__musicData   = data;
+        window.__lastfmData  = lfmData;
+
+        renderLastPlayed(data.last_played);
+        renderRecentHistory(data.recent_tracks);
+        renderInsights(data.audio_features, data.top_artists, data.top_tracks, data.recent_tracks, data.personality, lfmData);
+        renderF1Podium(data.top_artists);
+        renderBarChart('top-tracks', data.top_tracks, 'full');
+        if (window.MusicViews) window.MusicViews.init(data.top_tracks);
+        renderVinylShelf(data.top_tracks);
+        renderGenres(data.top_genres);
+        renderGenresAcrossTime(data.genres_by_range, data.top_artists_by_range);
+        renderPlaylists(data.playlists);
+
+        if (lfmData && lfmData.monthly_history && lfmData.monthly_history.length > 0) {
+            renderLastfmHistory(lfmData.monthly_history);
+        } else {
+            loadPastMonths();
+        }
+
+        if (data.spotify_url) {
+            var link = document.getElementById('spotify-profile-link');
+            if (link) link.href = data.spotify_url;
+        }
+    });
 });
 
 /* ── Last Played ── */
@@ -139,7 +161,7 @@ function getLabel(metric, value) {
     return { text: tiers[tiers.length - 1][1] };
 }
 
-function renderInsights(audioFeatures, topArtists, topTracks, recentTracks, serverPersonality) {
+function renderInsights(audioFeatures, topArtists, topTracks, recentTracks, serverPersonality, lfmData) {
     var section = document.getElementById('insights-section');
     var teaser = document.getElementById('insights-teaser');
     var grid = document.getElementById('insights-grid');
@@ -257,7 +279,13 @@ function renderInsights(audioFeatures, topArtists, topTracks, recentTracks, serv
 
     // Richer metadata row: genre breadth, unique artist count, top genre
     var uniqueArtists = Object.keys(allArtists).length;
-    var genreBreadth = serverPersonality && serverPersonality.genre_breadth != null ? serverPersonality.genre_breadth : null;
+    // Prefer Last.fm user tag count (scrobble-based, far more accurate than Spotify's sparse genre data)
+    var genreBreadth = null;
+    if (lfmData && lfmData.user_top_tags && lfmData.user_top_tags.length > 0) {
+        genreBreadth = lfmData.user_top_tags.length;
+    } else if (serverPersonality && serverPersonality.genre_breadth != null) {
+        genreBreadth = serverPersonality.genre_breadth;
+    }
     html += '<div class="insights-meta">';
     html += '<div class="insights-meta__item"><span class="insights-meta__num">' + uniqueArtists + '</span><span class="insights-meta__label">unique artists seen</span></div>';
     if (genreBreadth != null) {
@@ -869,7 +897,98 @@ function renderVibePanel(id, vibe) {
     panel.innerHTML = html;
 }
 
-/* ── Past Months ── */
+/* ── Last.fm Monthly History ── */
+
+function renderLastfmHistory(monthlyHistory) {
+    if (!monthlyHistory || monthlyHistory.length === 0) return;
+
+    var section = document.getElementById('past-months-section');
+    if (section) section.style.display = '';
+
+    var nav = document.getElementById('past-months-nav');
+    if (!nav) return;
+
+    // Show newest month first
+    var months = monthlyHistory.slice().reverse();
+
+    var html = '<div class="past-months-nav">';
+    months.forEach(function (entry) {
+        html += '<button class="btn-glass history-month-btn" data-month="' + escapeHtml(entry.month) + '">' + escapeHtml(entry.label) + '</button>';
+    });
+    html += '</div>';
+    nav.innerHTML = html;
+
+    nav.querySelectorAll('.history-month-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var month = btn.getAttribute('data-month');
+            var entry = monthlyHistory.find(function (m) { return m.month === month; });
+            if (entry) {
+                renderHistoricalMonth(entry);
+                // Render top artists for this month below the track chart
+                renderLastfmMonthArtists(entry.top_artists);
+            }
+        });
+    });
+
+    // Auto-click the most recent month
+    var first = nav.querySelector('.history-month-btn');
+    if (first) first.click();
+
+    // Feed into personality evolution chart
+    renderPersonalityEvolutionFromLastfm(months);
+}
+
+function renderLastfmMonthArtists(topArtists) {
+    if (!topArtists || topArtists.length === 0) return;
+    var content = document.getElementById('past-months-content');
+    if (!content) return;
+    var existing = content.querySelector('.lfm-artists-block');
+    if (existing) existing.remove();
+
+    var html = '<div class="lfm-artists-block" style="margin-top:1rem;">' +
+        '<p class="music-subtitle" style="margin-bottom:0.5rem;">Top artists that week</p>' +
+        '<div class="genre-tags">';
+    topArtists.slice(0, 12).forEach(function (a) {
+        html += '<span class="genre-tag">' + escapeHtml(a.name) +
+            (a.plays ? ' <span style="opacity:0.5;font-size:0.7em;">· ' + a.plays + '</span>' : '') +
+            '</span>';
+    });
+    html += '</div></div>';
+    content.insertAdjacentHTML('beforeend', html);
+}
+
+function renderPersonalityEvolutionFromLastfm(months) {
+    var target = document.getElementById('insights-evolution');
+    if (!target) return;
+
+    var currentMetrics = null;
+    if (window.__musicData && window.__musicData.personality) {
+        var p = window.__musicData.personality;
+        currentMetrics = { obscurity: p.obscurity, mainstream: p.mainstream, loyalty: p.loyalty, diversity: p.diversity };
+    }
+
+    var points = months.slice().reverse().map(function (m) {
+        return {
+            month: m.month,
+            label: m.label.replace(/\s+\d{4}$/, '').slice(0, 3),
+            p: {
+                obscurity:   m.personality && m.personality.obscurity   != null ? m.personality.obscurity   : null,
+                mainstream:  m.personality && m.personality.mainstream  != null ? m.personality.mainstream  : null,
+                loyalty:     m.personality && m.personality.loyalty     != null ? m.personality.loyalty     : 50,
+                diversity:   m.personality && m.personality.diversity   != null ? m.personality.diversity   : 50,
+            },
+        };
+    });
+
+    if (currentMetrics) {
+        var nowLabel = new Date().toLocaleString('en-US', { month: 'short', year: 'numeric' });
+        points.push({ month: 'current', label: nowLabel + ' (now)', p: currentMetrics });
+    }
+
+    if (points.length > 0) drawEvolutionChart(target, points);
+}
+
+/* ── Past Months (static file fallback) ── */
 
 function loadPastMonths() {
     fetch('/assets/data/history/index.json')
