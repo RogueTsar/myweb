@@ -384,20 +384,20 @@ function drawEvolutionChart(target, points) {
 /* ── F1 Podium (Top Artists) — broadcast graphic style ── */
 
 var F1_DRIVERS = {
-    p1: { name: 'Fernando Alonso', short: 'ALO', team: 'Aston Martin',   flag: '🇪🇸', color: '#00897b', photo: '/assets/img/drivers/alonso.jpg' },
-    p2: { name: 'Lewis Hamilton',  short: 'HAM', team: 'Ferrari',         flag: '🇬🇧', color: '#e8002d', photo: '/assets/img/drivers/hamilton.jpg' },
-    p3: { name: 'Max Verstappen',  short: 'VER', team: 'Red Bull Racing', flag: '🇳🇱', color: '#3671c6', photo: '/assets/img/drivers/verstappen.jpg' },
+    p1: { name: 'Fernando Alonso', short: 'ALO', team: 'Aston Martin',   flag: '🇪🇸', color: '#00897b', trophy: '/assets/img/trophy-gold.svg' },
+    p2: { name: 'Lewis Hamilton',  short: 'HAM', team: 'Ferrari',         flag: '🇬🇧', color: '#e8002d', trophy: '/assets/img/trophy-silver.svg' },
+    p3: { name: 'Max Verstappen',  short: 'VER', team: 'Red Bull Racing', flag: '🇳🇱', color: '#3671c6', trophy: '/assets/img/trophy-bronze.svg' },
 };
 
 /* P4–P10 drivers — fixed roster, cycling through artist slots */
 var F1_LB_DRIVERS = [
-    { name: 'Charles Leclerc',  short: 'LEC', team: 'Ferrari',         flag: '🇲🇨', color: '#e8002d', photo: '/assets/img/drivers/leclerc.jpg'   },
-    { name: 'Kimi Räikkönen',   short: 'RAI', team: 'Alfa Romeo',      flag: '🇫🇮', color: '#9b0000', photo: '/assets/img/drivers/raikkonen.jpg' },
-    { name: 'Jenson Button',    short: 'BUT', team: 'McLaren',         flag: '🇬🇧', color: '#ff8000', photo: '/assets/img/drivers/button.jpg'    },
-    { name: 'Mark Webber',      short: 'WEB', team: 'Red Bull Racing', flag: '🇦🇺', color: '#3671c6', photo: '/assets/img/drivers/webber.jpg'    },
-    { name: 'Oscar Piastri',    short: 'PIA', team: 'McLaren',         flag: '🇦🇺', color: '#ff8000', photo: '/assets/img/drivers/piastri.jpg'   },
-    { name: 'Sebastian Vettel', short: 'VET', team: 'Red Bull Racing', flag: '🇩🇪', color: '#3671c6', photo: '/assets/img/drivers/vettel.jpg'    },
-    { name: 'Lando Norris',     short: 'NOR', team: 'McLaren',         flag: '🇬🇧', color: '#ff8000', photo: '/assets/img/drivers/norris.jpg'    },
+    { name: 'Charles Leclerc',  short: 'LEC', team: 'Ferrari',         flag: '🇲🇨', color: '#e8002d' },
+    { name: 'Kimi Räikkönen',   short: 'RAI', team: 'Alfa Romeo',      flag: '🇫🇮', color: '#9b0000' },
+    { name: 'Jenson Button',    short: 'BUT', team: 'McLaren',         flag: '🇬🇧', color: '#ff8000' },
+    { name: 'Mark Webber',      short: 'WEB', team: 'Red Bull Racing', flag: '🇦🇺', color: '#3671c6' },
+    { name: 'Oscar Piastri',    short: 'PIA', team: 'McLaren',         flag: '🇦🇺', color: '#ff8000' },
+    { name: 'Sebastian Vettel', short: 'VET', team: 'Red Bull Racing', flag: '🇩🇪', color: '#3671c6' },
+    { name: 'Lando Norris',     short: 'NOR', team: 'McLaren',         flag: '🇬🇧', color: '#ff8000' },
 ];
 
 function renderF1Podium(artists) {
@@ -418,10 +418,11 @@ function renderF1Podium(artists) {
         var genreStr = (artist.genres && artist.genres.length > 0) ? artist.genres.slice(0, 2).join(' · ') : '';
         var posNum = pos === 'p1' ? '1' : pos === 'p2' ? '2' : '3';
         return '<div class="f1-card f1-card--' + pos + '">' +
-            '<div class="f1-card__photo" style="background-image:url(\'' + d.photo + '\')"></div>' +
-            '<div class="f1-card__gradient"></div>' +
             '<div class="f1-card__team-bar" style="background:' + d.color + '"></div>' +
             '<span class="f1-card__pos-ghost">' + posNum + '</span>' +
+            '<div class="f1-card__trophy-wrap">' +
+                '<img class="f1-card__trophy f1-card__trophy--' + pos + '" src="' + d.trophy + '" alt="P' + posNum + ' trophy" draggable="false">' +
+            '</div>' +
             '<div class="f1-card__content">' +
                 '<div class="f1-card__artist">' + escapeHtml(artist.name) + '</div>' +
                 (genreStr ? '<div class="f1-card__genres">' + escapeHtml(genreStr) + '</div>' : '') +
@@ -457,7 +458,7 @@ function renderF1Podium(artists) {
             var genreLabel = (a.genres && a.genres.length > 0) ? a.genres.slice(0, 2).join(' · ') : '';
             html +=
                 '<div class="f1-lb-row">' +
-                    (lb.photo ? '<img class="f1-lb-avatar" src="' + lb.photo + '" alt="' + lb.name + '" loading="lazy">' : '<div class="f1-lb-avatar f1-lb-avatar--empty"></div>') +
+                    '<img class="f1-lb-trophy" src="/assets/img/trophy-lb.svg" alt="" draggable="false">' +
                     '<span class="f1-lb-flag">' + lb.flag + '</span>' +
                     '<span class="f1-lb-pos">P' + (i + 1) + '</span>' +
                     '<span class="f1-lb-code" style="color:' + lb.color + '">' + lb.short + '</span>' +

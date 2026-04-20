@@ -2485,45 +2485,42 @@ nav a:not(.active):hover::after {
 /* Individual driver card */
 .f1-card {
     position: relative;
-    height: 280px;
+    height: 260px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    justify-content: space-between;
     background: #1a1a1a;
 }
 
 /* P1 card is taller — achieved via negative margin pulling it up */
 .f1-card--p1 {
-    height: 320px;
+    height: 300px;
     margin-top: -40px;
 }
 
-/* Driver photo background */
-.f1-card__photo {
-    position: absolute;
-    inset: 0;
-    background-size: cover;
-    background-position: center top;
-    filter: brightness(0.65) saturate(0.9);
-    transform: scale(1.06);
-    transition: transform 4s ease;
+/* Trophy image wrapper — centered upper area */
+.f1-card__trophy-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 1.5rem;
 }
 
-.f1-card:hover .f1-card__photo {
-    transform: scale(1.0);
+.f1-card__trophy {
+    display: block;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+    transition: transform 0.3s ease;
+    user-select: none;
 }
 
-/* Dark gradient overlay — heavier at bottom for text legibility */
-.f1-card__gradient {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-        to top,
-        rgba(0,0,0,0.92) 0%,
-        rgba(0,0,0,0.5) 45%,
-        rgba(0,0,0,0.05) 80%
-    );
+.f1-card__trophy--p1 { width: 96px; }
+.f1-card__trophy--p2 { width: 72px; }
+.f1-card__trophy--p3 { width: 58px; }
+
+.f1-card:hover .f1-card__trophy {
+    transform: translateY(-4px) scale(1.04);
 }
 
 /* Team colour top stripe */
@@ -2556,8 +2553,6 @@ nav a:not(.active):hover::after {
 
 /* Content block — sits at bottom */
 .f1-card__content {
-    position: relative;
-    z-index: 2;
     padding: 0 0.85rem 0.85rem;
     display: flex;
     flex-direction: column;
@@ -2642,7 +2637,7 @@ nav a:not(.active):hover::after {
 
 .f1-lb-row {
     display: grid;
-    grid-template-columns: 38px 1.4rem 2.4rem 3rem 1fr auto;
+    grid-template-columns: 28px 1.4rem 2.4rem 3rem 1fr auto;
     align-items: center;
     padding: 0.45rem 0.85rem;
     border-bottom: 1px solid rgba(255,255,255,0.04);
@@ -2658,23 +2653,14 @@ nav a:not(.active):hover::after {
     border-bottom: none;
 }
 
-/* Small circular driver headshot */
-.f1-lb-avatar {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    object-fit: cover;
-    object-position: center 10%;
-    border: 1.5px solid rgba(255,255,255,0.1);
+/* Small trophy icon in leaderboard */
+.f1-lb-trophy {
+    width: 22px;
+    height: auto;
     display: block;
     flex-shrink: 0;
-}
-
-.f1-lb-avatar--empty {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.05);
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.4));
+    opacity: 0.7;
 }
 
 .f1-lb-flag {
@@ -2740,16 +2726,19 @@ nav a:not(.active):hover::after {
 
 @media (max-width: 600px) {
     .f1-broadcast__podium { gap: 2px; }
-    .f1-card { height: 220px; }
-    .f1-card--p1 { height: 255px; margin-top: -35px; }
+    .f1-card { height: 210px; }
+    .f1-card--p1 { height: 248px; margin-top: -38px; }
+    .f1-card__trophy--p1 { width: 72px; }
+    .f1-card__trophy--p2 { width: 54px; }
+    .f1-card__trophy--p3 { width: 44px; }
     .f1-card__artist { font-size: 0.82rem; }
     .f1-card--p1 .f1-card__artist { font-size: 1rem; }
     .f1-lb-genres { display: none; }
     .f1-lb-row {
-        grid-template-columns: 32px 1.2rem 2rem 2.6rem 1fr;
+        grid-template-columns: 22px 1.2rem 2rem 2.6rem 1fr;
         padding: 0.4rem 0.5rem;
     }
-    .f1-lb-avatar { width: 28px; height: 28px; }
+    .f1-lb-trophy { width: 18px; }
     .f1-lb-flag { font-size: 0.85rem; }
 }
 
