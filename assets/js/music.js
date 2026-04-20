@@ -365,47 +365,103 @@ function renderPersonalityEvolution(currentMetrics) {
 function drawEvolutionChart(target, points) {
     if (points.length === 0) return;
 
-    var w = 420, h = 140, pad = { t: 10, r: 10, b: 24, l: 32 };
+    var w = 520, h = 190, pad = { t: 18, r: 24, b: 34, l: 38 };
     var iw = w - pad.l - pad.r, ih = h - pad.t - pad.b;
-    var metrics = ['obscurity', 'mainstream', 'loyalty', 'diversity'];
-    var colors = {
-        obscurity: 'var(--accent)',
-        mainstream: 'var(--accent-light)',
-        loyalty: 'var(--gold)',
-        diversity: 'var(--green)'
-    };
 
-    function x(i) { return pad.l + (points.length === 1 ? iw / 2 : (i / (points.length - 1)) * iw); }
-    function y(v) { return pad.t + ih - (v / 100) * ih; }
+    var METRICS = [
+        { key: 'obscurity',  label: 'Obscurity',  color: '#818cf8' },
+        { key: 'mainstream', label: 'Mainstream', color: '#94a3b8' },
+        { key: 'loyalty',    label: 'Loyalty',    color: '#fbbf24' },
+        { key: 'diversity',  label: 'Diversity',  color: '#34d399' },
+    ];
+
+    function xPos(i) { return pad.l + (points.length <= 1 ? iw / 2 : (i / (points.length - 1)) * iw); }
+    function yPos(v) { return pad.t + ih - Math.max(0, Math.min(100, v)) / 100 * ih; }
+
+    // Smooth cubic bezier through a list of {x,y} points
+    function smoothLine(pts) {
+        if (pts.length === 0) return '';
+        if (pts.length === 1) return 'M' + pts[0].x + ',' + pts[0].y;
+        var d = 'M' + pts[0].x + ',' + pts[0].y;
+        for (var i = 1; i < pts.length; i++) {
+            var mx = pts[i - 1].x + (pts[i].x - pts[i - 1].x) * 0.45;
+            d += ' C' + mx + ',' + pts[i - 1].y + ' ' + mx + ',' + pts[i].y + ' ' + pts[i].x + ',' + pts[i].y;
+        }
+        return d;
+    }
 
     var svg = '<svg class="insights-evolution__svg" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="xMidYMid meet">';
-    // Y grid
+
+    // Gradient defs
+    svg += '<defs>';
+    METRICS.forEach(function (m) {
+        svg += '<linearGradient id="evo-grad-' + m.key + '" x1="0" y1="0" x2="0" y2="1">' +
+            '<stop offset="0%" stop-color="' + m.color + '" stop-opacity="0.22"/>' +
+            '<stop offset="100%" stop-color="' + m.color + '" stop-opacity="0.01"/>' +
+            '</linearGradient>';
+    });
+    svg += '</defs>';
+
+    // Horizontal grid
     [0, 25, 50, 75, 100].forEach(function (v) {
-        svg += '<line x1="' + pad.l + '" y1="' + y(v) + '" x2="' + (w - pad.r) + '" y2="' + y(v) + '" stroke="var(--border)" stroke-width="0.5"/>';
-        svg += '<text x="' + (pad.l - 4) + '" y="' + (y(v) + 3) + '" font-size="8" fill="var(--text-tertiary)" text-anchor="end">' + v + '</text>';
+        var yy = yPos(v);
+        svg += '<line x1="' + pad.l + '" y1="' + yy + '" x2="' + (w - pad.r) + '" y2="' + yy +
+            '" stroke="rgba(255,255,255,0.055)" stroke-width="1"/>';
+        svg += '<text x="' + (pad.l - 6) + '" y="' + (yy + 3.5) + '" font-size="9" fill="rgba(255,255,255,0.22)" text-anchor="end">' + v + '</text>';
     });
-    // X labels
+
+    // X labels — skip every other if crowded
+    var skipEvery = points.length > 8 ? 2 : 1;
     points.forEach(function (p, i) {
-        svg += '<text x="' + x(i) + '" y="' + (h - 6) + '" font-size="8" fill="var(--text-tertiary)" text-anchor="middle">' +
-            (p.label || p.month).replace(' (now)', '*') + '</text>';
+        if (i % skipEvery !== 0 && i !== points.length - 1) return;
+        var lbl = (p.label || p.month).replace(' (now)', '*');
+        svg += '<text x="' + xPos(i) + '" y="' + (h - 8) + '" font-size="9" fill="rgba(255,255,255,0.3)" text-anchor="middle">' + lbl + '</text>';
     });
-    // Each metric line
-    metrics.forEach(function (m) {
-        var path = points.map(function (p, i) {
-            var v = p.p && p.p[m] != null ? p.p[m] : 50;
-            return (i === 0 ? 'M' : 'L') + x(i) + ' ' + y(v);
-        }).join(' ');
-        svg += '<path d="' + path + '" fill="none" stroke="' + colors[m] + '" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>';
+
+    // "Now" dashed vertical
+    if (points.length > 1) {
+        var nx = xPos(points.length - 1);
+        svg += '<line x1="' + nx + '" y1="' + pad.t + '" x2="' + nx + '" y2="' + (h - pad.b) +
+            '" stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-dasharray="4,3"/>';
+    }
+
+    // Draw each metric
+    METRICS.forEach(function (m) {
+        // Collect only points with real (non-null) values
+        var validPts = [];
         points.forEach(function (p, i) {
-            var v = p.p && p.p[m] != null ? p.p[m] : 50;
-            svg += '<circle cx="' + x(i) + '" cy="' + y(v) + '" r="2.5" fill="' + colors[m] + '"/>';
+            var v = p.p ? p.p[m.key] : null;
+            if (v != null) validPts.push({ x: xPos(i), y: yPos(v) });
+        });
+        if (validPts.length === 0) return;
+
+        var linePath = smoothLine(validPts);
+
+        // Area fill
+        if (validPts.length > 1) {
+            var areaPath = linePath +
+                ' L' + validPts[validPts.length - 1].x + ',' + (h - pad.b) +
+                ' L' + validPts[0].x + ',' + (h - pad.b) + ' Z';
+            svg += '<path d="' + areaPath + '" fill="url(#evo-grad-' + m.key + ')"/>';
+        }
+
+        // Line
+        svg += '<path d="' + linePath + '" fill="none" stroke="' + m.color +
+            '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+
+        // Dots with ring
+        validPts.forEach(function (pt) {
+            svg += '<circle cx="' + pt.x + '" cy="' + pt.y + '" r="4" fill="#0d1117" stroke="' + m.color + '" stroke-width="2"/>';
         });
     });
+
     svg += '</svg>';
 
     var legend = '<div class="insights-evolution__legend">' +
-        metrics.map(function (m) {
-            return '<span class="insights-evolution__key"><span class="insights-evolution__dot" style="background:' + colors[m] + '"></span>' + m + '</span>';
+        METRICS.map(function (m) {
+            return '<span class="insights-evolution__key">' +
+                '<span class="insights-evolution__dot" style="background:' + m.color + '"></span>' +
+                m.label + '</span>';
         }).join('') + '</div>';
 
     target.innerHTML = '<div class="insights-evolution__title">Evolution over time</div>' + svg + legend;
@@ -414,20 +470,20 @@ function drawEvolutionChart(target, points) {
 /* ── F1 Podium (Top Artists) — broadcast graphic style ── */
 
 var F1_DRIVERS = {
-    p1: { name: 'Fernando Alonso', short: 'ALO', team: 'Aston Martin',   flag: '🇪🇸', color: '#00897b', trophy: '/assets/img/trophy-gold.svg' },
-    p2: { name: 'Lewis Hamilton',  short: 'HAM', team: 'Ferrari',         flag: '🇬🇧', color: '#e8002d', trophy: '/assets/img/trophy-silver.svg' },
-    p3: { name: 'Max Verstappen',  short: 'VER', team: 'Red Bull Racing', flag: '🇳🇱', color: '#3671c6', trophy: '/assets/img/trophy-bronze.svg' },
+    p1: { name: 'Fernando Alonso', short: 'ALO', team: 'Aston Martin',   flag: '🇪🇸', color: '#00897b', logo: '/assets/img/teams/aston-martin.svg' },
+    p2: { name: 'Lewis Hamilton',  short: 'HAM', team: 'Ferrari',         flag: '🇬🇧', color: '#e8002d', logo: '/assets/img/teams/ferrari.svg'       },
+    p3: { name: 'Max Verstappen',  short: 'VER', team: 'Red Bull Racing', flag: '🇳🇱', color: '#3671c6', logo: '/assets/img/teams/red-bull.svg'       },
 };
 
 /* P4–P10 drivers — fixed roster, cycling through artist slots */
 var F1_LB_DRIVERS = [
-    { name: 'Charles Leclerc',  short: 'LEC', team: 'Ferrari',         flag: '🇲🇨', color: '#e8002d' },
-    { name: 'Kimi Räikkönen',   short: 'RAI', team: 'Alfa Romeo',      flag: '🇫🇮', color: '#9b0000' },
-    { name: 'Jenson Button',    short: 'BUT', team: 'McLaren',         flag: '🇬🇧', color: '#ff8000' },
-    { name: 'Mark Webber',      short: 'WEB', team: 'Red Bull Racing', flag: '🇦🇺', color: '#3671c6' },
-    { name: 'Oscar Piastri',    short: 'PIA', team: 'McLaren',         flag: '🇦🇺', color: '#ff8000' },
-    { name: 'Sebastian Vettel', short: 'VET', team: 'Red Bull Racing', flag: '🇩🇪', color: '#3671c6' },
-    { name: 'Lando Norris',     short: 'NOR', team: 'McLaren',         flag: '🇬🇧', color: '#ff8000' },
+    { name: 'Charles Leclerc',  short: 'LEC', team: 'Ferrari',         flag: '🇲🇨', color: '#e8002d', logo: '/assets/img/teams/ferrari.svg'       },
+    { name: 'Kimi Räikkönen',   short: 'RAI', team: 'Alfa Romeo',      flag: '🇫🇮', color: '#9b0000', logo: '/assets/img/teams/alfa-romeo.svg'    },
+    { name: 'Jenson Button',    short: 'BUT', team: 'McLaren',         flag: '🇬🇧', color: '#ff8000', logo: '/assets/img/teams/mclaren.svg'       },
+    { name: 'Mark Webber',      short: 'WEB', team: 'Red Bull Racing', flag: '🇦🇺', color: '#3671c6', logo: '/assets/img/teams/red-bull.svg'       },
+    { name: 'Oscar Piastri',    short: 'PIA', team: 'McLaren',         flag: '🇦🇺', color: '#ff8000', logo: '/assets/img/teams/mclaren.svg'       },
+    { name: 'Sebastian Vettel', short: 'VET', team: 'Red Bull Racing', flag: '🇩🇪', color: '#3671c6', logo: '/assets/img/teams/red-bull.svg'       },
+    { name: 'Lando Norris',     short: 'NOR', team: 'McLaren',         flag: '🇬🇧', color: '#ff8000', logo: '/assets/img/teams/mclaren.svg'       },
 ];
 
 function renderF1Podium(artists) {
@@ -449,18 +505,19 @@ function renderF1Podium(artists) {
         var posNum = pos === 'p1' ? '1' : pos === 'p2' ? '2' : '3';
         return '<div class="f1-card f1-card--' + pos + '">' +
             '<div class="f1-card__team-bar" style="background:' + d.color + '"></div>' +
-            '<span class="f1-card__pos-ghost">' + posNum + '</span>' +
-            '<div class="f1-card__trophy-wrap">' +
-                '<img class="f1-card__trophy f1-card__trophy--' + pos + '" src="' + d.trophy + '" alt="P' + posNum + ' trophy" draggable="false">' +
+            '<div class="f1-card__pos-badge f1-card__pos-badge--' + pos + '">P' + posNum + '</div>' +
+            '<div class="f1-card__logo-wrap">' +
+                '<img class="f1-card__team-logo" src="' + d.logo + '" alt="' + escapeHtml(d.team) + '" draggable="false">' +
             '</div>' +
+            '<div class="f1-card__divider" style="border-color:' + d.color + '33"></div>' +
             '<div class="f1-card__content">' +
-                '<div class="f1-card__artist">' + escapeHtml(artist.name) + '</div>' +
+                '<div class="f1-card__artist f1-card__artist--' + pos + '">' + escapeHtml(artist.name) + '</div>' +
                 (genreStr ? '<div class="f1-card__genres">' + escapeHtml(genreStr) + '</div>' : '') +
                 '<div class="f1-card__driver-row">' +
                     '<span class="f1-card__flag">' + d.flag + '</span>' +
-                    '<span class="f1-card__driver-code" style="color:' + d.color + '">' + d.short + '</span>' +
+                    '<span class="f1-card__driver-code" style="color:' + d.color + ';border-color:' + d.color + '55">' + d.short + '</span>' +
                     '<span class="f1-card__driver-name">' + d.name + '</span>' +
-                    '<span class="f1-card__team">' + d.team + '</span>' +
+                    '<span class="f1-card__team">' + d.team.toUpperCase() + '</span>' +
                 '</div>' +
             '</div>' +
         '</div>';
@@ -488,7 +545,7 @@ function renderF1Podium(artists) {
             var genreLabel = (a.genres && a.genres.length > 0) ? a.genres.slice(0, 2).join(' · ') : '';
             html +=
                 '<div class="f1-lb-row">' +
-                    '<img class="f1-lb-trophy" src="/assets/img/trophy-lb.svg" alt="" draggable="false">' +
+                    (lb.logo ? '<img class="f1-lb-logo" src="' + lb.logo + '" alt="' + lb.team + '" draggable="false">' : '<div class="f1-lb-logo"></div>') +
                     '<span class="f1-lb-flag">' + lb.flag + '</span>' +
                     '<span class="f1-lb-pos">P' + (i + 1) + '</span>' +
                     '<span class="f1-lb-code" style="color:' + lb.color + '">' + lb.short + '</span>' +

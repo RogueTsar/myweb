@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a0000"/>
+      <stop offset="100%" stop-color="#0a0000"/>
+    </linearGradient>
+  </defs>
+  <rect width="80" height="80" fill="url(#bg)" rx="4"/>
+  <rect width="80" height="3" fill="#9b0000" rx="0"/>
+  <!-- Alfa Romeo circle badge -->
+  <circle cx="40" cy="34" r="20" fill="none" stroke="#9b0000" stroke-width="2"/>
+  <!-- Left half: Red cross on white (Milan) -->
+  <path d="M20 34 A20 20 0 0 1 40 14 L40 54 A20 20 0 0 1 20 34 Z" fill="#9b0000"/>
+  <rect x="24" y="28" width="12" height="3" fill="white" opacity="0.9"/>
+  <rect x="29" y="23" width="3" height="13" fill="white" opacity="0.9"/>
+  <!-- Right half: Serpent (Biscione) -->
+  <path d="M40 14 A20 20 0 0 1 40 54 Z" fill="#003580" opacity="0.8"/>
+  <path d="M46 22 C50 25 51 30 49 34 C47 38 43 40 44 44 C42 42 40 40 41 36 C42 32 46 30 45 25 Z" fill="white" opacity="0.85"/>
+  <!-- AR text -->
+  <text x="40" y="64" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-weight="700" font-size="9" fill="rgba(155,0,0,0.7)" letter-spacing="2">ALFA ROMEO</text>
+</svg>

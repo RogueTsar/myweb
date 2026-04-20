@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#001a12"/>
+      <stop offset="100%" stop-color="#000d09"/>
+    </linearGradient>
+  </defs>
+  <rect width="80" height="80" fill="url(#bg)" rx="4"/>
+  <rect width="80" height="3" fill="#00897b" rx="0"/>
+  <!-- Wings -->
+  <g fill="#00897b">
+    <!-- Left wing -->
+    <path d="M8 32 C10 28 14 25 18 24 C22 23 26 24 28 26 C24 27 20 28 18 31 C22 30 26 30 30 31 C26 32 22 34 20 37 C22 35 26 34 30 35 L28 40 C22 40 14 38 8 32 Z"/>
+    <!-- Right wing -->
+    <path d="M72 32 C70 28 66 25 62 24 C58 23 54 24 52 26 C56 27 60 28 62 31 C58 30 54 30 50 31 C54 32 58 34 60 37 C58 35 54 34 50 35 L52 40 C58 40 66 38 72 32 Z"/>
+    <!-- Center AM -->
+    <rect x="30" y="26" width="20" height="14" rx="2"/>
+    <text x="40" y="37" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="#001a12">AM</text>
+  </g>
+  <text x="40" y="58" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="7" fill="rgba(0,137,123,0.6)" letter-spacing="3">ASTON MARTIN</text>
+  <text x="40" y="68" text-anchor="middle" font-family="Arial, sans-serif" font-weight="500" font-size="6" fill="rgba(255,255,255,0.2)" letter-spacing="2">ARAMCO F1 TEAM</text>
+</svg>

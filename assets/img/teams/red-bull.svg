@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#00051a"/>
+      <stop offset="100%" stop-color="#00030f"/>
+    </linearGradient>
+  </defs>
+  <rect width="80" height="80" fill="url(#bg)" rx="4"/>
+  <rect width="80" height="3" fill="#3671c6" rx="0"/>
+  <!-- Two bulls charging -->
+  <g fill="#cc1e1e">
+    <!-- Left bull (facing right) -->
+    <path d="M12 28 C10 26 10 24 12 23 C14 22 15 23 15 24 C17 22 20 22 21 24 C22 23 23 22 24 23 L22 25 C23 27 23 30 21 31 L22 36 C22 37 21 38 20 38 L18 38 L18 42 L15 42 L15 38 L13 38 C12 38 11 37 11 36 L12 31 C10 30 10 29 12 28 Z"/>
+    <!-- Right bull (facing left) -->
+    <path d="M68 28 C70 26 70 24 68 23 C66 22 65 23 65 24 C63 22 60 22 59 24 C58 23 57 22 56 23 L58 25 C57 27 57 30 59 31 L58 36 C58 37 59 38 60 38 L62 38 L62 42 L65 42 L65 38 L67 38 C68 38 69 37 69 36 L68 31 C70 30 70 29 68 28 Z"/>
+  </g>
+  <!-- Sun/circle between bulls -->
+  <circle cx="40" cy="32" r="8" fill="#f5a623" opacity="0.9"/>
+  <circle cx="40" cy="32" r="5" fill="#e8920a"/>
+  <!-- RB text -->
+  <text x="40" y="36" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="8" fill="#00051a">RB</text>
+  <text x="40" y="58" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="7" fill="rgba(54,113,198,0.7)" letter-spacing="2">RED BULL RACING</text>
+  <text x="40" y="68" text-anchor="middle" font-family="Arial, sans-serif" font-weight="500" font-size="6" fill="rgba(255,255,255,0.2)" letter-spacing="2">ORACLE POWERED</text>
+</svg>

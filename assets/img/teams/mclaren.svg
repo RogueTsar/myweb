@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a0800"/>
+      <stop offset="100%" stop-color="#0d0400"/>
+    </linearGradient>
+  </defs>
+  <rect width="80" height="80" fill="url(#bg)" rx="4"/>
+  <rect width="80" height="3" fill="#ff8000" rx="0"/>
+  <!-- Speedmark (the McLaren arc) -->
+  <path d="M14 46 C14 30 24 18 40 16 C56 18 66 30 66 46" fill="none" stroke="#ff8000" stroke-width="5" stroke-linecap="round"/>
+  <path d="M20 46 C20 33 29 22 40 20 C51 22 60 33 60 46" fill="none" stroke="#ff8000" stroke-width="3" stroke-linecap="round" opacity="0.4"/>
+  <!-- MCL badge -->
+  <rect x="28" y="34" width="24" height="14" rx="2" fill="#ff8000"/>
+  <text x="40" y="45" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="10" fill="#0d0400">MCL</text>
+  <text x="40" y="62" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="7" fill="rgba(255,128,0,0.6)" letter-spacing="3">McLAREN</text>
+  <text x="40" y="72" text-anchor="middle" font-family="Arial, sans-serif" font-weight="500" font-size="6" fill="rgba(255,255,255,0.2)" letter-spacing="2">FORMULA 1 TEAM</text>
+</svg>
