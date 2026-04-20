@@ -2425,6 +2425,100 @@ nav a:not(.active):hover::after {
     font-weight: 600;
 }
 
+.pl-card {
+    cursor: pointer;
+}
+
+.pl-card__face { display: contents; }
+
+.pl-card__header {
+    align-items: center;
+}
+
+/* Chevron arrow */
+.pl-card__chevron {
+    margin-left: auto;
+    flex-shrink: 0;
+    color: rgba(255,255,255,0.2);
+    font-size: 1.2rem;
+    line-height: 1;
+    transition: transform 0.22s ease, color 0.18s;
+}
+.pl-card--open .pl-card__chevron {
+    transform: rotate(90deg);
+    color: rgba(255,255,255,0.5);
+}
+
+/* Expanded panel */
+.pl-card__panel {
+    border-top: 1px solid rgba(255,255,255,0.07);
+    margin-top: 0.1rem;
+    padding-top: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    animation: pl-panel-in 0.2s ease;
+}
+.pl-card__panel[hidden] { display: none; }
+
+@keyframes pl-panel-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* Genre pills */
+.pl-panel__genres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+}
+.pl-panel__genre {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: #f9a8d4;
+    background: rgba(249,168,212,0.08);
+    border: 1px solid rgba(249,168,212,0.18);
+    border-radius: 999px;
+    padding: 0.18rem 0.55rem;
+    text-transform: uppercase;
+}
+
+/* Meta rows */
+.pl-panel__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.28rem;
+}
+.pl-panel__meta-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.45);
+}
+.pl-panel__meta-row svg { flex-shrink: 0; opacity: 0.6; }
+
+/* Spotify button */
+.pl-panel__btn {
+    display: block;
+    text-align: center;
+    padding: 0.48rem 1rem;
+    background: #1ed760;
+    color: #000;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: background 0.15s, transform 0.12s;
+}
+.pl-panel__btn:hover {
+    background: #22e464;
+    transform: translateY(-1px);
+}
+
 @media (max-width: 600px) {
     .pl-grid {
         grid-template-columns: 1fr;

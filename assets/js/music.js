@@ -730,11 +730,8 @@ function renderPlaylists(playlists) {
         return;
     }
 
-    // Update subtitle to reflect count dynamically
     var subtitle = section && section.querySelector('.music-subtitle');
-    if (subtitle) {
-        subtitle.textContent = playlists.length + ' playlists · metadata per card';
-    }
+    if (subtitle) subtitle.textContent = playlists.length + ' playlists · click for details';
 
     var html = '<div class="pl-grid">';
     for (var i = 0; i < playlists.length; i++) {
@@ -743,22 +740,62 @@ function renderPlaylists(playlists) {
             ? '<img class="pl-card__art" src="' + escapeHtml(p.image) + '" alt="" loading="lazy">'
             : '<div class="pl-card__art pl-card__art--placeholder"></div>';
         var desc = cleanDesc(p.description);
-        var chips = buildPlaylistChips(p);
+        var genres = p.top_genres && p.top_genres.length > 0 ? p.top_genres : (p.top_genre ? [p.top_genre] : []);
+
+        var genreHtml = genres.length > 0
+            ? genres.map(function(g) { return '<span class="pl-panel__genre">' + escapeHtml(g) + '</span>'; }).join('')
+            : '';
+
+        var metaRows = '';
+        if (p.track_count > 0)    metaRows += '<div class="pl-panel__meta-row">' + PL_ICON_TRACKS + p.track_count + ' tracks</div>';
+        if (p.top_artist)          metaRows += '<div class="pl-panel__meta-row">' + PL_ICON_PERSON + escapeHtml(p.top_artist) + '</div>';
+        if (p.last_updated_rel)    metaRows += '<div class="pl-panel__meta-row">' + PL_ICON_CAL + 'updated ' + escapeHtml(p.last_updated_rel) + '</div>';
+        if (p.last_played_rel)     metaRows += '<div class="pl-panel__meta-row">' + PL_ICON_PLAY + 'played ' + escapeHtml(p.last_played_rel) + '</div>';
 
         html +=
-            '<a class="pl-card" href="' + escapeHtml(p.url || '#') + '" target="_blank" rel="noopener">' +
-                '<div class="pl-card__header">' +
-                    artHtml +
-                    '<div class="pl-card__info">' +
-                        '<span class="pl-card__name">' + escapeHtml(p.name) + '</span>' +
-                        (desc ? '<p class="pl-card__desc">' + escapeHtml(desc) + '</p>' : '') +
+            '<div class="pl-card" tabindex="0" role="button" aria-expanded="false" data-url="' + escapeHtml(p.url || '#') + '">' +
+                '<div class="pl-card__face">' +
+                    '<div class="pl-card__header">' +
+                        artHtml +
+                        '<div class="pl-card__info">' +
+                            '<span class="pl-card__name">' + escapeHtml(p.name) + '</span>' +
+                            (desc ? '<p class="pl-card__desc">' + escapeHtml(desc) + '</p>' : '') +
+                        '</div>' +
+                        '<span class="pl-card__chevron" aria-hidden="true">›</span>' +
                     '</div>' +
                 '</div>' +
-                (chips ? '<div class="pl-card__chips">' + chips + '</div>' : '') +
-            '</a>';
+                '<div class="pl-card__panel" hidden>' +
+                    (genreHtml ? '<div class="pl-panel__genres">' + genreHtml + '</div>' : '') +
+                    (metaRows  ? '<div class="pl-panel__meta">' + metaRows + '</div>' : '') +
+                    (p.url ? '<a class="pl-panel__btn" href="' + escapeHtml(p.url) + '" target="_blank" rel="noopener" tabindex="-1">Open in Spotify ↗</a>' : '') +
+                '</div>' +
+            '</div>';
     }
     html += '</div>';
     container.innerHTML = html;
+
+    // Wire click handlers
+    container.querySelectorAll('.pl-card').forEach(function(card) {
+        card.addEventListener('click', function(e) {
+            if (e.target.closest('.pl-panel__btn')) return; // let link through
+            var panel = card.querySelector('.pl-card__panel');
+            var isOpen = !panel.hidden;
+            // Collapse all others
+            container.querySelectorAll('.pl-card--open').forEach(function(c) {
+                c.classList.remove('pl-card--open');
+                c.setAttribute('aria-expanded', 'false');
+                c.querySelector('.pl-card__panel').hidden = true;
+            });
+            if (!isOpen) {
+                card.classList.add('pl-card--open');
+                card.setAttribute('aria-expanded', 'true');
+                panel.hidden = false;
+            }
+        });
+        card.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
+        });
+    });
 }
 
 /* ── Genres / Artists Across Time ── */
