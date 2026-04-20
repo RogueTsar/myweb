@@ -503,22 +503,20 @@ function renderF1Podium(artists) {
         var d = F1_DRIVERS[pos];
         var genreStr = (artist.genres && artist.genres.length > 0) ? artist.genres.slice(0, 2).join(' · ') : '';
         var posNum = pos === 'p1' ? '1' : pos === 'p2' ? '2' : '3';
-        return '<div class="f1-card f1-card--' + pos + '">' +
-            '<div class="f1-card__team-bar" style="background:' + d.color + '"></div>' +
-            '<div class="f1-card__pos-badge f1-card__pos-badge--' + pos + '">P' + posNum + '</div>' +
-            '<div class="f1-card__logo-wrap">' +
-                '<img class="f1-card__team-logo" src="' + d.logo + '" alt="' + escapeHtml(d.team) + '" draggable="false">' +
-            '</div>' +
-            '<div class="f1-card__divider" style="border-color:' + d.color + '33"></div>' +
-            '<div class="f1-card__content">' +
-                '<div class="f1-card__artist f1-card__artist--' + pos + '">' + escapeHtml(artist.name) + '</div>' +
-                (genreStr ? '<div class="f1-card__genres">' + escapeHtml(genreStr) + '</div>' : '') +
-                '<div class="f1-card__driver-row">' +
-                    '<span class="f1-card__flag">' + d.flag + '</span>' +
-                    '<span class="f1-card__driver-code" style="color:' + d.color + ';border-color:' + d.color + '55">' + d.short + '</span>' +
-                    '<span class="f1-card__driver-name">' + d.name + '</span>' +
-                    '<span class="f1-card__team">' + d.team.toUpperCase() + '</span>' +
+        return '<div class="f1-card f1-card--' + pos + '" style="--tc:' + d.color + '">' +
+            '<div class="f1-card__watermark">' + posNum + '</div>' +
+            '<div class="f1-card__inner">' +
+                '<div class="f1-card__top">' +
+                    '<span class="f1-card__pos">P' + posNum + '</span>' +
+                    '<span class="f1-card__teamname">' + d.team.toUpperCase() + '</span>' +
                 '</div>' +
+                '<div class="f1-card__artist">' + escapeHtml(artist.name) + '</div>' +
+                (genreStr ? '<div class="f1-card__genres">' + escapeHtml(genreStr) + '</div>' : '') +
+            '</div>' +
+            '<div class="f1-card__footer">' +
+                '<span class="f1-card__flag">' + d.flag + '</span>' +
+                '<span class="f1-card__code">' + d.short + '</span>' +
+                '<span class="f1-card__drivername">' + d.name + '</span>' +
             '</div>' +
         '</div>';
     }
@@ -544,11 +542,10 @@ function renderF1Podium(artists) {
             var lb = F1_LB_DRIVERS[i - 3] || { name: 'Driver', short: '???', team: '', flag: '', color: '#888', photo: '' };
             var genreLabel = (a.genres && a.genres.length > 0) ? a.genres.slice(0, 2).join(' · ') : '';
             html +=
-                '<div class="f1-lb-row">' +
-                    (lb.logo ? '<img class="f1-lb-logo" src="' + lb.logo + '" alt="' + lb.team + '" draggable="false">' : '<div class="f1-lb-logo"></div>') +
-                    '<span class="f1-lb-flag">' + lb.flag + '</span>' +
+                '<div class="f1-lb-row" style="--tc:' + lb.color + '">' +
                     '<span class="f1-lb-pos">P' + (i + 1) + '</span>' +
-                    '<span class="f1-lb-code" style="color:' + lb.color + '">' + lb.short + '</span>' +
+                    '<span class="f1-lb-flag">' + lb.flag + '</span>' +
+                    '<span class="f1-lb-code">' + lb.short + '</span>' +
                     '<div class="f1-lb-info">' +
                         '<span class="f1-lb-name">' + escapeHtml(a.name) + '</span>' +
                         '<span class="f1-lb-driver">' + lb.name + ' · ' + lb.team + '</span>' +
