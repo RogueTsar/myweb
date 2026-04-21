@@ -49,72 +49,127 @@ export default async function handler(req, res) {
 
     const { type, id } = req.query;
 
-    if (type !== 'playlist-vibe' || !id) {
-        return res.status(400).json({ error: 'Required: ?type=playlist-vibe&id={playlistId}' });
+    if (!id || (type !== 'playlist-vibe' && type !== 'playlist-full')) {
+        return res.status(400).json({ error: 'Required: ?type=playlist-vibe|playlist-full&id={playlistId}' });
     }
 
     try {
         const token = await getAccessToken();
 
-        // Fetch playlist tracks (up to 50)
-        const playlistData = await fetchSpotify(
-            token,
-            `/playlists/${id}/tracks?fields=items(track(id))&limit=50`
-        );
+        if (type === 'playlist-vibe') {
+            // Fetch playlist tracks (up to 50, IDs only)
+            const playlistData = await fetchSpotify(
+                token,
+                `/playlists/${id}/tracks?fields=items(track(id))&limit=50`
+            );
 
-        const trackIds = (playlistData?.items || [])
-            .map(item => item?.track?.id)
-            .filter(Boolean)
-            .slice(0, 100);
+            const trackIds = (playlistData?.items || [])
+                .map(item => item?.track?.id)
+                .filter(Boolean)
+                .slice(0, 100);
 
-        if (trackIds.length === 0) {
-            return res.status(200).json({ vibe: null, message: 'No tracks found' });
+            if (trackIds.length === 0) {
+                return res.status(200).json({ vibe: null, message: 'No tracks found' });
+            }
+
+            let validFeatures = [];
+            try {
+                const features = await fetchSpotify(token, `/audio-features?ids=${trackIds.join(',')}`);
+                validFeatures = (features?.audio_features || []).filter(Boolean);
+            } catch (_) { /* audio-features may be unavailable */ }
+
+            if (validFeatures.length === 0) {
+                return res.status(200).json({ vibe: null, message: 'No audio features available' });
+            }
+
+            const sum = { energy: 0, danceability: 0, valence: 0, tempo: 0, acousticness: 0 };
+            validFeatures.forEach(f => {
+                sum.energy += f.energy; sum.danceability += f.danceability;
+                sum.valence += f.valence; sum.tempo += f.tempo; sum.acousticness += f.acousticness;
+            });
+            const n = validFeatures.length;
+            const avg = {
+                energy: sum.energy / n, danceability: sum.danceability / n,
+                valence: sum.valence / n, tempo: Math.round(sum.tempo / n), acousticness: sum.acousticness / n,
+            };
+            const vibe = classifyVibe(avg);
+            return res.status(200).json({
+                vibe: {
+                    ...vibe, bpm: avg.tempo,
+                    energy: Math.round(avg.energy * 100), danceability: Math.round(avg.danceability * 100),
+                    mood: Math.round(avg.valence * 100), acousticness: Math.round(avg.acousticness * 100),
+                    track_count_analyzed: n,
+                },
+            });
+        } else {
+            // playlist-full: tracks with name+artist+art, vibe, and Last.fm scrobbles per track
+
+            // Step 1: fetch tracks with full metadata
+            const playlistData = await fetchSpotify(
+                token,
+                `/playlists/${id}/tracks?fields=items(track(id,name,artists(name),album(images)))&limit=50`
+            );
+            const items = (playlistData?.items || []).filter(i => i?.track?.id);
+            const trackIds = items.map(i => i.track.id);
+
+            // Step 2: audio features → vibe
+            let vibe = null;
+            if (trackIds.length > 0) {
+                try {
+                    const features = await fetchSpotify(token, `/audio-features?ids=${trackIds.slice(0,100).join(',')}`);
+                    const validFeatures = (features?.audio_features || []).filter(Boolean);
+                    if (validFeatures.length > 0) {
+                        const sum = { energy: 0, danceability: 0, valence: 0, tempo: 0, acousticness: 0 };
+                        validFeatures.forEach(f => {
+                            sum.energy += f.energy; sum.danceability += f.danceability;
+                            sum.valence += f.valence; sum.tempo += f.tempo; sum.acousticness += f.acousticness;
+                        });
+                        const n = validFeatures.length;
+                        const avg = {
+                            energy: sum.energy / n, danceability: sum.danceability / n,
+                            valence: sum.valence / n, tempo: Math.round(sum.tempo / n), acousticness: sum.acousticness / n,
+                        };
+                        const vibeLabel = classifyVibe(avg);
+                        vibe = {
+                            ...vibeLabel, bpm: avg.tempo,
+                            energy: Math.round(avg.energy * 100), danceability: Math.round(avg.danceability * 100),
+                            mood: Math.round(avg.valence * 100), acousticness: Math.round(avg.acousticness * 100),
+                            track_count_analyzed: n,
+                        };
+                    }
+                } catch (_) { /* audio-features may be unavailable */ }
+            }
+
+            // Step 3: top 5 tracks with Last.fm personal scrobble counts
+            const { LASTFM_API_KEY, LASTFM_USERNAME } = process.env;
+            const top5 = items.slice(0, 5);
+            const tracks = [];
+
+            for (const item of top5) {
+                const t = item.track;
+                const artist = t.artists?.[0]?.name || '';
+                const name = t.name || '';
+                const art = t.album?.images?.[1]?.url || t.album?.images?.[0]?.url || null;
+
+                let scrobbles = null;
+                if (LASTFM_API_KEY && LASTFM_USERNAME && artist && name) {
+                    try {
+                        const lfmUrl = `https://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=${LASTFM_API_KEY}&artist=${encodeURIComponent(artist)}&track=${encodeURIComponent(name)}&username=${encodeURIComponent(LASTFM_USERNAME)}&format=json&autocorrect=1`;
+                        const lfmRes = await fetch(lfmUrl);
+                        if (lfmRes.ok) {
+                            const lfmData = await lfmRes.json();
+                            const count = parseInt(lfmData?.track?.userplaycount || '', 10);
+                            if (!isNaN(count)) scrobbles = count;
+                        }
+                    } catch (_) { /* Last.fm optional */ }
+                    await new Promise(r => setTimeout(r, 210)); // stay under 5 req/s
+                }
+
+                tracks.push({ id: t.id, name, artist, art, scrobbles });
+            }
+
+            return res.status(200).json({ vibe, tracks });
         }
-
-        // Batch fetch audio features (may fail if app lacks extended access)
-        let validFeatures = [];
-        try {
-            const features = await fetchSpotify(token, `/audio-features?ids=${trackIds.join(',')}`);
-            validFeatures = (features?.audio_features || []).filter(Boolean);
-        } catch (_) {
-            // audio-features endpoint deprecated for some apps
-        }
-
-        if (validFeatures.length === 0) {
-            return res.status(200).json({ vibe: null, message: 'No audio features available' });
-        }
-
-        // Compute averages
-        const sum = { energy: 0, danceability: 0, valence: 0, tempo: 0, acousticness: 0 };
-        validFeatures.forEach(f => {
-            sum.energy += f.energy;
-            sum.danceability += f.danceability;
-            sum.valence += f.valence;
-            sum.tempo += f.tempo;
-            sum.acousticness += f.acousticness;
-        });
-        const n = validFeatures.length;
-        const avg = {
-            energy: sum.energy / n,
-            danceability: sum.danceability / n,
-            valence: sum.valence / n,
-            tempo: Math.round(sum.tempo / n),
-            acousticness: sum.acousticness / n,
-        };
-
-        const vibe = classifyVibe(avg);
-
-        return res.status(200).json({
-            vibe: {
-                ...vibe,
-                bpm: avg.tempo,
-                energy: Math.round(avg.energy * 100),
-                danceability: Math.round(avg.danceability * 100),
-                mood: Math.round(avg.valence * 100),
-                acousticness: Math.round(avg.acousticness * 100),
-                track_count_analyzed: n,
-            },
-        });
     } catch (err) {
         console.error('Spotify details error:', err.message);
         return res.status(500).json({ error: err.message });

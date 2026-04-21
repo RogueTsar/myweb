@@ -72,16 +72,7 @@ title: "Music"
     <div id="vinyl-shelf"></div>
 </div>
 
-<!-- Row 5: Playlists -->
-<div class="glass music-panel" id="playlists-section" style="margin-bottom:1.75rem;">
-    <h3>Playlists</h3>
-    <p class="music-subtitle">Last played, last updated, top artist, and dominant genre</p>
-    <div id="playlists">
-        <div class="loading-skeleton" style="height:200px;border-radius:8px;"></div>
-    </div>
-</div>
-
-<!-- Row 6: Past Months (hidden until history exists) -->
+<!-- Row 5: Past Months (hidden until history exists) -->
 <div class="glass music-panel" id="past-months-section" style="display:none;margin-bottom:1rem;">
     <h3>Past Months</h3>
     <p class="music-subtitle">Your listening history, month by month</p>
@@ -103,6 +94,23 @@ title: "Music"
         </svg>
         <span>SoundCloud</span>
     </a>
+    <button class="btn-glass pl-overlay-trigger" id="open-playlists-btn" style="display:none" aria-haspopup="dialog" aria-expanded="false">
+        View Playlists
+    </button>
+</div>
+
+<div class="pl-overlay" id="pl-overlay" role="dialog" aria-modal="true" aria-label="Playlists" hidden>
+    <div class="pl-overlay__shell">
+        <div class="pl-overlay__header">
+            <h2 class="pl-overlay__title">Playlists</h2>
+            <button class="pl-overlay__close" id="pl-overlay-close" aria-label="Close playlists">&times;</button>
+        </div>
+        <div class="pl-overlay__body">
+            <div id="pl-insights"></div>
+            <div id="pl-group-tabs"></div>
+            <div id="pl-group-content"></div>
+        </div>
+    </div>
 </div>
 
 <script>

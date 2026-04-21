@@ -1,6 +1,8 @@
 /* ── Spotify Music Dashboard ── */
 
 var vibeCache = {};
+var playlistFullCache = {};
+var plCurrentGroup = 'genre';
 
 document.addEventListener('DOMContentLoaded', function () {
     var spotifyReq = fetch('/api/spotify')
@@ -723,79 +725,320 @@ function buildPlaylistChips(p) {
 }
 
 function renderPlaylists(playlists) {
-    var container = document.getElementById('playlists');
-    var section = document.getElementById('playlists-section');
-    if (!playlists || playlists.length === 0) {
-        if (section) section.style.display = 'none';
-        return;
+    if (!playlists || playlists.length === 0) return;
+    window.__playlists = playlists;
+
+    var btn = document.getElementById('open-playlists-btn');
+    if (btn) {
+        btn.style.display = '';
+        btn.addEventListener('click', openPlaylistOverlay);
     }
 
-    var subtitle = section && section.querySelector('.music-subtitle');
-    if (subtitle) subtitle.textContent = playlists.length + ' playlists · click for details';
+    // ESC to close — wired once here
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            var overlay = document.getElementById('pl-overlay');
+            if (overlay && !overlay.hidden) closePlaylistOverlay();
+        }
+    });
+}
 
-    var html = '<div class="pl-grid">';
-    for (var i = 0; i < playlists.length; i++) {
-        var p = playlists[i];
-        var artHtml = p.image
-            ? '<img class="pl-card__art" src="' + escapeHtml(p.image) + '" alt="" loading="lazy">'
-            : '<div class="pl-card__art pl-card__art--placeholder"></div>';
-        var desc = cleanDesc(p.description);
-        var genres = p.top_genres && p.top_genres.length > 0 ? p.top_genres : (p.top_genre ? [p.top_genre] : []);
+function openPlaylistOverlay() {
+    var overlay = document.getElementById('pl-overlay');
+    if (!overlay) return;
+    overlay.hidden = false;
+    requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+            overlay.classList.add('pl-overlay--visible');
+        });
+    });
+    document.getElementById('open-playlists-btn').setAttribute('aria-expanded', 'true');
 
-        var genreHtml = genres.length > 0
-            ? genres.map(function(g) { return '<span class="pl-panel__genre">' + escapeHtml(g) + '</span>'; }).join('')
-            : '';
+    var playlists = window.__playlists || [];
+    renderPlaylistInsights(playlists);
+    renderPlaylistGroups(playlists, plCurrentGroup);
 
-        var metaRows = '';
-        if (p.track_count > 0)    metaRows += '<div class="pl-panel__meta-row">' + PL_ICON_TRACKS + p.track_count + ' tracks</div>';
-        if (p.top_artist)          metaRows += '<div class="pl-panel__meta-row">' + PL_ICON_PERSON + escapeHtml(p.top_artist) + '</div>';
-        if (p.last_updated_rel)    metaRows += '<div class="pl-panel__meta-row">' + PL_ICON_CAL + 'updated ' + escapeHtml(p.last_updated_rel) + '</div>';
-        if (p.last_played_rel)     metaRows += '<div class="pl-panel__meta-row">' + PL_ICON_PLAY + 'played ' + escapeHtml(p.last_played_rel) + '</div>';
+    var closeBtn = document.getElementById('pl-overlay-close');
+    if (closeBtn) closeBtn.onclick = closePlaylistOverlay;
 
-        html +=
-            '<div class="pl-card" tabindex="0" role="button" aria-expanded="false" data-url="' + escapeHtml(p.url || '#') + '">' +
-                '<div class="pl-card__face">' +
-                    '<div class="pl-card__header">' +
-                        artHtml +
-                        '<div class="pl-card__info">' +
-                            '<span class="pl-card__name">' + escapeHtml(p.name) + '</span>' +
-                            (desc ? '<p class="pl-card__desc">' + escapeHtml(desc) + '</p>' : '') +
-                        '</div>' +
-                        '<span class="pl-card__chevron" aria-hidden="true">›</span>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="pl-card__panel" hidden>' +
-                    (genreHtml ? '<div class="pl-panel__genres">' + genreHtml + '</div>' : '') +
-                    (metaRows  ? '<div class="pl-panel__meta">' + metaRows + '</div>' : '') +
-                    (p.url ? '<a class="pl-panel__btn" href="' + escapeHtml(p.url) + '" target="_blank" rel="noopener" tabindex="-1">Open in Spotify ↗</a>' : '') +
-                '</div>' +
+    overlay.addEventListener('click', function onBg(e) {
+        if (e.target === overlay) {
+            closePlaylistOverlay();
+            overlay.removeEventListener('click', onBg);
+        }
+    });
+}
+
+function closePlaylistOverlay() {
+    var overlay = document.getElementById('pl-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('pl-overlay--visible');
+    var btn = document.getElementById('open-playlists-btn');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+    setTimeout(function () { overlay.hidden = true; }, 380);
+}
+
+function computePlaylistInsights(playlists) {
+    if (!playlists || playlists.length === 0) return null;
+
+    // Avg tracks
+    var totalTracks = 0, counted = 0;
+    playlists.forEach(function (p) { if (p.track_count > 0) { totalTracks += p.track_count; counted++; } });
+    var avgTracks = counted > 0 ? Math.round(totalTracks / counted) : 0;
+
+    // Dominant genre — positional weighting: 1st=4pts, 2nd=3pts, 3rd=2pts, 4th=1pt
+    var tally = {};
+    playlists.forEach(function (p) {
+        var genres = (p.top_genres && p.top_genres.length > 0) ? p.top_genres : (p.top_genre ? [p.top_genre] : []);
+        genres.forEach(function (g, i) {
+            var w = Math.max(1, 4 - i);
+            tally[g] = (tally[g] || 0) + w;
+        });
+    });
+    var dominantGenre = null, maxScore = 0;
+    Object.keys(tally).forEach(function (g) { if (tally[g] > maxScore) { maxScore = tally[g]; dominantGenre = g; } });
+
+    // Longest vs shortest
+    var sorted = playlists.slice().filter(function (p) { return p.track_count > 0; })
+        .sort(function (a, b) { return b.track_count - a.track_count; });
+    var longest = sorted[0] || null;
+    var shortest = sorted[sorted.length - 1] || null;
+
+    return { avgTracks: avgTracks, dominantGenre: dominantGenre, longest: longest, shortest: shortest, total: playlists.length };
+}
+
+function renderPlaylistInsights(playlists) {
+    var container = document.getElementById('pl-insights');
+    if (!container) return;
+    var ins = computePlaylistInsights(playlists);
+    if (!ins) { container.innerHTML = ''; return; }
+
+    var longestShortestHtml = '';
+    if (ins.longest && ins.shortest && ins.longest !== ins.shortest) {
+        longestShortestHtml =
+            '<div class="pl-stat-card">' +
+                '<span class="pl-stat-card__num">' + ins.longest.track_count + ' vs ' + ins.shortest.track_count + '</span>' +
+                '<span class="pl-stat-card__sub">' + escapeHtml(ins.longest.name) + ' · ' + escapeHtml(ins.shortest.name) + '</span>' +
+                '<span class="pl-stat-card__label">longest · shortest</span>' +
             '</div>';
     }
-    html += '</div>';
-    container.innerHTML = html;
 
-    // Wire click handlers
-    container.querySelectorAll('.pl-card').forEach(function(card) {
-        card.addEventListener('click', function(e) {
-            if (e.target.closest('.pl-panel__btn')) return; // let link through
-            var panel = card.querySelector('.pl-card__panel');
-            var isOpen = !panel.hidden;
-            // Collapse all others
-            container.querySelectorAll('.pl-card--open').forEach(function(c) {
-                c.classList.remove('pl-card--open');
-                c.setAttribute('aria-expanded', 'false');
-                c.querySelector('.pl-card__panel').hidden = true;
-            });
-            if (!isOpen) {
-                card.classList.add('pl-card--open');
-                card.setAttribute('aria-expanded', 'true');
-                panel.hidden = false;
-            }
+    container.innerHTML =
+        '<div class="pl-insights-row">' +
+            '<div class="pl-stat-card">' +
+                '<span class="pl-stat-card__num">' + ins.avgTracks + '</span>' +
+                '<span class="pl-stat-card__sub">' + ins.total + ' playlists total</span>' +
+                '<span class="pl-stat-card__label">avg tracks / playlist</span>' +
+            '</div>' +
+            (ins.dominantGenre
+                ? '<div class="pl-stat-card">' +
+                    '<span class="pl-stat-card__num pl-stat-card__num--genre">' + escapeHtml(ins.dominantGenre) + '</span>' +
+                    '<span class="pl-stat-card__label">dominant genre</span>' +
+                  '</div>'
+                : '') +
+            longestShortestHtml +
+        '</div>';
+}
+
+function groupPlaylistsBy(playlists, mode) {
+    var groups = {};
+    var NOW = Date.now();
+    var THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+
+    playlists.forEach(function (p) {
+        var key;
+        if (mode === 'genre') {
+            key = (p.top_genre && p.top_genre.trim()) ? p.top_genre : 'Other';
+        } else if (mode === 'size') {
+            key = p.track_count >= 50 ? 'Large (50+)' : p.track_count >= 20 ? 'Medium (20–49)' : 'Small (< 20)';
+        } else {
+            var ts = p.last_played_iso ? new Date(p.last_played_iso).getTime() : 0;
+            key = (ts && NOW - ts < THIRTY_DAYS) ? 'Recently Played' : 'Older';
+        }
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(p);
+    });
+    return groups;
+}
+
+function renderPlaylistGroups(playlists, mode) {
+    var tabContainer = document.getElementById('pl-group-tabs');
+    var contentContainer = document.getElementById('pl-group-content');
+    if (!tabContainer || !contentContainer) return;
+
+    // Tabs
+    var tabs = [
+        { key: 'genre',    label: 'By Genre' },
+        { key: 'size',     label: 'By Size' },
+        { key: 'activity', label: 'By Activity' },
+    ];
+    var tabHtml = '<div class="pl-tabs">';
+    tabs.forEach(function (t) {
+        tabHtml += '<button class="pl-tab' + (t.key === mode ? ' pl-tab--active' : '') + '" data-group="' + t.key + '">' + t.label + '</button>';
+    });
+    tabHtml += '</div>';
+    tabContainer.innerHTML = tabHtml;
+    tabContainer.querySelectorAll('.pl-tab').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            plCurrentGroup = btn.getAttribute('data-group');
+            renderPlaylistGroups(window.__playlists || [], plCurrentGroup);
         });
-        card.addEventListener('keydown', function(e) {
+    });
+
+    // Ordered group keys
+    var groups = groupPlaylistsBy(playlists, mode);
+    var orderedKeys;
+    if (mode === 'genre') {
+        orderedKeys = Object.keys(groups).filter(function (k) { return k !== 'Other'; }).sort();
+        if (groups['Other']) orderedKeys.push('Other');
+    } else if (mode === 'size') {
+        orderedKeys = ['Large (50+)', 'Medium (20–49)', 'Small (< 20)'].filter(function (k) { return groups[k]; });
+    } else {
+        orderedKeys = ['Recently Played', 'Older'].filter(function (k) { return groups[k]; });
+    }
+
+    var html = '';
+    orderedKeys.forEach(function (groupName) {
+        var pls = groups[groupName];
+        if (!pls || pls.length === 0) return;
+        html += '<div class="pl-group">' +
+            '<div class="pl-group__header">' + escapeHtml(groupName) +
+                '<span class="pl-group__count">' + pls.length + '</span>' +
+            '</div>' +
+            '<div class="pl-grid pl-grid--overlay">';
+        pls.forEach(function (p) { html += buildPlaylistCard(p); });
+        html += '</div></div>';
+    });
+    contentContainer.innerHTML = html;
+
+    contentContainer.querySelectorAll('.pl-card').forEach(function (card) {
+        card.addEventListener('click', function (e) {
+            if (e.target.closest('.pl-panel__btn')) return;
+            var plId = card.getAttribute('data-pl-id');
+            toggleOverlayCard(card, plId);
+        });
+        card.addEventListener('keydown', function (e) {
             if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
         });
     });
+}
+
+function buildPlaylistCard(p) {
+    var artHtml = p.image
+        ? '<img class="pl-card__art" src="' + escapeHtml(p.image) + '" alt="" loading="lazy">'
+        : '<div class="pl-card__art pl-card__art--placeholder"></div>';
+    var desc = cleanDesc(p.description);
+    return '<div class="pl-card" tabindex="0" role="button" aria-expanded="false"' +
+        ' data-pl-id="' + escapeHtml(p.id || '') + '"' +
+        ' data-url="' + escapeHtml(p.url || '#') + '">' +
+        '<div class="pl-card__face">' +
+            '<div class="pl-card__header">' +
+                artHtml +
+                '<div class="pl-card__info">' +
+                    '<span class="pl-card__name">' + escapeHtml(p.name) + '</span>' +
+                    (desc ? '<p class="pl-card__desc">' + escapeHtml(desc) + '</p>' : '') +
+                '</div>' +
+                '<span class="pl-card__chevron" aria-hidden="true">›</span>' +
+            '</div>' +
+        '</div>' +
+        '<div class="pl-card__panel" hidden>' +
+            '<div id="pl-panel-inner-' + escapeHtml(p.id || '') + '">' +
+                '<div class="loading-skeleton" style="height:72px;border-radius:8px;margin-bottom:0.5rem;"></div>' +
+            '</div>' +
+            (p.url ? '<a class="pl-panel__btn" href="' + escapeHtml(p.url) + '" target="_blank" rel="noopener" tabindex="-1">Open in Spotify ↗</a>' : '') +
+        '</div>' +
+    '</div>';
+}
+
+function toggleOverlayCard(card, id) {
+    var panel = card.querySelector('.pl-card__panel');
+    var isOpen = !panel.hidden;
+
+    var overlay = document.getElementById('pl-overlay');
+    if (overlay) {
+        overlay.querySelectorAll('.pl-card--open').forEach(function (c) {
+            c.classList.remove('pl-card--open');
+            c.setAttribute('aria-expanded', 'false');
+            c.querySelector('.pl-card__panel').hidden = true;
+        });
+    }
+
+    if (isOpen) return;
+
+    card.classList.add('pl-card--open');
+    card.setAttribute('aria-expanded', 'true');
+    panel.hidden = false;
+
+    var inner = document.getElementById('pl-panel-inner-' + id);
+    if (!inner) return;
+
+    if (playlistFullCache[id]) {
+        renderFullPanel(inner, playlistFullCache[id]);
+        return;
+    }
+
+    inner.innerHTML = '<div class="loading-skeleton" style="height:72px;border-radius:8px;margin-bottom:0.5rem;"></div>';
+
+    fetch('/api/spotify-details?type=playlist-full&id=' + encodeURIComponent(id))
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            playlistFullCache[id] = data;
+            renderFullPanel(inner, data);
+        })
+        .catch(function () {
+            inner.innerHTML = '<p class="music-error" style="font-size:0.75rem;margin:0.5rem 0;">Could not load details.</p>';
+        });
+}
+
+function renderFullPanel(container, data) {
+    var html = '';
+
+    if (data.vibe) {
+        var v = data.vibe;
+        html += '<div class="pl-vibe-section">' +
+            '<div class="pl-vibe-label">' + escapeHtml(v.emoji) + ' ' + escapeHtml(v.label) +
+                '<span class="pl-vibe-bpm">' + v.bpm + ' bpm</span>' +
+            '</div>' +
+            '<div class="pl-vibe-bars">';
+        [
+            { label: 'Energy', value: v.energy },
+            { label: 'Dance',  value: v.danceability },
+            { label: 'Mood',   value: v.mood },
+        ].forEach(function (b) {
+            html += '<div class="vibe-bar-row">' +
+                '<span class="vibe-bar-row__label">' + b.label + '</span>' +
+                '<div class="vibe-bar-row__bg"><div class="vibe-bar-row__fill" style="width:' + b.value + '%"></div></div>' +
+                '<span class="vibe-bar-row__val">' + b.value + '</span>' +
+            '</div>';
+        });
+        html += '</div></div>';
+    }
+
+    if (data.tracks && data.tracks.length > 0) {
+        html += '<div class="pl-tracks-section"><div class="pl-tracks-title">Top tracks</div><ul class="pl-tracks-list">';
+        data.tracks.forEach(function (t, i) {
+            var scrobbleHtml = '';
+            if (t.scrobbles != null) {
+                scrobbleHtml = '<span class="pl-track__scrobbles">' +
+                    (t.scrobbles === 0 ? 'unplayed' : t.scrobbles + ' plays') + '</span>';
+            }
+            html += '<li class="pl-track">' +
+                (t.art ? '<img class="pl-track__art" src="' + escapeHtml(t.art) + '" alt="" loading="lazy">' : '') +
+                '<div class="pl-track__info">' +
+                    '<span class="pl-track__rank">' + (i + 1) + '</span>' +
+                    '<div class="pl-track__text">' +
+                        '<span class="pl-track__name">' + escapeHtml(t.name) + '</span>' +
+                        '<span class="pl-track__artist">' + escapeHtml(t.artist) + '</span>' +
+                    '</div>' +
+                    scrobbleHtml +
+                '</div>' +
+            '</li>';
+        });
+        html += '</ul></div>';
+    }
+
+    if (!html) html = '<p class="music-error" style="font-size:0.75rem;margin:0.5rem 0;">No details available.</p>';
+    container.innerHTML = html;
 }
 
 /* ── Genres / Artists Across Time ── */
@@ -910,86 +1153,6 @@ function renderGenresAcrossTime(byRange, artistsByRange) {
     }
 
     container.innerHTML = html;
-}
-
-function handlePlaylistClick(e) {
-    var card = e.currentTarget;
-    var id = card.getAttribute('data-playlist-id');
-    var panel = document.getElementById('vibe-panel-' + id);
-
-    // If panel already showing, open Spotify link
-    if (card.classList.contains('playlist-card--expanded')) {
-        window.open(card.getAttribute('data-url'), '_blank');
-        return;
-    }
-
-    // Collapse any other expanded card
-    var expanded = document.querySelector('.playlist-card--expanded');
-    if (expanded && expanded !== card) {
-        expanded.classList.remove('playlist-card--expanded');
-    }
-
-    card.classList.toggle('playlist-card--expanded');
-
-    if (!card.classList.contains('playlist-card--expanded')) return;
-
-    // Check cache
-    if (vibeCache[id]) {
-        renderVibePanel(id, vibeCache[id]);
-        return;
-    }
-
-    panel.innerHTML = '<div class="loading-skeleton" style="height:60px;margin-top:0.5rem;"></div>';
-
-    fetch('/api/spotify-details?type=playlist-vibe&id=' + id)
-        .then(function (res) { return res.json(); })
-        .then(function (data) {
-            if (data.vibe) {
-                vibeCache[id] = data.vibe;
-                renderVibePanel(id, data.vibe);
-                // Also set badge
-                var badge = document.getElementById('vibe-badge-' + id);
-                if (badge) badge.textContent = data.vibe.emoji + ' ' + data.vibe.label;
-            } else {
-                panel.innerHTML = '<p class="music-error" style="font-size:0.75rem;">No vibe data</p>';
-            }
-        })
-        .catch(function () {
-            panel.innerHTML = '<p class="music-error" style="font-size:0.75rem;">Could not load vibe</p>';
-        });
-}
-
-function renderVibePanel(id, vibe) {
-    var panel = document.getElementById('vibe-panel-' + id);
-    var badge = document.getElementById('vibe-badge-' + id);
-    if (badge) badge.textContent = vibe.emoji + ' ' + vibe.label;
-
-    var bars = [
-        { label: 'Energy', value: vibe.energy },
-        { label: 'Dance', value: vibe.danceability },
-        { label: 'Mood', value: vibe.mood }
-    ];
-
-    var html =
-        '<div class="vibe-details">' +
-            '<div class="vibe-details__bpm">' + vibe.bpm + ' bpm</div>' +
-            '<div class="vibe-details__bars">';
-    bars.forEach(function (b) {
-        html +=
-            '<div class="vibe-bar-row">' +
-                '<span class="vibe-bar-row__label">' + b.label + '</span>' +
-                '<div class="vibe-bar-row__bg">' +
-                    '<div class="vibe-bar-row__fill" style="width:' + b.value + '%"></div>' +
-                '</div>' +
-                '<span class="vibe-bar-row__val">' + b.value + '</span>' +
-            '</div>';
-    });
-    html +=
-            '</div>' +
-            '<div class="vibe-details__label">' + vibe.emoji + ' ' + vibe.label + '</div>' +
-        '</div>';
-
-    panel.innerHTML = html;
 }
 
 /* ── Last.fm Monthly History ── */
