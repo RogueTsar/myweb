@@ -24,7 +24,8 @@
         return e;
     }
 
-    function drawRadar(svg, scores) {
+    function drawRadar(svg, scores, MAX) {
+        MAX = MAX || 120;
         [0.25, 0.5, 0.75, 1].forEach(function (f) {
             var pts = ANGS.map(function (a) { return pt(a, R * f); });
             svg.appendChild(svgEl('polygon', {
@@ -41,7 +42,7 @@
             }));
         });
 
-        var scorePts = ANGS.map(function (a, i) { return pt(a, R * (scores[i] / 100)); });
+        var scorePts = ANGS.map(function (a, i) { return pt(a, R * (scores[i] / MAX)); });
         var poly = svgEl('polygon', {
             points: scorePts.map(function (p) { return p.x.toFixed(1) + ',' + p.y.toFixed(1); }).join(' '),
             fill: 'var(--accent)', 'fill-opacity': '0.15',
@@ -100,10 +101,12 @@
         return html;
     }
 
-    function renderBars(container, scores, facetMap) {
+    function renderBars(container, scores, MAX, facetMap) {
+        MAX = MAX || 120;
         var html = '';
         TRAITS.forEach(function (t, i) {
             var v = scores[i];
+            var pct = (v / MAX * 100).toFixed(1);
             var facets = facetMap ? facetMap[t.key] : null;
             html +=
                 '<div class="ocean-bar-row">' +
@@ -111,11 +114,11 @@
                         '<span class="ocean-bar-row__label">' + t.label + '</span>' +
                         '<div class="ocean-bar-row__right">' +
                             (facets ? '<button class="ocean-facet-toggle" aria-expanded="false" aria-label="Toggle ' + t.label + ' facets">facets ▸</button>' : '') +
-                            '<span class="ocean-bar-row__val">' + v + '</span>' +
+                            '<span class="ocean-bar-row__val">' + v + '<span class="ocean-bar-row__max">/' + MAX + '</span></span>' +
                         '</div>' +
                     '</div>' +
                     '<div class="ocean-bar-row__bg">' +
-                        '<div class="ocean-bar-row__fill" data-width="' + v + '%"></div>' +
+                        '<div class="ocean-bar-row__fill" data-width="' + pct + '%"></div>' +
                     '</div>' +
                     '<div class="ocean-bar-row__desc">' + t.desc + '</div>' +
                     (facets ? buildFacetHtml(facets) : '') +
@@ -177,11 +180,12 @@
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (data) {
             if (!data) return;
-            var scores = TRAITS.map(function (t) { return data[t.key] || 50; });
+            var MAX = data.score_max || 120;
+            var scores = TRAITS.map(function (t) { return data[t.key] || 0; });
             var svg = document.getElementById('ocean-radar');
             var bars = document.getElementById('ocean-bars');
-            if (svg) drawRadar(svg, scores);
-            if (bars) renderBars(bars, scores, data.facets || null);
+            if (svg) drawRadar(svg, scores, MAX);
+            if (bars) renderBars(bars, scores, MAX, data.facets || null);
         })
         .catch(function () {});
 

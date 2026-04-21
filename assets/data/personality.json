@@ -1,14 +1,15 @@
 {
-  "openness": 95,
-  "conscientiousness": 78,
-  "extraversion": 82,
-  "agreeableness": 88,
-  "neuroticism": 28,
+  "openness": 107,
+  "conscientiousness": 102,
+  "extraversion": 100,
+  "agreeableness": 110,
+  "neuroticism": 72,
+  "score_max": 120,
   "facets": {
-    "openness":          [["Imagination",19],["Artistic Interests",20],["Emotionality",20],["Adventurousness",18],["Intellect",20],["Liberalism",17]],
-    "conscientiousness": [["Self-Efficacy",15],["Orderliness",20],["Dutifulness",16],["Achievement-Striving",16],["Self-Discipline",13],["Cautiousness",14]],
-    "extraversion":      [["Friendliness",13],["Gregariousness",14],["Assertiveness",20],["Activity Level",18],["Excitement-Seeking",16],["Cheerfulness",17]],
-    "agreeableness":     [["Trust",11],["Morality",19],["Altruism",20],["Cooperation",18],["Modesty",18],["Sympathy",20]],
-    "neuroticism":       [["Anxiety",12],["Anger",10],["Depression",13],["Self-Consciousness",13],["Immoderation",17],["Vulnerability",10]]
+    "openness":          [["Imagination",20],["Artistic Interests",20],["Emotionality",12],["Adventurousness",18],["Intellect",20],["Liberalism",17]],
+    "conscientiousness": [["Self-Efficacy",18],["Orderliness",20],["Dutifulness",18],["Achievement-Striving",16],["Self-Discipline",16],["Cautiousness",14]],
+    "extraversion":      [["Friendliness",13],["Gregariousness",14],["Assertiveness",20],["Activity Level",20],["Excitement-Seeking",16],["Cheerfulness",17]],
+    "agreeableness":     [["Trust",12],["Morality",20],["Altruism",20],["Cooperation",20],["Modesty",18],["Sympathy",20]],
+    "neuroticism":       [["Anxiety",12],["Anger",9],["Depression",12],["Self-Consciousness",13],["Immoderation",17],["Vulnerability",9]]
   }
 }
