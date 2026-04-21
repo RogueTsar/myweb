@@ -476,8 +476,9 @@ function drawEvolutionChart(target, points) {
 
 function buildArtistCard(a, rank, size) {
     var genre = (a.genres && a.genres[0]) ? escapeHtml(a.genres[0]) : '';
-    var photo = a.image_url
-        ? '<img class="ap-photo" src="' + escapeHtml(a.image_url) + '" alt="' + escapeHtml(a.name) + '" loading="lazy">'
+    var imgSrc = a.image || a.image_url || '';
+    var photo = imgSrc
+        ? '<img class="ap-photo" src="' + escapeHtml(imgSrc) + '" alt="' + escapeHtml(a.name) + '" loading="lazy">'
         : '<div class="ap-photo ap-photo--placeholder"></div>';
     return '<div class="ap-card ap-card--' + size + '">' +
         '<div class="ap-rank">' + rank + '</div>' +
