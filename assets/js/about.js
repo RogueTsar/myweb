@@ -109,8 +109,10 @@
                 '<div class="ocean-bar-row">' +
                     '<div class="ocean-bar-row__header">' +
                         '<span class="ocean-bar-row__label">' + t.label + '</span>' +
-                        (facets ? '<button class="ocean-facet-toggle" aria-expanded="false" aria-label="Toggle ' + t.label + ' facets">facets ▸</button>' : '') +
-                        '<span class="ocean-bar-row__val">' + v + '</span>' +
+                        '<div class="ocean-bar-row__right">' +
+                            (facets ? '<button class="ocean-facet-toggle" aria-expanded="false" aria-label="Toggle ' + t.label + ' facets">facets ▸</button>' : '') +
+                            '<span class="ocean-bar-row__val">' + v + '</span>' +
+                        '</div>' +
                     '</div>' +
                     '<div class="ocean-bar-row__bg">' +
                         '<div class="ocean-bar-row__fill" data-width="' + v + '%"></div>' +

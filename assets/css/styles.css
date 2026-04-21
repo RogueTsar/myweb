@@ -5454,6 +5454,12 @@ body.home-page header {
 }
 
 /* === OCEAN Facet Toggles === */
+.ocean-bar-row__right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
 .ocean-facet-toggle {
     font-family: 'Space Mono', monospace;
     font-size: 0.58rem;
