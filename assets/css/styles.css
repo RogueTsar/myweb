@@ -5541,3 +5541,394 @@ body.home-page header {
     transition: width 0.1s linear;
     pointer-events: none;
 }
+
+/* === TRIVIA PAGE === */
+
+body.trivia-page {
+    background: #050505;
+    color: #e0e0e0;
+}
+
+.trivia-wrap {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+}
+
+.trivia-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.trivia-heading {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1.1rem;
+    color: #39ff14;
+    text-shadow: 0 0 10px #39ff14, 0 0 24px rgba(57,255,20,0.3);
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.03em;
+}
+
+.trivia-subhead {
+    font-size: 0.75rem;
+    color: var(--text-secondary, #888);
+    margin: 0;
+}
+
+.trivia-loading-text {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.7rem;
+    color: #39ff14;
+    text-align: center;
+    padding: 3rem 0;
+    animation: trivia-blink 1s step-end infinite;
+}
+
+@keyframes trivia-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+}
+
+/* HUD */
+.trivia-hud {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.2rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.trivia-hud__score {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+}
+
+.trivia-hud__score-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    color: #666;
+    text-transform: uppercase;
+}
+
+.trivia-hud__score-val {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1.3rem;
+    color: #e0e0e0;
+    transition: color 0.3s, text-shadow 0.3s;
+}
+
+.trivia-score--pos {
+    color: #39ff14 !important;
+    text-shadow: 0 0 12px rgba(57,255,20,0.6);
+}
+
+.trivia-score--neg {
+    color: #ff3939 !important;
+    text-shadow: 0 0 12px rgba(255,57,57,0.6);
+}
+
+.trivia-hud__progress {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.55rem;
+    color: #666;
+}
+
+.trivia-hud__cat {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.45rem;
+    color: #555;
+    max-width: 140px;
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Card deck */
+.trivia-deck {
+    position: relative;
+    min-height: 340px;
+    perspective: 900px;
+}
+
+.trivia-card-bg {
+    position: absolute;
+    width: 100%;
+    border: 2px solid rgba(57,255,20,0.15);
+    background: #0a0a0a;
+    border-radius: 8px;
+}
+
+.trivia-card-bg--1 { top: 8px; left: 0; height: calc(100% - 8px); }
+.trivia-card-bg--2 { top: 14px; left: 0; height: calc(100% - 14px); opacity: 0.5; }
+
+/* The active card */
+.trivia-card {
+    position: absolute;
+    width: 100%;
+    border: 2px solid #39ff14;
+    background: #0f0f0f;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 0 20px rgba(57,255,20,0.15), 0 4px 24px rgba(0,0,0,0.5);
+    transition: transform 0.55s cubic-bezier(0.4,0.2,0.2,1);
+    transform-style: preserve-3d;
+    top: 0; left: 0;
+}
+
+.trivia-card--static {
+    position: relative;
+}
+
+.trivia-card--end {
+    position: relative;
+    text-align: center;
+}
+
+.trivia-card--flip {
+    transform: rotateY(180deg);
+}
+
+.trivia-card__front,
+.trivia-card__back {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.trivia-card__back {
+    transform: rotateY(180deg);
+    position: absolute;
+    top: 1.5rem; left: 1.5rem; right: 1.5rem;
+}
+
+.trivia-card__difficulty {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.45rem;
+    color: #555;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+}
+
+.trivia-card__question {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: #e0e0e0;
+    margin-bottom: 1.2rem;
+    font-weight: 500;
+}
+
+.trivia-card__answers {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Answer buttons */
+.trivia-answer-btn {
+    border: 1px solid rgba(57,255,20,0.3);
+    background: #0a0a0a;
+    color: #c8c8c8;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    cursor: pointer;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    width: 100%;
+    text-align: left;
+    line-height: 1.5;
+}
+
+.trivia-answer-btn:hover:not(:disabled) {
+    border-color: #39ff14;
+    box-shadow: 0 0 8px rgba(57,255,20,0.25);
+    background: rgba(57,255,20,0.04);
+}
+
+.trivia-answer-btn:disabled {
+    cursor: default;
+}
+
+.trivia-answer-btn--correct {
+    border-color: #39ff14 !important;
+    background: rgba(57,255,20,0.08) !important;
+    color: #39ff14 !important;
+}
+
+.trivia-answer-btn--wrong {
+    border-color: #ff3939 !important;
+    background: rgba(255,57,57,0.08) !important;
+    color: #ff3939 !important;
+}
+
+/* Result reveal (card back) */
+.trivia-result-reveal {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.trivia-reveal-result {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.75rem;
+}
+
+.trivia-reveal-result--correct { color: #39ff14; text-shadow: 0 0 8px rgba(57,255,20,0.4); }
+.trivia-reveal-result--wrong   { color: #ff3939; text-shadow: 0 0 8px rgba(255,57,57,0.4); }
+
+.trivia-reveal-answer {
+    font-size: 0.72rem;
+    color: #aaa;
+}
+
+.trivia-reveal-compare {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.trivia-reveal-compare--win  { color: #39ff14; background: rgba(57,255,20,0.07); }
+.trivia-reveal-compare--lose { color: #ff3939; background: rgba(255,57,57,0.07); }
+.trivia-reveal-compare--tie  { color: #888; background: rgba(128,128,128,0.07); }
+
+/* Next / play again button */
+.trivia-next-btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    background: transparent;
+    border: 2px solid #39ff14;
+    color: #39ff14;
+    padding: 0.6rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.03em;
+}
+
+.trivia-next-btn:hover {
+    background: rgba(57,255,20,0.08);
+    box-shadow: 0 0 12px rgba(57,255,20,0.3);
+}
+
+/* End screen */
+.trivia-end__title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1rem;
+    color: #39ff14;
+    text-shadow: 0 0 12px rgba(57,255,20,0.4);
+    margin-bottom: 1.5rem;
+}
+
+.trivia-end__scores {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+}
+
+.trivia-end-score-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.trivia-end-score-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    color: #555;
+    min-width: 3rem;
+    text-align: right;
+}
+
+.trivia-end-score-val {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1.1rem;
+    color: #e0e0e0;
+}
+
+.trivia-end__verdict {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.6rem;
+    color: #888;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.04em;
+}
+
+/* Empty state */
+.trivia-empty-msg {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.7rem;
+    color: #39ff14;
+    margin-bottom: 0.5rem;
+}
+
+.trivia-empty-sub {
+    font-size: 0.75rem;
+    color: #666;
+}
+
+/* Admin page extras */
+.trivia-admin-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    color: #555;
+    display: block;
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+}
+
+.trivia-admin-input {
+    width: 100%;
+    background: #080808;
+    border: 1px solid rgba(57,255,20,0.3);
+    border-radius: 4px;
+    color: #e0e0e0;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.85rem;
+    font-family: 'Space Mono', monospace;
+    box-sizing: border-box;
+}
+
+.trivia-admin-input:focus {
+    outline: none;
+    border-color: #39ff14;
+    box-shadow: 0 0 6px rgba(57,255,20,0.2);
+}
+
+.trivia-admin-status {
+    text-align: center;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    color: #555;
+    margin-bottom: 1.2rem;
+}
+
+.trivia-admin-correct-ans {
+    font-size: 0.78rem;
+    color: #39ff14;
+    margin-bottom: 1.2rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(57,255,20,0.05);
+    border-radius: 4px;
+    border: 1px solid rgba(57,255,20,0.15);
+}
+
+.trivia-admin-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.trivia-card__category {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.45rem;
+    color: #555;
+    margin-bottom: 0.5rem;
+}

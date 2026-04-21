@@ -1,0 +1,69 @@
+---
+layout: default
+title: "Beat Me at Trivia"
+body_class: trivia-page
+---
+
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<div class="trivia-wrap">
+
+    <div class="trivia-header">
+        <div class="trivia-heading">BEAT ME AT TRIVIA</div>
+        <p class="trivia-subhead">Answer the same questions I did. Did you do better?</p>
+    </div>
+
+    <div id="trivia-screen-loading" class="trivia-screen">
+        <div class="trivia-loading-text">LOADING...</div>
+    </div>
+
+    <div id="trivia-screen-empty" class="trivia-screen" hidden>
+        <div class="trivia-card trivia-card--static">
+            <div class="trivia-card__front">
+                <p class="trivia-empty-msg">NO QUESTIONS YET</p>
+                <p class="trivia-empty-sub">Check back soon — I'm still answering questions.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="trivia-screen-game" class="trivia-screen" hidden>
+        <div class="trivia-hud">
+            <div class="trivia-hud__score" id="trivia-score-display">
+                <span class="trivia-hud__score-label">SCORE</span>
+                <span class="trivia-hud__score-val" id="trivia-score-val">0</span>
+            </div>
+            <div class="trivia-hud__progress" id="trivia-progress">Q 1 / 10</div>
+            <div class="trivia-hud__cat" id="trivia-category"></div>
+        </div>
+
+        <div class="trivia-deck" id="trivia-deck">
+            <div class="trivia-card-bg trivia-card-bg--2"></div>
+            <div class="trivia-card-bg trivia-card-bg--1"></div>
+            <div class="trivia-card" id="trivia-active-card">
+                <div class="trivia-card__front" id="trivia-card-front">
+                    <div class="trivia-card__difficulty" id="trivia-difficulty"></div>
+                    <div class="trivia-card__question" id="trivia-question"></div>
+                    <div class="trivia-card__answers" id="trivia-answers"></div>
+                </div>
+                <div class="trivia-card__back" id="trivia-card-back">
+                    <div class="trivia-result-reveal" id="trivia-result-reveal"></div>
+                    <button class="trivia-next-btn" id="trivia-next-btn">NEXT QUESTION ▶</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="trivia-screen-end" class="trivia-screen" hidden>
+        <div class="trivia-card trivia-card--end">
+            <div class="trivia-card__front">
+                <div class="trivia-end__title">GAME OVER</div>
+                <div class="trivia-end__scores" id="trivia-end-scores"></div>
+                <div class="trivia-end__verdict" id="trivia-end-verdict"></div>
+                <button class="trivia-next-btn" id="trivia-play-again">PLAY AGAIN ↺</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="{{ '/assets/js/trivia.js' | relative_url }}"></script>

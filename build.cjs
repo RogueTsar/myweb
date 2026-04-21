@@ -294,12 +294,13 @@ function assemblePage(pageFile, activeNav) {
 
     footer = footer.replace(/\{%.*?%\}/g, '');
 
+    const bodyClass = fm.body_class ? ` class="${fm.body_class}"` : '';
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
     ${head}
 </head>
-<body>
+<body${bodyClass}>
     ${header}
     <main class="page-content">
         ${bodyFixed}
@@ -326,7 +327,7 @@ const blogPosts = allPosts.filter(p => p.section !== 'personal');
 const personalPosts = allPosts.filter(p => p.section === 'personal');
 
 // Build main pages
-for (const page of ['index.html', 'work.html', 'music.html', 'about.html', 'blog.html', 'personal.html']) {
+for (const page of ['index.html', 'work.html', 'music.html', 'about.html', 'blog.html', 'personal.html', 'trivia.html', 'trivia-admin.html']) {
     let html = assemblePage(page);
 
     if (page === 'blog.html') {

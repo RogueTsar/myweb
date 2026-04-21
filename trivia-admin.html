@@ -1,0 +1,61 @@
+---
+layout: default
+title: "Trivia Admin"
+body_class: trivia-page
+---
+
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<div class="trivia-wrap">
+
+    <div class="trivia-header">
+        <div class="trivia-heading">TRIVIA ADMIN</div>
+        <p class="trivia-subhead">Answer questions to build the question bank.</p>
+    </div>
+
+    <div id="admin-secret-panel" class="trivia-card trivia-card--static" style="max-width:480px;margin:0 auto 1.5rem;">
+        <div class="trivia-card__front">
+            <label class="trivia-admin-label" for="admin-secret-input">ADMIN SECRET</label>
+            <input id="admin-secret-input" class="trivia-admin-input" type="password" placeholder="enter secret key" autocomplete="off">
+            <button class="trivia-next-btn" id="admin-secret-save" style="margin-top:0.75rem;">SAVE ▶</button>
+        </div>
+    </div>
+
+    <div id="admin-status" class="trivia-admin-status" hidden>
+        <span id="admin-count-label">You've answered <strong id="admin-count">0</strong> questions total.</span>
+    </div>
+
+    <div id="admin-screen-loading" class="trivia-screen">
+        <div class="trivia-loading-text">LOADING...</div>
+    </div>
+
+    <div id="admin-screen-question" class="trivia-screen" hidden>
+        <div class="trivia-deck" style="height:auto;">
+            <div class="trivia-card" id="admin-active-card" style="position:relative;">
+                <div class="trivia-card__front" id="admin-card-front">
+                    <div class="trivia-card__difficulty" id="admin-difficulty"></div>
+                    <div class="trivia-card__category" id="admin-category" style="font-size:0.5rem;color:var(--text-secondary);margin-bottom:0.5rem;font-family:'Press Start 2P',monospace;"></div>
+                    <div class="trivia-card__question" id="admin-question"></div>
+                    <div class="trivia-admin-answer-reveal" id="admin-answer-reveal"></div>
+                    <div class="trivia-admin-actions" id="admin-actions">
+                        <button class="trivia-answer-btn trivia-answer-btn--correct" id="admin-btn-correct">✓ GOT IT RIGHT</button>
+                        <button class="trivia-answer-btn trivia-answer-btn--wrong" id="admin-btn-wrong">✗ GOT IT WRONG</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-screen-done" class="trivia-screen" hidden>
+        <div class="trivia-card trivia-card--static" style="max-width:480px;margin:0 auto;text-align:center;">
+            <div class="trivia-card__front">
+                <div class="trivia-end__title">SAVED!</div>
+                <p style="font-size:0.55rem;color:var(--text-secondary);margin:0.75rem 0;">Question added to the bank.</p>
+                <button class="trivia-next-btn" id="admin-btn-next">NEXT QUESTION ▶</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="{{ '/assets/js/trivia-admin.js' | relative_url }}"></script>
