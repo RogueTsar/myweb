@@ -3,11 +3,11 @@
     'use strict';
 
     var TRAITS = [
-        { key: 'openness',          label: 'Openness',        desc: 'Curious, creative, open to new experiences' },
+        { key: 'openness',          label: 'Openness',          desc: 'Curious, creative, open to new experiences' },
         { key: 'conscientiousness', label: 'Conscientiousness', desc: 'Organised, dependable, goal-directed' },
-        { key: 'extraversion',      label: 'Extraversion',    desc: 'Energised by ideas, selective with crowds' },
-        { key: 'agreeableness',     label: 'Agreeableness',   desc: 'Cooperative, empathetic, trusting' },
-        { key: 'neuroticism',       label: 'Neuroticism',     desc: 'Emotionally stable, resilient under pressure' },
+        { key: 'extraversion',      label: 'Extraversion',      desc: 'Assertive, energetic, loves people' },
+        { key: 'agreeableness',     label: 'Agreeableness',     desc: 'Altruistic, empathetic, cooperative' },
+        { key: 'neuroticism',       label: 'Neuroticism',       desc: 'Emotionally stable, resilient under pressure' },
     ];
 
     var NS   = 'http://www.w3.org/2000/svg';
@@ -18,82 +18,61 @@
         return { x: CX + Math.cos(angle) * radius, y: CY + Math.sin(angle) * radius };
     }
 
-    function el(tag, attrs) {
+    function svgEl(tag, attrs) {
         var e = document.createElementNS(NS, tag);
         Object.keys(attrs).forEach(function (k) { e.setAttribute(k, attrs[k]); });
         return e;
     }
 
     function drawRadar(svg, scores) {
-        // Background grid rings
         [0.25, 0.5, 0.75, 1].forEach(function (f) {
             var pts = ANGS.map(function (a) { return pt(a, R * f); });
-            svg.appendChild(el('polygon', {
+            svg.appendChild(svgEl('polygon', {
                 points: pts.map(function (p) { return p.x.toFixed(1) + ',' + p.y.toFixed(1); }).join(' '),
-                fill: 'none',
-                stroke: 'var(--border)',
-                'stroke-width': '1',
-                opacity: '0.6',
+                fill: 'none', stroke: 'var(--border)', 'stroke-width': '1', opacity: '0.6',
             }));
         });
 
-        // Axis lines
         ANGS.forEach(function (a) {
             var outer = pt(a, R);
-            svg.appendChild(el('line', {
-                x1: CX, y1: CY,
-                x2: outer.x.toFixed(1), y2: outer.y.toFixed(1),
-                stroke: 'var(--border)',
-                'stroke-width': '1',
-                opacity: '0.5',
+            svg.appendChild(svgEl('line', {
+                x1: CX, y1: CY, x2: outer.x.toFixed(1), y2: outer.y.toFixed(1),
+                stroke: 'var(--border)', 'stroke-width': '1', opacity: '0.5',
             }));
         });
 
-        // Score polygon
         var scorePts = ANGS.map(function (a, i) { return pt(a, R * (scores[i] / 100)); });
-        var poly = el('polygon', {
+        var poly = svgEl('polygon', {
             points: scorePts.map(function (p) { return p.x.toFixed(1) + ',' + p.y.toFixed(1); }).join(' '),
-            fill: 'var(--accent)',
-            'fill-opacity': '0.15',
-            stroke: 'var(--accent)',
-            'stroke-width': '2',
-            'stroke-linejoin': 'round',
+            fill: 'var(--accent)', 'fill-opacity': '0.15',
+            stroke: 'var(--accent)', 'stroke-width': '2', 'stroke-linejoin': 'round',
         });
         poly.style.transformOrigin = CX + 'px ' + CY + 'px';
         poly.style.transform = 'scale(0)';
         poly.style.transition = 'transform 0.85s cubic-bezier(0.34,1.56,0.64,1)';
         svg.appendChild(poly);
 
-        // Vertex dots
         scorePts.forEach(function (p, i) {
-            var c = el('circle', {
-                cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: '4',
-                fill: 'var(--accent)',
-            });
+            var c = svgEl('circle', { cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: '4', fill: 'var(--accent)' });
             c.style.transformOrigin = CX + 'px ' + CY + 'px';
             c.style.transform = 'scale(0)';
             c.style.transition = 'transform 0.85s cubic-bezier(0.34,1.56,0.64,1) ' + (0.06 * i) + 's';
             svg.appendChild(c);
         });
 
-        // Labels
         ANGS.forEach(function (a, i) {
             var lp = pt(a, LR);
             var anchor = lp.x < CX - 5 ? 'end' : lp.x > CX + 5 ? 'start' : 'middle';
-            var t = el('text', {
+            var t = svgEl('text', {
                 x: lp.x.toFixed(1), y: lp.y.toFixed(1),
-                'text-anchor': anchor,
-                'dominant-baseline': 'middle',
-                'font-size': '11',
-                'font-family': 'Inter, sans-serif',
-                fill: 'var(--text-secondary)',
-                'font-weight': '500',
+                'text-anchor': anchor, 'dominant-baseline': 'middle',
+                'font-size': '11', 'font-family': 'Inter, sans-serif',
+                fill: 'var(--text-secondary)', 'font-weight': '500',
             });
             t.textContent = TRAITS[i].label;
             svg.appendChild(t);
         });
 
-        // Trigger animation
         requestAnimationFrame(function () {
             requestAnimationFrame(function () {
                 svg.querySelectorAll('polygon[fill="var(--accent)"], circle[fill="var(--accent)"]').forEach(function (e) {
@@ -103,27 +82,87 @@
         });
     }
 
-    function renderBars(container, scores) {
+    function buildFacetHtml(facets) {
+        if (!facets || facets.length === 0) return '';
+        var html = '<div class="ocean-facets">';
+        facets.forEach(function (f) {
+            var pct = (f[1] / 20 * 100).toFixed(0);
+            html +=
+                '<div class="ocean-facet-row">' +
+                    '<span class="ocean-facet-row__label">' + f[0] + '</span>' +
+                    '<div class="ocean-facet-row__track">' +
+                        '<div class="ocean-facet-row__fill" data-width="' + pct + '%"></div>' +
+                    '</div>' +
+                    '<span class="ocean-facet-row__val">' + f[1] + '<span class="ocean-facet-row__max">/20</span></span>' +
+                '</div>';
+        });
+        html += '</div>';
+        return html;
+    }
+
+    function renderBars(container, scores, facetMap) {
         var html = '';
         TRAITS.forEach(function (t, i) {
             var v = scores[i];
+            var facets = facetMap ? facetMap[t.key] : null;
             html +=
                 '<div class="ocean-bar-row">' +
                     '<div class="ocean-bar-row__header">' +
                         '<span class="ocean-bar-row__label">' + t.label + '</span>' +
+                        (facets ? '<button class="ocean-facet-toggle" aria-expanded="false" aria-label="Toggle ' + t.label + ' facets">facets ▸</button>' : '') +
                         '<span class="ocean-bar-row__val">' + v + '</span>' +
                     '</div>' +
                     '<div class="ocean-bar-row__bg">' +
                         '<div class="ocean-bar-row__fill" data-width="' + v + '%"></div>' +
                     '</div>' +
                     '<div class="ocean-bar-row__desc">' + t.desc + '</div>' +
+                    (facets ? buildFacetHtml(facets) : '') +
                 '</div>';
         });
         container.innerHTML = html;
+
+        // Animate main bars
         requestAnimationFrame(function () {
             container.querySelectorAll('.ocean-bar-row__fill').forEach(function (bar) {
                 bar.style.width = bar.getAttribute('data-width');
             });
+        });
+
+        // Wire toggle buttons
+        container.querySelectorAll('.ocean-facet-toggle').forEach(function (btn) {
+            var row = btn.closest('.ocean-bar-row');
+            var facetEl = row.querySelector('.ocean-facets');
+            if (!facetEl) return;
+
+            btn.addEventListener('click', function () {
+                var open = btn.getAttribute('aria-expanded') === 'true';
+                btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+                btn.textContent = open ? 'facets ▸' : 'facets ▾';
+                if (open) {
+                    facetEl.style.maxHeight = facetEl.scrollHeight + 'px';
+                    requestAnimationFrame(function () { facetEl.style.maxHeight = '0'; });
+                    facetEl.addEventListener('transitionend', function hide() {
+                        facetEl.hidden = true;
+                        facetEl.removeEventListener('transitionend', hide);
+                    });
+                } else {
+                    facetEl.hidden = false;
+                    facetEl.style.maxHeight = '0';
+                    requestAnimationFrame(function () {
+                        requestAnimationFrame(function () {
+                            facetEl.style.maxHeight = facetEl.scrollHeight + 'px';
+                            // Animate fill bars
+                            facetEl.querySelectorAll('.ocean-facet-row__fill').forEach(function (b) {
+                                b.style.width = b.getAttribute('data-width');
+                            });
+                        });
+                    });
+                }
+            });
+
+            // Start hidden
+            facetEl.hidden = true;
+            facetEl.style.maxHeight = '0';
         });
     }
 
@@ -132,7 +171,6 @@
         return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    // Load personality data and draw
     fetch('/assets/data/personality.json')
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (data) {
@@ -141,11 +179,10 @@
             var svg = document.getElementById('ocean-radar');
             var bars = document.getElementById('ocean-bars');
             if (svg) drawRadar(svg, scores);
-            if (bars) renderBars(bars, scores);
+            if (bars) renderBars(bars, scores, data.facets || null);
         })
         .catch(function () {});
 
-    // Now playing widget
     fetch('/api/spotify')
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (data) {
