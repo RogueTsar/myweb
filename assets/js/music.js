@@ -46,9 +46,12 @@ document.addEventListener('DOMContentLoaded', function () {
         window.__lastfmData  = lfmData;
 
         renderLastPlayed(data.last_played);
+        if (data.last_played && data.last_played.is_playing) {
+            fetchGeniusInsight(data.last_played.artist, data.last_played.track);
+        }
         renderRecentHistory(data.recent_tracks);
         renderInsights(data.audio_features, data.top_artists, data.top_tracks, data.recent_tracks, data.personality, lfmData);
-        renderF1Podium(data.top_artists);
+        renderTopArtists(data.top_artists);
         renderBarChart('top-tracks', data.top_tracks, 'full');
         if (window.MusicViews) window.MusicViews.init(data.top_tracks);
         renderVinylShelf(data.top_tracks);
@@ -469,96 +472,44 @@ function drawEvolutionChart(target, points) {
     target.innerHTML = '<div class="insights-evolution__title">Evolution over time</div>' + svg + legend;
 }
 
-/* ── F1 Podium (Top Artists) — broadcast graphic style ── */
+/* ── Top Artists (ranked list) ── */
 
-var F1_DRIVERS = {
-    p1: { name: 'Fernando Alonso', short: 'ALO', team: 'Aston Martin',   flag: '🇪🇸', color: '#00897b', logo: '/assets/img/teams/aston-martin.svg' },
-    p2: { name: 'Lewis Hamilton',  short: 'HAM', team: 'Ferrari',         flag: '🇬🇧', color: '#e8002d', logo: '/assets/img/teams/ferrari.svg'       },
-    p3: { name: 'Max Verstappen',  short: 'VER', team: 'Red Bull Racing', flag: '🇳🇱', color: '#3671c6', logo: '/assets/img/teams/red-bull.svg'       },
-};
-
-/* P4–P10 drivers — fixed roster, cycling through artist slots */
-var F1_LB_DRIVERS = [
-    { name: 'Charles Leclerc',  short: 'LEC', team: 'Ferrari',         flag: '🇲🇨', color: '#e8002d', logo: '/assets/img/teams/ferrari.svg'       },
-    { name: 'Kimi Räikkönen',   short: 'RAI', team: 'Alfa Romeo',      flag: '🇫🇮', color: '#9b0000', logo: '/assets/img/teams/alfa-romeo.svg'    },
-    { name: 'Jenson Button',    short: 'BUT', team: 'McLaren',         flag: '🇬🇧', color: '#ff8000', logo: '/assets/img/teams/mclaren.svg'       },
-    { name: 'Mark Webber',      short: 'WEB', team: 'Red Bull Racing', flag: '🇦🇺', color: '#3671c6', logo: '/assets/img/teams/red-bull.svg'       },
-    { name: 'Oscar Piastri',    short: 'PIA', team: 'McLaren',         flag: '🇦🇺', color: '#ff8000', logo: '/assets/img/teams/mclaren.svg'       },
-    { name: 'Sebastian Vettel', short: 'VET', team: 'Red Bull Racing', flag: '🇩🇪', color: '#3671c6', logo: '/assets/img/teams/red-bull.svg'       },
-    { name: 'Lando Norris',     short: 'NOR', team: 'McLaren',         flag: '🇬🇧', color: '#ff8000', logo: '/assets/img/teams/mclaren.svg'       },
-];
-
-function renderF1Podium(artists) {
+function renderTopArtists(artists) {
     var container = document.getElementById('top-artists');
     if (!container) return;
     if (!artists || artists.length === 0) {
         container.innerHTML = '<p class="music-error">No artist data available.</p>';
         return;
     }
-
-    var p1Artist = artists[0];
-    var p2Artist = artists[1];
-    var p3Artist = artists[2];
-
-    function driverCard(artist, pos) {
-        if (!artist) return '';
-        var d = F1_DRIVERS[pos];
-        var genreStr = (artist.genres && artist.genres.length > 0) ? artist.genres.slice(0, 2).join(' · ') : '';
-        var posNum = pos === 'p1' ? '1' : pos === 'p2' ? '2' : '3';
-        return '<div class="f1-card f1-card--' + pos + '" style="--tc:' + d.color + '">' +
-            '<div class="f1-card__watermark">' + posNum + '</div>' +
-            '<div class="f1-card__inner">' +
-                '<div class="f1-card__top">' +
-                    '<span class="f1-card__pos">P' + posNum + '</span>' +
-                    '<span class="f1-card__teamname">' + d.team.toUpperCase() + '</span>' +
-                '</div>' +
-                '<div class="f1-card__artist">' + escapeHtml(artist.name) + '</div>' +
-                (genreStr ? '<div class="f1-card__genres">' + escapeHtml(genreStr) + '</div>' : '') +
-            '</div>' +
-            '<div class="f1-card__footer">' +
-                '<span class="f1-card__flag">' + d.flag + '</span>' +
-                '<span class="f1-card__code">' + d.short + '</span>' +
-                '<span class="f1-card__drivername">' + d.name + '</span>' +
-            '</div>' +
-        '</div>';
-    }
-
-    // Header bar mimicking F1 broadcast style
-    var html =
-        '<div class="f1-broadcast">' +
-        '<div class="f1-broadcast__header">' +
-            '<span class="f1-broadcast__f1logo">F1</span>' +
-            '<span class="f1-broadcast__label">CONSTRUCTOR STANDINGS · LAST MONTH</span>' +
-        '</div>' +
-        '<div class="f1-broadcast__podium">' +
-            driverCard(p2Artist, 'p2') +   // left
-            driverCard(p1Artist, 'p1') +   // centre — P1 is taller via CSS
-            driverCard(p3Artist, 'p3') +   // right
-        '</div>';
-
-    // F1 leaderboard for P4–P10 — each slot gets a real driver from the roster
-    if (artists.length > 3) {
-        html += '<div class="f1-leaderboard">';
-        for (var i = 3; i < Math.min(artists.length, 10); i++) {
-            var a = artists[i];
-            var lb = F1_LB_DRIVERS[i - 3] || { name: 'Driver', short: '???', team: '', flag: '', color: '#888', photo: '' };
-            var genreLabel = (a.genres && a.genres.length > 0) ? a.genres.slice(0, 2).join(' · ') : '';
-            html +=
-                '<div class="f1-lb-row" style="--tc:' + lb.color + '">' +
-                    '<span class="f1-lb-pos">P' + (i + 1) + '</span>' +
-                    '<span class="f1-lb-flag">' + lb.flag + '</span>' +
-                    '<span class="f1-lb-code">' + lb.short + '</span>' +
-                    '<div class="f1-lb-info">' +
-                        '<span class="f1-lb-name">' + escapeHtml(a.name) + '</span>' +
-                        '<span class="f1-lb-driver">' + lb.name + ' · ' + lb.team + '</span>' +
-                    '</div>' +
-                    (genreLabel ? '<span class="f1-lb-genres">' + escapeHtml(genreLabel) + '</span>' : '') +
-                '</div>';
+    var html = '<ol class="artists-list">';
+    for (var i = 0; i < artists.length; i++) {
+        var a = artists[i];
+        var genresHtml = '';
+        if (a.genres && a.genres.length > 0) {
+            genresHtml = '<div class="artist-row__genres">';
+            for (var g = 0; g < Math.min(a.genres.length, 2); g++) {
+                genresHtml += '<span class="genre-tag">' + escapeHtml(a.genres[g]) + '</span>';
+            }
+            genresHtml += '</div>';
         }
-        html += '</div>';
+        var photoHtml = a.image_url
+            ? '<img class="artist-row__photo" src="' + escapeHtml(a.image_url) + '" alt="" loading="lazy">'
+            : '<div class="artist-row__photo artist-row__photo--placeholder"></div>';
+        var popHtml = a.popularity != null
+            ? '<span class="artist-row__pop">' + a.popularity + '<span class="artist-row__pop-label"> pop</span></span>'
+            : '';
+        html +=
+            '<li class="artist-row">' +
+                '<span class="artist-row__rank">' + (i + 1) + '</span>' +
+                photoHtml +
+                '<div class="artist-row__info">' +
+                    '<span class="artist-row__name">' + escapeHtml(a.name) + '</span>' +
+                    genresHtml +
+                '</div>' +
+                popHtml +
+            '</li>';
     }
-
-    html += '</div>'; // close f1-broadcast
+    html += '</ol>';
     container.innerHTML = html;
 }
 
@@ -661,8 +612,42 @@ function renderVinylShelf(topTracks) {
                 '</div>' +
             '</div>';
     });
-    html += '</div>';
-    container.innerHTML = html;
+    html += '</div>'; // close .vinyl-shelf-scroll
+
+    var wrapper = document.createElement('div');
+    wrapper.className = 'vinyl-shelf-wrapper';
+    wrapper.innerHTML = html;
+
+    var btnPrev = document.createElement('button');
+    btnPrev.className = 'vinyl-nav-btn vinyl-nav-btn--prev';
+    btnPrev.setAttribute('aria-label', 'Scroll left');
+    btnPrev.innerHTML = '&#9664;';
+
+    var btnNext = document.createElement('button');
+    btnNext.className = 'vinyl-nav-btn vinyl-nav-btn--next';
+    btnNext.setAttribute('aria-label', 'Scroll right');
+    btnNext.innerHTML = '&#9654;';
+
+    wrapper.appendChild(btnPrev);
+    wrapper.appendChild(btnNext);
+    container.appendChild(wrapper);
+
+    var shelf = wrapper.querySelector('.vinyl-shelf-scroll');
+    var STEP = 260;
+
+    function updateBtns() {
+        var atStart = shelf.scrollLeft <= 4;
+        var atEnd = shelf.scrollLeft + shelf.clientWidth >= shelf.scrollWidth - 4;
+        btnPrev.style.opacity = atStart ? '0.2' : '0.85';
+        btnNext.style.opacity = atEnd ? '0.2' : '0.85';
+        btnPrev.disabled = atStart;
+        btnNext.disabled = atEnd;
+    }
+
+    btnPrev.addEventListener('click', function () { shelf.scrollBy({ left: -STEP, behavior: 'smooth' }); });
+    btnNext.addEventListener('click', function () { shelf.scrollBy({ left: STEP, behavior: 'smooth' }); });
+    shelf.addEventListener('scroll', updateBtns, { passive: true });
+    updateBtns();
 }
 
 /* ── Genres ── */
@@ -1310,6 +1295,34 @@ function renderHistoricalMonth(data) {
     document.querySelectorAll('.history-month-btn').forEach(function (b) {
         b.classList.toggle('view-switcher-btn--active', b.getAttribute('data-month') === data.month);
     });
+}
+
+/* ── Genius Song Insight ── */
+
+function fetchGeniusInsight(artist, track) {
+    var container = document.getElementById('genius-insight');
+    if (!container) return;
+    container.innerHTML = '<div class="loading-skeleton" style="height:64px;border-radius:8px;margin-top:0.75rem;"></div>';
+    fetch('/api/genius?artist=' + encodeURIComponent(artist) + '&track=' + encodeURIComponent(track))
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+            if (!data || !data.url) { container.innerHTML = ''; return; }
+            container.innerHTML =
+                '<div class="genius-card">' +
+                    (data.thumbnail_url
+                        ? '<img class="genius-card__thumb" src="' + escapeHtml(data.thumbnail_url) + '" alt="">'
+                        : '') +
+                    '<div class="genius-card__body">' +
+                        '<div class="genius-card__label">On Genius</div>' +
+                        '<div class="genius-card__title">' + escapeHtml(data.title) + '</div>' +
+                        (data.description
+                            ? '<div class="genius-card__desc">' + escapeHtml(data.description) + '\u2026</div>'
+                            : '') +
+                        '<a class="genius-card__link" href="' + escapeHtml(data.url) + '" target="_blank" rel="noopener">Read more on Genius \u2197</a>' +
+                    '</div>' +
+                '</div>';
+        })
+        .catch(function () { container.innerHTML = ''; });
 }
 
 /* ── Utilities ── */

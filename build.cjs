@@ -228,16 +228,29 @@ function readAllPosts() {
 function buildPostListHtml(posts, baseUrl) {
     let html = '';
     for (const p of posts) {
-        const tagsAttr = p.tags.length ? ` data-tags="${p.tags.join(',')}"` : ' data-tags=""';
+        // Short date: "Apr 2026"
+        const shortDate = (() => {
+            const parts = p.date.split(' ');
+            if (parts.length >= 3) return parts[1].slice(0, 3) + ' ' + parts[2];
+            return p.date;
+        })();
+        // Reading time
+        const wordCount = p.bodyMd.split(/\s+/).length;
+        const readMin = Math.max(1, Math.ceil(wordCount / 200));
+        // Tags
+        const tagsAttr = p.tags.length ? p.tags.join(',') : '';
         const tagsHtml = p.tags.length
-            ? `<div class="post-tags">${p.tags.map(t => `<span class="post-tag">${t}</span>`).join('')}</div>`
+            ? p.tags.map(t => `<span class="genre-tag blog-post-tag">${t}</span>`).join('')
             : '';
-        html += `<li${tagsAttr}>
-    <span class="post-date">${p.date}</span>
-    <h3 class="post-title"><a href="${baseUrl}/${p.slug}.html">${p.title}</a></h3>
-    ${tagsHtml}
-    <p class="post-excerpt">${p.excerpt}</p>
-</li>\n`;
+        html += `<article class="blog-post-item" data-section="${p.section}" data-tags="${tagsAttr}">
+    <time class="blog-post-item__date">${shortDate}</time>
+    <h2 class="blog-post-item__title"><a href="${baseUrl}/${p.slug}.html">${p.title}</a></h2>
+    <p class="blog-post-item__excerpt">${p.excerpt}</p>
+    <div class="blog-post-item__meta">
+        <span class="blog-post-item__read">${readMin} min read</span>
+        ${tagsHtml}
+    </div>
+</article>\n`;
     }
     return html;
 }
@@ -313,7 +326,7 @@ const blogPosts = allPosts.filter(p => p.section !== 'personal');
 const personalPosts = allPosts.filter(p => p.section === 'personal');
 
 // Build main pages
-for (const page of ['index.html', 'work.html', 'music.html', 'blog.html', 'personal.html']) {
+for (const page of ['index.html', 'work.html', 'music.html', 'about.html', 'blog.html', 'personal.html']) {
     let html = assemblePage(page);
 
     if (page === 'blog.html') {

@@ -1,0 +1,89 @@
+---
+layout: default
+title: "About"
+---
+
+<h2>About</h2>
+
+<div class="glass music-panel about-header-panel" style="margin-bottom:1.75rem;">
+    <div class="about-header__inner">
+        <div class="about-avatar" aria-hidden="true">
+            <svg viewBox="0 0 80 80" width="80" height="80" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="40" cy="30" r="18" fill="var(--accent)" opacity="0.15"/>
+                <circle cx="40" cy="30" r="11" fill="var(--accent)" opacity="0.3"/>
+                <ellipse cx="40" cy="68" rx="25" ry="13" fill="var(--accent)" opacity="0.12"/>
+            </svg>
+        </div>
+        <div class="about-header__text">
+            <h3 class="about-header__name">Vaishnavi Singh</h3>
+            <p class="about-header__tagline">AI Safety &amp; Governance researcher · SMU Computing &amp; Law</p>
+            <p class="about-header__bio">Final year undergrad at SMU, double degree in Computing and Law with Political Science. I work on making AI systems that are technically rigorous and policy-aligned. I care about interpretability, governance frameworks, and the long-term trajectory of AI development.</p>
+        </div>
+    </div>
+</div>
+
+<div class="music-glass-grid music-glass-grid--2col" style="margin-bottom:1.75rem;">
+
+    <div class="glass music-panel">
+        <h3>Personality (OCEAN)</h3>
+        <p class="music-subtitle">Big Five model &middot; self-reported scores</p>
+        <div class="ocean-radar-wrap">
+            <svg id="ocean-radar" class="ocean-radar" viewBox="0 0 360 360" aria-label="Pentagon radar chart of OCEAN personality traits"></svg>
+        </div>
+        <div id="ocean-bars" class="ocean-bars"></div>
+    </div>
+
+    <div class="glass music-panel">
+        <h3>Interests</h3>
+        <p class="music-subtitle">Things I care about</p>
+        <div class="genre-tags about-tags" style="margin-bottom:1.25rem;">
+            <span class="genre-tag">AI Safety</span>
+            <span class="genre-tag">Interpretability</span>
+            <span class="genre-tag">AI Governance</span>
+            <span class="genre-tag">Law &amp; Technology</span>
+            <span class="genre-tag">Post-Keynesian Economics</span>
+            <span class="genre-tag">Music Theory</span>
+            <span class="genre-tag">Bookbinding</span>
+            <span class="genre-tag">Formula 1</span>
+            <span class="genre-tag">Niche Fonts</span>
+            <span class="genre-tag">Effective Altruism</span>
+        </div>
+        <h3 style="margin-top:0.25rem;">Currently</h3>
+        <p class="music-subtitle">What I'm up to</p>
+        <div class="about-currently-list">
+            <div class="about-currently-item">
+                <span class="about-currently__label">Listening</span>
+                <div id="about-now-playing"><div class="loading-skeleton" style="height:36px;border-radius:6px;"></div></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Giving What We Can Pledge -->
+<div class="glass music-panel about-gwwc-panel" style="margin-bottom:1.75rem;">
+    <div class="about-gwwc__inner">
+        <div class="about-gwwc__badge">
+            <a href="https://www.givingwhatwecan.org/" target="_blank" rel="noopener" aria-label="Giving What We Can pledge">
+                <img src="https://bit.ly/3XsPq6c"
+                     alt="I've pledged to donate at least 10% of my income to effective charities"
+                     class="about-gwwc__img"
+                     width="120" height="120" loading="lazy">
+            </a>
+        </div>
+        <div class="about-gwwc__text">
+            <h3 class="about-gwwc__title">The 10% Pledge</h3>
+            <p class="about-gwwc__body">
+                I've taken the <a href="https://www.givingwhatwecan.org/" target="_blank" rel="noopener" class="about-gwwc__link">Giving What We Can</a> pledge to donate at least 10% of my lifetime income to the most effective charities. As Natalie Cargill argues in her TED talk <em>"How to Solve the World's Biggest Problems"</em>, if the top 1% gave 10% of their income, we could address most of the world's critical challenges: ending extreme poverty, reducing animal suffering, and safeguarding our collective future.
+            </p>
+            <p class="about-gwwc__body" style="margin-top:0.5rem;">
+                Yes, I'm a student on an internship salary right now. But I graduate soon, and I intend to give substantially. I'm inspired by researchers I've met in AI Governance and AI Safety who have made this same commitment. I can live well on less. I pledge to give 10% to whichever organisations can most effectively improve lives, now and in the years to come.
+            </p>
+            <a href="https://www.givingwhatwecan.org/pledge" target="_blank" rel="noopener" class="btn-glass about-gwwc__cta">
+                Join me in pledging
+            </a>
+        </div>
+    </div>
+</div>
+
+<script src="{{ '/assets/js/about.js' | relative_url }}"></script>

@@ -1,15 +1,55 @@
 ---
 layout: default
-title: "Blog"
+title: "Writing"
 ---
 
-<h2>Blog</h2>
+<h2>Writing</h2>
+<p class="music-subtitle" style="margin-bottom:1.5rem;">Thoughts on AI, governance, and whatever else I'm thinking about.</p>
 
-<div class="blog-controls">
-    <input type="text" id="blog-search" placeholder="Search posts...">
-    <div class="tag-filters" id="blog-tag-filters"></div>
+<div class="blog-tabs" id="blog-tabs">
+    <button class="blog-tab blog-tab--active" data-filter="all">All</button>
+    <button class="blog-tab" data-filter="tech">Tech &amp; AI</button>
+    <button class="blog-tab" data-filter="research">Research</button>
+    <button class="blog-tab" data-filter="personal">Personal</button>
 </div>
 
-<div id="blog-posts-list" data-section="blog"></div>
+<div class="blog-list" id="blog-list">
+{% for post in site.posts %}
+<article class="blog-post-item" data-section="{{ post.section }}" data-tags="{{ post.tags }}">
+    <time class="blog-post-item__date">{{ post.date }}</time>
+    <h2 class="blog-post-item__title"><a href="{{ post.url }}">{{ post.title }}</a></h2>
+    <p class="blog-post-item__excerpt">{{ post.excerpt }}</p>
+    <div class="blog-post-item__meta">
+        <span class="blog-post-item__read">{{ post.reading_time }} min read</span>
+        {{ post.tags_html }}
+    </div>
+</article>
+{% endfor %}
+</div>
 
-<script src="{{ '/assets/js/blog-renderer.js' | relative_url }}"></script>
+<script>
+(function() {
+    var tabs = document.querySelectorAll('.blog-tab');
+    var posts = document.querySelectorAll('.blog-post-item');
+    var MAP = { 'tech': ['blog','tech','ai'], 'research': ['research'], 'personal': ['personal'] };
+
+    tabs.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            tabs.forEach(function(b) { b.classList.remove('blog-tab--active'); });
+            btn.classList.add('blog-tab--active');
+            var filter = btn.getAttribute('data-filter');
+            posts.forEach(function(p) {
+                if (filter === 'all') {
+                    p.style.display = '';
+                } else {
+                    var sec = (p.getAttribute('data-section') || '').toLowerCase();
+                    var tags = (p.getAttribute('data-tags') || '').toLowerCase();
+                    var keywords = MAP[filter] || [filter];
+                    var match = keywords.some(function(k) { return sec.indexOf(k) !== -1 || tags.indexOf(k) !== -1; });
+                    p.style.display = match ? '' : 'none';
+                }
+            });
+        });
+    });
+})();
+</script>
