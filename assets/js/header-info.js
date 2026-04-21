@@ -39,6 +39,22 @@
         if (sepEl) sepEl.style.display = 'none';
     }
 
+    function fetchOpenMeteo(lat, lon) {
+        var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat +
+            '&longitude=' + lon +
+            '&current=temperature_2m,weather_code&temperature_unit=celsius&forecast_days=1';
+        fetch(url)
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                var temp = Math.round(d.current.temperature_2m) + '°C';
+                var icon = WMO_ICONS[d.current.weather_code] || '🌤';
+                var display = icon + ' ' + temp;
+                try { sessionStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({ ts: Date.now(), text: display })); } catch (e) {}
+                showWeather(display);
+            })
+            .catch(function () { hideWeatherSep(); });
+    }
+
     function loadWeather() {
         var cached = null;
         try { cached = JSON.parse(sessionStorage.getItem(WEATHER_CACHE_KEY)); } catch (e) {}
@@ -48,30 +64,15 @@
             return;
         }
 
-        // Fetch from wttr.in using simple format
-        fetch('https://wttr.in/?format=%t+%C', { cache: 'no-store' })
-            .then(function (r) { return r.text(); })
-            .then(function (raw) {
-                var text = raw.trim();
-                // Simplify: extract temp + a short icon
-                var match = text.match(/([+-]?\d+)\s*°?C/i);
-                var temp = match ? match[1] + '°C' : text;
-                var icon = '';
-                if (/clear|sunny/i.test(text)) icon = '☀️';
-                else if (/cloud|overcast/i.test(text)) icon = '☁️';
-                else if (/rain|drizzle/i.test(text)) icon = '🌧';
-                else if (/snow/i.test(text)) icon = '❄️';
-                else if (/thunder|storm/i.test(text)) icon = '⛈';
-                else if (/fog|mist/i.test(text)) icon = '🌫';
-                else if (/partial|partly/i.test(text)) icon = '⛅';
-                else icon = '🌤';
-                var display = icon + ' ' + temp;
-                try { sessionStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({ ts: Date.now(), text: display })); } catch (e) {}
-                showWeather(display);
-            })
-            .catch(function () {
-                hideWeatherSep();
-            });
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function (pos) { fetchOpenMeteo(pos.coords.latitude, pos.coords.longitude); },
+                function () { hideWeatherSep(); },
+                { timeout: 6000 }
+            );
+        } else {
+            hideWeatherSep();
+        }
     }
 
     // Initial render
