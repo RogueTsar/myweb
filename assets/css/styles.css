@@ -5415,6 +5415,19 @@ body.home-page header {
 .about-gwwc__badge-link {
     display: block;
     flex-shrink: 0;
+    text-decoration: none;
+}
+
+.music-subtitle-link {
+    color: var(--accent);
+    text-decoration: none;
+    opacity: 0.8;
+}
+
+.music-subtitle-link:hover {
+    opacity: 1;
+    text-decoration: underline;
+    text-underline-offset: 2px;
 }
 
 .about-gwwc__actions {

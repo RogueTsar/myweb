@@ -5,9 +5,9 @@ title: "About"
 
 <div class="glass music-panel" style="margin-bottom:1.75rem;">
     <h3>Personality (OCEAN)</h3>
-    <p class="music-subtitle">Big Five model &middot; self-reported scores</p>
+    <p class="music-subtitle">Big Five model &middot; <a href="https://bigfive-test.com/" target="_blank" rel="noopener" class="music-subtitle-link">take the test</a> and update <code>personality.json</code></p>
     <div class="ocean-radar-wrap">
-        <svg id="ocean-radar" class="ocean-radar" viewBox="0 0 360 360" aria-label="Pentagon radar chart of OCEAN personality traits"></svg>
+        <svg id="ocean-radar" class="ocean-radar" viewBox="-80 -15 520 390" aria-label="Pentagon radar chart of OCEAN personality traits"></svg>
     </div>
     <div id="ocean-bars" class="ocean-bars"></div>
 </div>
@@ -16,9 +16,11 @@ title: "About"
     <div class="about-gwwc__inner">
         <a href="https://www.givingwhatwecan.org/pledge" target="_blank" rel="noopener" class="about-gwwc__badge-link">
             <img src="{{ '/assets/img/gwwc-logo.svg' | relative_url }}"
+                 data-light-src="{{ '/assets/img/gwwc-logo.svg' | relative_url }}"
+                 data-dark-src="{{ '/assets/img/gwwc-logo-inverted.svg' | relative_url }}"
                  alt="Giving What We Can"
                  class="about-gwwc__img"
-                 width="120" height="42" loading="lazy">
+                 width="130" height="45" loading="lazy">
         </a>
         <div class="about-gwwc__text">
             <h3 class="about-gwwc__title">The 10% Pledge</h3>
