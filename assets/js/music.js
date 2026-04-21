@@ -474,6 +474,19 @@ function drawEvolutionChart(target, points) {
 
 /* ── Top Artists (ranked list) ── */
 
+function buildArtistCard(a, rank, size) {
+    var genre = (a.genres && a.genres[0]) ? escapeHtml(a.genres[0]) : '';
+    var photo = a.image_url
+        ? '<img class="ap-photo" src="' + escapeHtml(a.image_url) + '" alt="' + escapeHtml(a.name) + '" loading="lazy">'
+        : '<div class="ap-photo ap-photo--placeholder"></div>';
+    return '<div class="ap-card ap-card--' + size + '">' +
+        '<div class="ap-rank">' + rank + '</div>' +
+        '<div class="ap-photo-wrap">' + photo + '</div>' +
+        '<div class="ap-name">' + escapeHtml(a.name) + '</div>' +
+        (genre ? '<div class="ap-genre">' + genre + '</div>' : '') +
+    '</div>';
+}
+
 function renderTopArtists(artists) {
     var container = document.getElementById('top-artists');
     if (!container) return;
@@ -481,35 +494,43 @@ function renderTopArtists(artists) {
         container.innerHTML = '<p class="music-error">No artist data available.</p>';
         return;
     }
-    var html = '<ol class="artists-list">';
-    for (var i = 0; i < artists.length; i++) {
-        var a = artists[i];
-        var genresHtml = '';
-        if (a.genres && a.genres.length > 0) {
-            genresHtml = '<div class="artist-row__genres">';
-            for (var g = 0; g < Math.min(a.genres.length, 2); g++) {
-                genresHtml += '<span class="genre-tag">' + escapeHtml(a.genres[g]) + '</span>';
-            }
-            genresHtml += '</div>';
-        }
-        var photoHtml = a.image_url
-            ? '<img class="artist-row__photo" src="' + escapeHtml(a.image_url) + '" alt="" loading="lazy">'
-            : '<div class="artist-row__photo artist-row__photo--placeholder"></div>';
-        var popHtml = a.popularity != null
-            ? '<span class="artist-row__pop">' + a.popularity + '<span class="artist-row__pop-label"> pop</span></span>'
-            : '';
-        html +=
-            '<li class="artist-row">' +
-                '<span class="artist-row__rank">' + (i + 1) + '</span>' +
-                photoHtml +
-                '<div class="artist-row__info">' +
-                    '<span class="artist-row__name">' + escapeHtml(a.name) + '</span>' +
-                    genresHtml +
-                '</div>' +
-                popHtml +
-            '</li>';
+
+    var tiers = [
+        { slice: [0, 1],   size: 'xl',  cols: 1 },
+        { slice: [1, 3],   size: 'lg',  cols: 2 },
+        { slice: [3, 6],   size: 'md',  cols: 3 },
+        { slice: [6, 10],  size: 'sm',  cols: 4 },
+    ];
+
+    var html = '<div class="ap-pyramid">';
+    tiers.forEach(function (tier) {
+        var batch = artists.slice(tier.slice[0], tier.slice[1]);
+        if (!batch.length) return;
+        html += '<div class="ap-tier ap-tier--' + tier.cols + '">';
+        batch.forEach(function (a, i) {
+            html += buildArtistCard(a, tier.slice[0] + i + 1, tier.size);
+        });
+        html += '</div>';
+    });
+
+    // Remaining artists 11-20 as a compact mini-row
+    var tail = artists.slice(10, 20);
+    if (tail.length > 0) {
+        html += '<div class="ap-tail">';
+        tail.forEach(function (a, i) {
+            var photo = a.image_url
+                ? '<img class="ap-mini-photo" src="' + escapeHtml(a.image_url) + '" alt="' + escapeHtml(a.name) + '" loading="lazy">'
+                : '<div class="ap-mini-photo ap-mini-photo--placeholder"></div>';
+            html += '<div class="ap-mini" title="' + escapeHtml(a.name) + '">' +
+                photo +
+                '<span class="ap-mini-rank">' + (i + 11) + '</span>' +
+                '<span class="ap-mini-name">' + escapeHtml(a.name) + '</span>' +
+            '</div>';
+        });
+        html += '</div>';
     }
-    html += '</ol>';
+
+    html += '</div>';
     container.innerHTML = html;
 }
 
@@ -713,19 +734,11 @@ function renderPlaylists(playlists) {
     if (!playlists || playlists.length === 0) return;
     window.__playlists = playlists;
 
-    var btn = document.getElementById('open-playlists-btn');
-    if (btn) {
-        btn.style.display = '';
-        btn.addEventListener('click', openPlaylistOverlay);
-    }
+    var section = document.getElementById('playlists-section');
+    if (section) section.style.display = '';
 
-    // ESC to close — wired once here
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') {
-            var overlay = document.getElementById('pl-overlay');
-            if (overlay && !overlay.hidden) closePlaylistOverlay();
-        }
-    });
+    renderPlaylistInsights(playlists);
+    renderPlaylistGroups(playlists, plCurrentGroup);
 }
 
 function openPlaylistOverlay() {
