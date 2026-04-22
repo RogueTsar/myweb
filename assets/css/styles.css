@@ -5533,6 +5533,32 @@ body.home-page header {
     color: var(--text-tertiary);
 }
 
+/* === SITE LOGO === */
+.site-logo-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.site-logo {
+    height: 40px;
+    width: auto;
+    display: block;
+    transition: opacity 0.2s;
+}
+
+.site-logo:hover { opacity: 0.8; }
+
+/* Light mode: logo is black on white — keep as-is */
+[data-theme="light"] .site-logo {
+    filter: none;
+}
+
+/* Dark mode: invert the black logo to white */
+[data-theme="dark"] .site-logo {
+    filter: invert(1);
+}
+
 .about-gwwc__cta {
     display: inline-block;
     font-size: 0.78rem;
