@@ -11,9 +11,11 @@
     }
   ],
   "contacts": [
-    { "label": "Email", "url": "mailto:vaishnavis.2022@scis.smu.edu.sg" },
-    { "label": "LinkedIn", "url": "https://www.linkedin.com/in/vaishnavisingh-/" },
-    { "label": "GitHub", "url": "https://github.com/RogueTsar" },
+    { "label": "Email",     "url": "mailto:vaishnavis.2022@scis.smu.edu.sg" },
+    { "label": "LinkedIn",  "url": "https://www.linkedin.com/in/vaishnavisingh-/" },
+    { "label": "GitHub",    "url": "https://github.com/RogueTsar" },
+    { "label": "Twitter",   "url": "https://x.com/vaishsingh_and" },
+    { "label": "Instagram", "url": "https://www.instagram.com/tsarivanvii/" },
     { "label": "Meet with me", "url": "https://calendar.notion.so/meet/vaish2003singh/72nx4ock", "class": "meet-btn" }
   ]
 }

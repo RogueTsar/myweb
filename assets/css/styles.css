@@ -5457,7 +5457,7 @@ body.home-page header {
 .ocean-bar-row__right {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1.1rem;
 }
 
 .ocean-facet-toggle {
@@ -6210,4 +6210,141 @@ body.trivia-page {
     .ap-card--sm .ap-name { font-size: 0.65rem; }
     .ap-card--sm .ap-photo,
     .ap-card--sm .ap-photo--placeholder { width: 40px; height: 40px; }
+}
+
+/* === CONTACT LINKS WITH ICONS === */
+.contact-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.2rem 0.6rem;
+    margin-bottom: 0.75rem;
+}
+
+.contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.82rem;
+    padding: 0.25rem 0.4rem;
+    border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
+}
+
+.contact-link:hover {
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.contact-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.contact-link:hover .contact-icon { opacity: 1; }
+
+.contact-meet {
+    margin-top: 0.25rem;
+}
+
+.meet-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.meet-btn .contact-icon {
+    width: 13px;
+    height: 13px;
+}
+
+/* === MOBILE — COMPREHENSIVE === */
+@media (max-width: 600px) {
+
+    /* Header: keep everything on one row, icons only for nav */
+    header {
+        flex-wrap: nowrap;
+        gap: 0;
+    }
+
+    header nav {
+        gap: 0.55rem;
+        flex-wrap: nowrap;
+        flex-shrink: 0;
+    }
+
+    /* Hide nav text labels, show only icons at small widths */
+    header nav a .nav-icon {
+        width: 16px;
+        height: 16px;
+        opacity: 0.85;
+    }
+
+    header nav a {
+        font-size: 0;
+        padding: 0;
+        gap: 0;
+    }
+
+    header nav a.active .nav-icon { opacity: 1; }
+
+    /* Theme toggle stays at normal size */
+    #theme-toggle { flex-shrink: 0; }
+
+    /* Page content breathes better */
+    .page-content { padding: 1rem 16px 3rem; }
+
+    /* GWWC card: stack logo above text */
+    .about-gwwc__inner {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .about-gwwc__img { width: 100px; }
+
+    .about-gwwc__actions {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    /* OCEAN section: radar shrinks naturally, bars stack fine */
+    .ocean-bar-row__right { gap: 0.75rem; }
+
+    .ocean-bar-row__label { font-size: 0.72rem; }
+
+    /* About page interests tags wrap tightly */
+    .about-interests { gap: 0.3rem; }
+
+    /* Glass panels: reduce padding on mobile */
+    .glass { padding: 1rem; }
+
+    /* Contact links: tighter on mobile */
+    .contact-links { gap: 0.1rem 0.3rem; }
+
+    .contact-link { font-size: 0.78rem; padding: 0.2rem 0.3rem; }
+
+    /* Home hero */
+    .home-hero-panel { padding: 1.5rem 1.2rem 2rem !important; }
+
+    /* Bio text smaller */
+    #bio-text { font-size: 0.88rem; }
+
+    /* Work grid already 1-col via existing rules */
+
+    /* Blog post items */
+    .blog-post-item__title { font-size: 1rem; }
+
+    /* Music vinyl shelf: allow horizontal scroll without arrows clipping */
+    .vinyl-shelf-wrapper { padding: 0 4px; }
+
+    /* About OCEAN facets label truncate less aggressively */
+    .ocean-facet-row__label { min-width: 7rem; font-size: 0.6rem; }
+
+    /* Header name size */
+    header h1 { font-size: 1rem; }
 }
