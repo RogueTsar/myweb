@@ -5290,8 +5290,44 @@ body.home-page header {
 
 .ocean-radar {
     width: 100%;
-    max-width: 420px;
+    max-width: 540px;
     height: auto;
+}
+
+/* Hover tooltip */
+.ocean-radar-tooltip {
+    position: absolute;
+    pointer-events: none;
+    display: none;
+    flex-direction: column;
+    gap: 0.15rem;
+    background: var(--glass-bg, rgba(255,255,255,0.9));
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.55rem 0.8rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    z-index: 10;
+    min-width: 130px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+[data-theme="dark"] .ocean-radar-tooltip {
+    background: rgba(20,20,30,0.92);
+}
+.ocean-radar-tooltip__name {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--accent);
+}
+.ocean-radar-tooltip__score {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text);
+}
+.ocean-radar-tooltip__desc {
+    font-size: 0.68rem;
+    color: var(--text-tertiary);
+    line-height: 1.4;
 }
 
 .ocean-bars {

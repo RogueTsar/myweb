@@ -11,7 +11,7 @@
     ];
 
     var NS   = 'http://www.w3.org/2000/svg';
-    var CX   = 180, CY = 180, R = 120, LR = 150;
+    var CX   = 210, CY = 210, R = 165, LR = 212;
     var ANGS = TRAITS.map(function (_, i) { return (Math.PI * 2 * i / 5) - Math.PI / 2; });
 
     function pt(angle, radius) {
@@ -26,6 +26,8 @@
 
     function drawRadar(svg, scores, MAX) {
         MAX = MAX || 120;
+
+        // Background rings
         [0.25, 0.5, 0.75, 1].forEach(function (f) {
             var pts = ANGS.map(function (a) { return pt(a, R * f); });
             svg.appendChild(svgEl('polygon', {
@@ -34,6 +36,7 @@
             }));
         });
 
+        // Axis lines
         ANGS.forEach(function (a) {
             var outer = pt(a, R);
             svg.appendChild(svgEl('line', {
@@ -42,36 +45,92 @@
             }));
         });
 
+        // Score polygon
         var scorePts = ANGS.map(function (a, i) { return pt(a, R * (scores[i] / MAX)); });
         var poly = svgEl('polygon', {
             points: scorePts.map(function (p) { return p.x.toFixed(1) + ',' + p.y.toFixed(1); }).join(' '),
             fill: 'var(--accent)', 'fill-opacity': '0.15',
-            stroke: 'var(--accent)', 'stroke-width': '2', 'stroke-linejoin': 'round',
+            stroke: 'var(--accent)', 'stroke-width': '2.5', 'stroke-linejoin': 'round',
         });
         poly.style.transformOrigin = CX + 'px ' + CY + 'px';
         poly.style.transform = 'scale(0)';
         poly.style.transition = 'transform 0.85s cubic-bezier(0.34,1.56,0.64,1)';
         svg.appendChild(poly);
 
+        // Score dots
+        var dots = [];
         scorePts.forEach(function (p, i) {
-            var c = svgEl('circle', { cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: '4', fill: 'var(--accent)' });
+            var c = svgEl('circle', { cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: '5', fill: 'var(--accent)' });
             c.style.transformOrigin = CX + 'px ' + CY + 'px';
             c.style.transform = 'scale(0)';
-            c.style.transition = 'transform 0.85s cubic-bezier(0.34,1.56,0.64,1) ' + (0.06 * i) + 's';
+            c.style.transition = 'transform 0.85s cubic-bezier(0.34,1.56,0.64,1) ' + (0.06 * i) + 's, r 0.15s';
             svg.appendChild(c);
+            dots.push(c);
         });
 
+        // Labels
         ANGS.forEach(function (a, i) {
             var lp = pt(a, LR);
             var anchor = lp.x < CX - 5 ? 'end' : lp.x > CX + 5 ? 'start' : 'middle';
             var t = svgEl('text', {
                 x: lp.x.toFixed(1), y: lp.y.toFixed(1),
                 'text-anchor': anchor, 'dominant-baseline': 'middle',
-                'font-size': '11', 'font-family': 'Inter, sans-serif',
-                fill: 'var(--text-secondary)', 'font-weight': '500',
+                'font-size': '14', 'font-family': 'Inter, sans-serif',
+                fill: 'var(--text-secondary)', 'font-weight': '600',
             });
             t.textContent = TRAITS[i].label;
             svg.appendChild(t);
+        });
+
+        // Hover wedge hit-areas + tooltip
+        var wrap = svg.parentNode;
+        wrap.style.position = 'relative';
+        var ttip = document.createElement('div');
+        ttip.className = 'ocean-radar-tooltip';
+        ttip.style.display = 'none';
+        wrap.appendChild(ttip);
+
+        ANGS.forEach(function (a, i) {
+            var half = Math.PI / 5;
+            var steps = 10;
+            var outerR = R * 1.05;
+            var wedgePts = [[CX, CY]];
+            for (var s = 0; s <= steps; s++) {
+                var ang = a - half + (2 * half * s / steps);
+                wedgePts.push([
+                    CX + Math.cos(ang) * outerR,
+                    CY + Math.sin(ang) * outerR,
+                ]);
+            }
+            var wedge = svgEl('polygon', {
+                points: wedgePts.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' '),
+                fill: 'transparent', stroke: 'none', 'pointer-events': 'all',
+                style: 'cursor: pointer;',
+            });
+
+            wedge.addEventListener('mouseenter', function () {
+                wedge.setAttribute('fill', 'var(--accent)');
+                wedge.setAttribute('fill-opacity', '0.18');
+                dots[i].setAttribute('r', '7');
+                ttip.innerHTML =
+                    '<span class="ocean-radar-tooltip__name">' + TRAITS[i].label + '</span>' +
+                    '<span class="ocean-radar-tooltip__score">' + scores[i] + ' / ' + MAX + '</span>' +
+                    '<span class="ocean-radar-tooltip__desc">' + TRAITS[i].desc + '</span>';
+                ttip.style.display = 'flex';
+            });
+            wedge.addEventListener('mousemove', function (e) {
+                var rect = wrap.getBoundingClientRect();
+                var tx = e.clientX - rect.left + 12;
+                var ty = e.clientY - rect.top - 14;
+                ttip.style.left = tx + 'px';
+                ttip.style.top  = ty + 'px';
+            });
+            wedge.addEventListener('mouseleave', function () {
+                wedge.setAttribute('fill', 'transparent');
+                dots[i].setAttribute('r', '5');
+                ttip.style.display = 'none';
+            });
+            svg.appendChild(wedge);
         });
 
         requestAnimationFrame(function () {
