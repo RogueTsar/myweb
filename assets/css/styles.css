@@ -3104,11 +3104,42 @@ footer a:hover {
     margin-bottom: 0.75rem;
     display: flex;
     justify-content: center;
-    gap: 2rem;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
 }
 
-.footer-links a {
-    margin-right: 0;
+.footer-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.82rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+    border-bottom: none !important;
+    transition: color 0.15s, background 0.15s;
+}
+
+.footer-link:hover {
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+    border-bottom: none !important;
+}
+
+.footer-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.footer-link:hover .footer-icon { opacity: 1; }
+
+.footer-copy {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    margin: 0;
 }
 
 footer p {
@@ -6238,55 +6269,6 @@ body.trivia-page {
     .ap-card--sm .ap-photo--placeholder { width: 40px; height: 40px; }
 }
 
-/* === CONTACT LINKS WITH ICONS === */
-.contact-links {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.2rem 0.6rem;
-    margin-bottom: 0.75rem;
-}
-
-.contact-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-size: 0.82rem;
-    padding: 0.25rem 0.4rem;
-    border-radius: 6px;
-    transition: color 0.15s, background 0.15s;
-}
-
-.contact-link:hover {
-    color: var(--accent);
-    background: color-mix(in srgb, var(--accent) 8%, transparent);
-}
-
-.contact-icon {
-    width: 14px;
-    height: 14px;
-    flex-shrink: 0;
-    opacity: 0.7;
-}
-
-.contact-link:hover .contact-icon { opacity: 1; }
-
-.contact-meet {
-    margin-top: 0.25rem;
-}
-
-.meet-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-}
-
-.meet-btn .contact-icon {
-    width: 13px;
-    height: 13px;
-}
 
 /* === MOBILE — COMPREHENSIVE === */
 @media (max-width: 600px) {
