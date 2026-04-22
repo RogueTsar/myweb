@@ -90,18 +90,19 @@
         ttip.style.display = 'none';
         wrap.appendChild(ttip);
 
+        // Pentagon vertices at the outer ring
+        var vtx = ANGS.map(function (a) { return pt(a, R); });
+
         ANGS.forEach(function (a, i) {
-            var half = Math.PI / 5;
-            var steps = 10;
-            var outerR = R * 1.05;
-            var wedgePts = [[CX, CY]];
-            for (var s = 0; s <= steps; s++) {
-                var ang = a - half + (2 * half * s / steps);
-                wedgePts.push([
-                    CX + Math.cos(ang) * outerR,
-                    CY + Math.sin(ang) * outerR,
-                ]);
-            }
+            var prev = (i - 1 + 5) % 5;
+            var next = (i + 1) % 5;
+            // Midpoints of adjacent pentagon EDGES (straight-line midpoints, stays on pentagon boundary)
+            var mPrev = { x: (vtx[prev].x + vtx[i].x) / 2, y: (vtx[prev].y + vtx[i].y) / 2 };
+            var mNext = { x: (vtx[i].x + vtx[next].x) / 2, y: (vtx[i].y + vtx[next].y) / 2 };
+            // Kite shape: center → left edge midpoint → vertex → right edge midpoint
+            var wedgePts = [
+                [CX, CY], [mPrev.x, mPrev.y], [vtx[i].x, vtx[i].y], [mNext.x, mNext.y],
+            ];
             var wedge = svgEl('polygon', {
                 points: wedgePts.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' '),
                 fill: 'transparent', stroke: 'none', 'pointer-events': 'all',
