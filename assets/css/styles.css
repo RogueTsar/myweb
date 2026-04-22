@@ -5588,9 +5588,9 @@ body.home-page header {
 [data-theme="light"] .site-logo--dark  { display: none; }
 [data-theme="light"] .site-logo--light { display: block; }
 
-/* Default (before theme set): show dark logo */
-.site-logo--dark  { display: block; }
-.site-logo--light { display: none; }
+/* Default (no data-theme = light mode): show light logo */
+.site-logo--dark  { display: none; }
+.site-logo--light { display: block; }
 
 .about-gwwc__cta {
     display: inline-block;
