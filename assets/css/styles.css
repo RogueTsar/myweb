@@ -5609,10 +5609,34 @@ body.home-page header {
 }
 
 .site-logo {
-    height: 44px;
+    height: 62px;
     width: auto;
     display: block;
     transition: opacity 0.2s;
+}
+
+/* Dark banner: text is left-aligned → fade the right edge */
+.site-logo--dark {
+    -webkit-mask-image:
+        linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%),
+        linear-gradient(to right, black 0%, black 58%, transparent 94%);
+    -webkit-mask-composite: source-in;
+    mask-image:
+        linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%),
+        linear-gradient(to right, black 0%, black 58%, transparent 94%);
+    mask-composite: intersect;
+}
+
+/* Light banner: text is right-aligned → fade the left edge */
+.site-logo--light {
+    -webkit-mask-image:
+        linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%),
+        linear-gradient(to right, transparent 0%, black 25%, black 100%);
+    -webkit-mask-composite: source-in;
+    mask-image:
+        linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%),
+        linear-gradient(to right, transparent 0%, black 25%, black 100%);
+    mask-composite: intersect;
 }
 
 .site-logo-link:hover .site-logo { opacity: 0.85; }
