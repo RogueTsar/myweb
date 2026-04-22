@@ -6124,32 +6124,27 @@ body.trivia-page {
 }
 
 .ap-tier {
-    display: grid;
+    display: flex;
+    justify-content: center;
     gap: 0.75rem;
-    justify-items: center;
+    flex-wrap: nowrap;
 }
 
-.ap-tier--1 { grid-template-columns: 1fr; max-width: 320px; margin: 0 auto; }
-.ap-tier--2 { grid-template-columns: 1fr 1fr; }
-.ap-tier--3 { grid-template-columns: 1fr 1fr 1fr; }
-.ap-tier--4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
-.ap-tier--5 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr; }
+/* Row shading — default (light mode): vivid crimson gradient, top=darkest */
+.ap-tier--shade-1 { background: rgba(139,0,0,0.28); border-radius: 10px; padding: 0.6rem 0.5rem; }
+.ap-tier--shade-2 { background: rgba(139,0,0,0.21); border-radius: 10px; padding: 0.6rem 0.5rem; }
+.ap-tier--shade-3 { background: rgba(139,0,0,0.15); border-radius: 10px; padding: 0.6rem 0.5rem; }
+.ap-tier--shade-4 { background: rgba(139,0,0,0.10); border-radius: 10px; padding: 0.6rem 0.5rem; }
+.ap-tier--shade-5 { background: rgba(139,0,0,0.06); border-radius: 10px; padding: 0.6rem 0.5rem; }
+.ap-tier--shade-6 { background: rgba(139,0,0,0.03); border-radius: 10px; padding: 0.6rem 0.5rem; }
 
-/* Row shading — default (light mode): crimson gradient top→bottom */
-.ap-tier--shade-1 { background: rgba(139,0,0,0.13); border-radius: 10px; padding: 0.5rem; }
-.ap-tier--shade-2 { background: rgba(139,0,0,0.10); border-radius: 10px; padding: 0.5rem; }
-.ap-tier--shade-3 { background: rgba(139,0,0,0.07); border-radius: 10px; padding: 0.5rem; }
-.ap-tier--shade-4 { background: rgba(139,0,0,0.05); border-radius: 10px; padding: 0.5rem; }
-.ap-tier--shade-5 { background: rgba(139,0,0,0.03); border-radius: 10px; padding: 0.5rem; }
-.ap-tier--shade-6 { background: rgba(139,0,0,0.015); border-radius: 10px; padding: 0.5rem; }
-
-/* Row shading — dark mode: blue gradient top→bottom */
-[data-theme="dark"] .ap-tier--shade-1 { background: rgba(96,165,250,0.16); }
-[data-theme="dark"] .ap-tier--shade-2 { background: rgba(96,165,250,0.12); }
-[data-theme="dark"] .ap-tier--shade-3 { background: rgba(96,165,250,0.09); }
-[data-theme="dark"] .ap-tier--shade-4 { background: rgba(96,165,250,0.06); }
-[data-theme="dark"] .ap-tier--shade-5 { background: rgba(96,165,250,0.03); }
-[data-theme="dark"] .ap-tier--shade-6 { background: rgba(96,165,250,0.015); }
+/* Row shading — dark mode: vivid blue gradient, top=brightest */
+[data-theme="dark"] .ap-tier--shade-1 { background: rgba(96,165,250,0.38); }
+[data-theme="dark"] .ap-tier--shade-2 { background: rgba(96,165,250,0.28); }
+[data-theme="dark"] .ap-tier--shade-3 { background: rgba(96,165,250,0.20); }
+[data-theme="dark"] .ap-tier--shade-4 { background: rgba(96,165,250,0.13); }
+[data-theme="dark"] .ap-tier--shade-5 { background: rgba(96,165,250,0.07); }
+[data-theme="dark"] .ap-tier--shade-6 { background: rgba(96,165,250,0.03); }
 
 .ap-card {
     position: relative;
@@ -6206,10 +6201,16 @@ body.trivia-page {
 .ap-card--sm .ap-photo,
 .ap-card--sm .ap-photo--placeholder { width: 48px;  height: 48px; }
 
-/* Uniform size — same card across all tiers */
+/* Uniform size — fixed 140×140px so every card is identical */
+.ap-card--uniform {
+    width: 140px;
+    height: 140px;
+    flex-shrink: 0;
+    justify-content: center;
+}
 .ap-card--uniform .ap-photo,
-.ap-card--uniform .ap-photo--placeholder { width: 52px; height: 52px; }
-.ap-card--uniform .ap-name { font-size: 0.75rem; }
+.ap-card--uniform .ap-photo--placeholder { width: 60px; height: 60px; }
+.ap-card--uniform .ap-name { font-size: 0.72rem; }
 
 .ap-name {
     font-size: 0.82rem;
@@ -6286,15 +6287,14 @@ body.trivia-page {
 }
 
 @media (max-width: 600px) {
-    .ap-tier--3 { grid-template-columns: 1fr 1fr 1fr; }
-    .ap-tier--4 { grid-template-columns: 1fr 1fr; }
-    .ap-tier--5 { grid-template-columns: 1fr 1fr 1fr; }
-    .ap-card--sm .ap-name,
-    .ap-card--uniform .ap-name { font-size: 0.62rem; }
-    .ap-card--sm .ap-photo,
-    .ap-card--sm .ap-photo--placeholder,
+    .ap-tier { flex-wrap: wrap; }
+    .ap-card--uniform { width: 80px; height: 100px; }
     .ap-card--uniform .ap-photo,
-    .ap-card--uniform .ap-photo--placeholder { width: 38px; height: 38px; }
+    .ap-card--uniform .ap-photo--placeholder { width: 40px; height: 40px; }
+    .ap-card--uniform .ap-name { font-size: 0.58rem; }
+    .ap-card--sm .ap-name { font-size: 0.62rem; }
+    .ap-card--sm .ap-photo,
+    .ap-card--sm .ap-photo--placeholder { width: 38px; height: 38px; }
 }
 
 
