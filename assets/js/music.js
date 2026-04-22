@@ -501,21 +501,22 @@ function renderTopArtists(artists) {
         { slice: [1, 3],   size: 'lg',  cols: 2 },
         { slice: [3, 6],   size: 'md',  cols: 3 },
         { slice: [6, 10],  size: 'sm',  cols: 4 },
+        { slice: [10, 15], size: 'sm',  cols: 5 },
     ];
 
     var html = '<div class="ap-pyramid">';
-    tiers.forEach(function (tier) {
+    tiers.forEach(function (tier, idx) {
         var batch = artists.slice(tier.slice[0], tier.slice[1]);
         if (!batch.length) return;
-        html += '<div class="ap-tier ap-tier--' + tier.cols + '">';
+        html += '<div class="ap-tier ap-tier--' + tier.cols + ' ap-tier--shade-' + (idx + 1) + '">';
         batch.forEach(function (a, i) {
             html += buildArtistCard(a, tier.slice[0] + i + 1, tier.size);
         });
         html += '</div>';
     });
 
-    // Remaining artists 11-20 as a compact mini-row
-    var tail = artists.slice(10, 20);
+    // Remaining artists 16-20 as a compact mini-row
+    var tail = artists.slice(15, 20);
     if (tail.length > 0) {
         html += '<div class="ap-tail">';
         tail.forEach(function (a, i) {
@@ -524,7 +525,7 @@ function renderTopArtists(artists) {
                 : '<div class="ap-mini-photo ap-mini-photo--placeholder"></div>';
             html += '<div class="ap-mini" title="' + escapeHtml(a.name) + '">' +
                 photo +
-                '<span class="ap-mini-rank">' + (i + 11) + '</span>' +
+                '<span class="ap-mini-rank">' + (i + 16) + '</span>' +
                 '<span class="ap-mini-name">' + escapeHtml(a.name) + '</span>' +
             '</div>';
         });
