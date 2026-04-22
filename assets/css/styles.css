@@ -5578,17 +5578,19 @@ body.home-page header {
     transition: opacity 0.2s;
 }
 
-.site-logo:hover { opacity: 0.8; }
+.site-logo-link:hover .site-logo { opacity: 0.85; }
 
-/* Light mode: logo is black on white — keep as-is */
-[data-theme="light"] .site-logo {
-    filter: none;
-}
+/* Dark mode: blue logo */
+[data-theme="dark"]  .site-logo--light { display: none; }
+[data-theme="dark"]  .site-logo--dark  { display: block; }
 
-/* Dark mode: invert the black logo to white */
-[data-theme="dark"] .site-logo {
-    filter: invert(1);
-}
+/* Light mode: red logo */
+[data-theme="light"] .site-logo--dark  { display: none; }
+[data-theme="light"] .site-logo--light { display: block; }
+
+/* Default (before theme set): show dark logo */
+.site-logo--dark  { display: block; }
+.site-logo--light { display: none; }
 
 .about-gwwc__cta {
     display: inline-block;
