@@ -3176,7 +3176,11 @@ footer p {
     }
 
     .holo-card {
-        width: 175px;
+        width: 210px;
+    }
+
+    .holo-card__back {
+        padding: 12px 10px;
     }
 
     .work-grid {
