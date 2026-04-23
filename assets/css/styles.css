@@ -3172,11 +3172,11 @@ footer p {
 
     .card-showcase {
         gap: 0.5rem;
-        justify-content: flex-start;
+        justify-content: center;
     }
 
     .holo-card {
-        width: 150px;
+        width: 175px;
     }
 
     .work-grid {
