@@ -45,6 +45,7 @@
                         '<div class="holo-card__back">' +
                             '<p class="holo-card__quote">' + esc(quote) + '</p>' +
                             '<p class="holo-card__author">' + esc(author) + '</p>' +
+                            '<button class="holo-card__read-more">▾ source</button>' +
                         '</div>' +
                     '</div>' +
                 '</div>';
@@ -87,6 +88,16 @@
             function updateTransform() {
                 var baseY = isFlipped ? 180 : 0;
                 inner.style.transform = 'rotateX(' + tiltX + 'deg) rotateY(' + (baseY + tiltY) + 'deg)';
+            }
+
+            var readMoreBtn = card.querySelector('.holo-card__read-more');
+            var authorEl = card.querySelector('.holo-card__author');
+            if (readMoreBtn && authorEl) {
+                readMoreBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    var visible = authorEl.classList.toggle('holo-card__author--visible');
+                    readMoreBtn.textContent = visible ? '▴ hide' : '▾ source';
+                });
             }
 
             card.addEventListener('click', function () {

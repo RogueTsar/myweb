@@ -543,6 +543,10 @@ a:hover {
     margin-bottom: 10px;
 }
 
+.holo-card__read-more {
+    display: none;
+}
+
 .holo-card__author {
     font-size: 0.68rem;
     font-weight: 400;
@@ -3179,8 +3183,31 @@ footer p {
         width: 210px;
     }
 
-    .holo-card__back {
-        padding: 12px 10px;
+    .holo-card__quote {
+        font-size: 0.72rem;
+    }
+
+    .holo-card__author {
+        display: none;
+    }
+
+    .holo-card__author--visible {
+        display: block;
+    }
+
+    .holo-card__read-more {
+        display: inline-block;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 0.58rem;
+        color: rgba(255, 255, 255, 0.4);
+        margin-top: 6px;
+        padding: 0;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        text-decoration: underline;
+        font-family: inherit;
     }
 
     .work-grid {
