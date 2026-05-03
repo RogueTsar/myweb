@@ -547,6 +547,10 @@ a:hover {
     display: none;
 }
 
+.card-carousel-nav {
+    display: none;
+}
+
 .holo-card__author {
     font-size: 0.68rem;
     font-weight: 400;
@@ -3208,6 +3212,84 @@ footer p {
         text-transform: uppercase;
         text-decoration: underline;
         font-family: inherit;
+    }
+
+    /* ── Mobile carousel ── */
+    .card-showcase.carousel-ready {
+        display: block;
+        position: relative;
+        height: 290px;
+        overflow: visible;
+        margin-bottom: 0;
+    }
+
+    .card-showcase.carousel-ready .holo-card {
+        position: absolute;
+        left: 50%;
+        top: 0;
+        margin: 0;
+        transition: transform 0.42s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                    opacity 0.35s ease;
+    }
+
+    .card-showcase.carousel-ready .holo-card.is-active {
+        transform: translateX(-50%);
+        z-index: 3;
+        opacity: 1;
+    }
+
+    .card-showcase.carousel-ready .holo-card.is-prev {
+        transform: translateX(calc(-50% - 148px)) rotateY(48deg);
+        z-index: 1;
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    .card-showcase.carousel-ready .holo-card.is-next {
+        transform: translateX(calc(-50% + 148px)) rotateY(-48deg);
+        z-index: 1;
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    /* disable hover lift in carousel */
+    .card-showcase.carousel-ready .holo-card.is-active:hover {
+        transform: translateX(-50%);
+    }
+
+    /* disable float animation in carousel */
+    .card-showcase.carousel-ready .holo-card {
+        animation: none;
+    }
+
+    .card-carousel-nav {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 2.5rem;
+        margin-top: 0.6rem;
+    }
+
+    .card-carousel-btn {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        cursor: pointer;
+        color: rgba(255, 255, 255, 0.65);
+        font-size: 1.5rem;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        -webkit-tap-highlight-color: transparent;
+        transition: background 0.15s;
+    }
+
+    .card-carousel-btn:active {
+        background: rgba(255, 255, 255, 0.18);
     }
 
     .work-grid {

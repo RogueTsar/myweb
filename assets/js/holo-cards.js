@@ -4,6 +4,7 @@
     if (!showcase) return;
 
     var cardData = null;
+    var carouselActiveIndex = 1; // persists across theme rebuilds
 
     fetch('/assets/data/card-quotes.json')
         .then(function (r) { return r.json(); })
@@ -25,6 +26,11 @@
     function buildCards() {
         if (!cardData || !cardData.cards) return;
         var dark = isDark();
+
+        // Clean up any existing carousel nav before rebuilding
+        var oldNav = showcase.parentNode.querySelector('.card-carousel-nav');
+        if (oldNav) oldNav.parentNode.removeChild(oldNav);
+        showcase.classList.remove('carousel-ready');
 
         var html = '';
         cardData.cards.forEach(function (c) {
@@ -52,17 +58,19 @@
         });
         showcase.innerHTML = html;
 
-        // Float middle cards
+        // Float middle card(s) on desktop only
         var cards = showcase.querySelectorAll('.holo-card');
-        if (cards.length >= 4) {
-            cards[1].classList.add('holo-card--float');
-            cards[2].classList.add('holo-card--float');
-        } else if (cards.length >= 3) {
-            cards[1].classList.add('holo-card--float');
+        if (window.innerWidth > 600) {
+            if (cards.length >= 4) {
+                cards[1].classList.add('holo-card--float');
+                cards[2].classList.add('holo-card--float');
+            } else if (cards.length >= 3) {
+                cards[1].classList.add('holo-card--float');
+            }
         }
 
-        // Init interactions
         initCardInteractions();
+        initCarousel();
     }
 
     // Re-build cards when theme changes (swaps quotes + images)
@@ -101,6 +109,8 @@
             }
 
             card.addEventListener('click', function () {
+                // In carousel mode, only the active card flips
+                if (showcase.classList.contains('carousel-ready') && !card.classList.contains('is-active')) return;
                 isFlipped = !isFlipped;
                 if (card.classList.contains('holo-card--float')) {
                     card.classList.remove('holo-card--float');
@@ -149,5 +159,62 @@
                 glare.style.background = '';
             });
         });
+    }
+
+    function initCarousel() {
+        if (window.innerWidth > 600) return;
+
+        var cards = showcase.querySelectorAll('.holo-card');
+        var n = cards.length;
+        if (n < 2) return;
+
+        // Clamp persisted index in case card count changed
+        if (carouselActiveIndex >= n) carouselActiveIndex = 0;
+
+        showcase.classList.add('carousel-ready');
+
+        function applyCarousel() {
+            cards.forEach(function (card, i) {
+                card.classList.remove('is-active', 'is-prev', 'is-next');
+                var offset = (i - carouselActiveIndex + n) % n;
+                if (offset === 0)       card.classList.add('is-active');
+                else if (offset === 1)  card.classList.add('is-next');
+                else                    card.classList.add('is-prev');
+            });
+        }
+        applyCarousel();
+
+        // Arrow buttons
+        var nav = document.createElement('div');
+        nav.className = 'card-carousel-nav';
+        nav.innerHTML =
+            '<button class="card-carousel-btn" aria-label="Previous card">&#8249;</button>' +
+            '<button class="card-carousel-btn" aria-label="Next card">&#8250;</button>';
+        showcase.parentNode.insertBefore(nav, showcase.nextSibling);
+
+        var btns = nav.querySelectorAll('.card-carousel-btn');
+        btns[0].addEventListener('click', function () {
+            carouselActiveIndex = (carouselActiveIndex - 1 + n) % n;
+            applyCarousel();
+        });
+        btns[1].addEventListener('click', function () {
+            carouselActiveIndex = (carouselActiveIndex + 1) % n;
+            applyCarousel();
+        });
+
+        // Swipe support
+        var swipeStartX = 0;
+        showcase.addEventListener('touchstart', function (e) {
+            swipeStartX = e.touches[0].clientX;
+        }, { passive: true });
+        showcase.addEventListener('touchend', function (e) {
+            var dx = e.changedTouches[0].clientX - swipeStartX;
+            if (Math.abs(dx) > 55) {
+                carouselActiveIndex = dx < 0
+                    ? (carouselActiveIndex + 1) % n
+                    : (carouselActiveIndex - 1 + n) % n;
+                applyCarousel();
+            }
+        }, { passive: true });
     }
 })();
