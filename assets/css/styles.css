@@ -723,6 +723,58 @@ a:hover {
     color: var(--text-secondary);
 }
 
+/* ── Incoming panel ── */
+
+.work-incoming-panel {
+    margin-bottom: 2rem;
+    border-color: rgba(201, 169, 110, 0.3);
+    box-shadow: 0 0 0 1px rgba(201, 169, 110, 0.12), var(--glass-shadow);
+}
+
+.work-incoming__eyebrow {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #C9A96E;
+    margin-bottom: 0.85rem;
+}
+
+.work-incoming__items {
+    display: flex;
+    flex-direction: column;
+}
+
+.work-incoming__item {
+    padding: 0.45rem 0;
+}
+
+.work-incoming__item:first-child { padding-top: 0; }
+.work-incoming__item:last-child  { padding-bottom: 0; }
+
+.work-incoming__item .work-card__tag {
+    margin-bottom: 0.4rem;
+}
+
+.work-incoming__sep {
+    height: 1px;
+    background: var(--border);
+    margin: 0.2rem 0;
+}
+
+.work-incoming__title {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 0.15rem;
+    line-height: 1.35;
+}
+
+.work-incoming__meta {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
 /* ── Publications ── */
 
 .work-section-title {
@@ -4068,6 +4120,14 @@ body.home-page > .page-content {
 .widget-work-item__date {
     font-size: 0.65rem;
     color: var(--text-tertiary);
+}
+
+.widget-work-item--incoming .widget-work-item__role {
+    color: #C9A96E;
+}
+
+.widget-work-item--incoming .widget-work-item__org {
+    color: var(--text-secondary);
 }
 
 /* Music widget */
