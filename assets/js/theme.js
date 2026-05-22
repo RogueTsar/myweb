@@ -4,7 +4,7 @@
 
     // Apply saved theme immediately (before paint to avoid flash)
     var saved = localStorage.getItem(STORAGE_KEY);
-    if (saved === 'dark') {
+    if (saved !== 'light') {
         document.documentElement.setAttribute('data-theme', 'dark');
     }
 

@@ -117,7 +117,7 @@ body, h1, h2, h3, h4, p, ul, ol {
 }
 
 html {
-    font-size: 16px;
+    font-size: 18px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -655,6 +655,7 @@ a:hover {
 
 .work-card {
     border: 1px solid var(--border);
+    border-radius: 10px;
     padding: 1.25rem;
     transition: border-color 0.3s, box-shadow 0.3s;
 }
@@ -4266,9 +4267,29 @@ body.home-page > .page-content {
 }
 
 .hero__cards {
-    margin-bottom: 4rem;
+    margin-bottom: 0;
     opacity: 0;
-    animation: heroFadeUp 0.7s ease 0.55s forwards;
+    max-height: 0;
+    overflow: hidden;
+    animation: none;
+    /* revealed via JS on name click */
+}
+
+.hero__cards.cards-revealing {
+    overflow: hidden;
+    opacity: 1;
+    max-height: 520px;
+    margin-bottom: 1.5rem;
+    transition: max-height 0.75s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.55s ease,
+                margin-bottom 0.4s ease;
+}
+
+.hero__cards.cards-revealed {
+    opacity: 1;
+    max-height: none;
+    overflow: visible;
+    margin-bottom: 1.5rem;
 }
 
 .hero__scroll-hint {
@@ -6891,4 +6912,334 @@ body.trivia-page {
     display: inline-block;
     animation: star-twinkle 2.2s ease-in-out infinite;
     font-size: 1.1rem;
+}
+
+/* =========================================
+   HERO NAME — clickable reveal trigger
+   ========================================= */
+
+.hero__name--clickable {
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: opacity 0.2s ease, text-shadow 0.3s ease;
+}
+
+.hero__name--clickable:hover {
+    opacity: 0.82;
+    text-shadow: 0 0 28px rgba(201, 169, 110, 0.35);
+}
+
+@keyframes namePress {
+    0%   { transform: scale(1); }
+    25%  { transform: scale(0.96); }
+    65%  { transform: scale(1.03); }
+    100% { transform: scale(1); }
+}
+
+.hero__name--pressed {
+    animation: namePress 0.45s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* =========================================
+   WORK GRID — incoming card variant
+   ========================================= */
+
+.work-card--incoming {
+    background: rgba(201, 169, 110, 0.07);
+    border-color: rgba(201, 169, 110, 0.35);
+}
+
+[data-theme="dark"] .work-card--incoming {
+    background: rgba(201, 169, 110, 0.06);
+    border-color: rgba(201, 169, 110, 0.28);
+}
+
+.work-card--incoming:hover {
+    border-color: rgba(201, 169, 110, 0.65);
+    box-shadow: 0 2px 16px rgba(201, 169, 110, 0.12);
+}
+
+/* =========================================
+   REF CARD PHOTO
+   ========================================= */
+
+.ref-card__photo {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+@media (max-width: 600px) {
+    .ref-card__photo {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* =========================================
+   WIDGET WORK ITEMS — bg variants (home page)
+   ========================================= */
+
+.widget-work-item--bg-gold {
+    background: rgba(201, 169, 110, 0.09);
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    border-bottom: none !important;
+    margin-bottom: 0.45rem;
+}
+
+.widget-work-item--bg-blue {
+    background: rgba(74, 144, 226, 0.09);
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    border-bottom: none !important;
+    margin-bottom: 0.45rem;
+}
+
+.widget-work-item--bg-green {
+    background: rgba(80, 200, 120, 0.09);
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    border-bottom: none !important;
+    margin-bottom: 0.45rem;
+}
+
+.widget-work-item--bg-purple {
+    background: rgba(107, 76, 154, 0.09);
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    border-bottom: none !important;
+    margin-bottom: 0.45rem;
+}
+
+/* =========================================
+   ABOUT PAGE — My Background: peek tags
+   ========================================= */
+
+.bio-peek-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.55rem;
+}
+
+.bio-peek-tag {
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 3px 11px;
+    border-radius: 20px;
+    border: 1.5px solid;
+    letter-spacing: 0.04em;
+}
+
+.bio-peek-tag--safety {
+    color: var(--green);
+    border-color: var(--green);
+    background: rgba(80, 200, 120, 0.07);
+}
+
+.bio-peek-tag--gov {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: rgba(139, 64, 80, 0.07);
+}
+
+.bio-peek-tag--minds {
+    color: #6b4c9a;
+    border-color: #6b4c9a;
+    background: rgba(107, 76, 154, 0.07);
+}
+
+/* =========================================
+   ABOUT PAGE — My Background: research boxes
+   ========================================= */
+
+.bio-research-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+@media (max-width: 720px) {
+    .bio-research-grid { grid-template-columns: 1fr; }
+}
+
+.bio-research-box {
+    padding: 0.8rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid;
+}
+
+.bio-research-box--safety {
+    border-color: rgba(80, 200, 120, 0.35);
+    background: rgba(80, 200, 120, 0.05);
+}
+
+.bio-research-box--gov {
+    border-color: rgba(139, 64, 80, 0.3);
+    background: rgba(139, 64, 80, 0.05);
+}
+
+.bio-research-box--minds {
+    border-color: rgba(107, 76, 154, 0.35);
+    background: rgba(107, 76, 154, 0.05);
+}
+
+.bio-research-box__heading {
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+    letter-spacing: 0.02em;
+}
+
+.bio-research-box--safety .bio-research-box__heading { color: var(--green); }
+.bio-research-box--gov .bio-research-box__heading { color: var(--accent); }
+.bio-research-box--minds .bio-research-box__heading { color: #6b4c9a; }
+
+.bio-research-box__detail {
+    font-size: 0.76rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+}
+
+/* =========================================
+   WORK PAGE — Journey Track (sections 2–5)
+   ========================================= */
+
+.journey-sections-title {
+    margin-top: 3rem;
+    margin-bottom: 1.25rem;
+    font-size: 1.1rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+}
+
+.journey-track {
+    position: relative;
+    padding-left: 2.8rem;
+    margin-bottom: 2.5rem;
+}
+
+.journey-track::before {
+    content: '';
+    position: absolute;
+    left: 0.65rem;
+    top: 2rem;
+    bottom: 2rem;
+    width: 2px;
+    background: linear-gradient(
+        to bottom,
+        var(--green) 0%,
+        #C9A96E 33%,
+        #6b4c9a 66%,
+        var(--accent) 100%
+    );
+    opacity: 0.45;
+    border-radius: 2px;
+}
+
+.journey-item {
+    position: relative;
+    margin-bottom: 0.8rem;
+}
+
+.journey-marker {
+    position: absolute;
+    left: -2.2rem;
+    top: 0.9rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid currentColor;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 700;
+    z-index: 2;
+    line-height: 1;
+}
+
+.journey-item--1 { border-left: 3px solid var(--green); }
+.journey-item--1 .journey-marker { color: var(--green); }
+.journey-item--2 { border-left: 3px solid #C9A96E; }
+.journey-item--2 .journey-marker { color: #C9A96E; }
+.journey-item--3 { border-left: 3px solid #6b4c9a; }
+.journey-item--3 .journey-marker { color: #6b4c9a; }
+.journey-item--4 { border-left: 3px solid var(--accent); }
+.journey-item--4 .journey-marker { color: var(--accent); }
+
+/* Chips in journey peek views */
+.journey-peek-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+}
+
+.journey-chip {
+    font-size: 0.66rem;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 20px;
+    border: 1px solid;
+    letter-spacing: 0.03em;
+}
+
+.journey-chip--green  { color: var(--green);   border-color: var(--green);   background: rgba(80,200,120,0.07); }
+.journey-chip--blue   { color: #4a90e2;         border-color: #4a90e2;         background: rgba(74,144,226,0.07); }
+.journey-chip--gold   { color: #C9A96E;         border-color: #C9A96E;         background: rgba(201,169,110,0.07); }
+.journey-chip--purple { color: #6b4c9a;         border-color: #6b4c9a;         background: rgba(107,76,154,0.07); }
+.journey-chip--accent { color: var(--accent);   border-color: var(--accent);   background: rgba(139,64,80,0.07); }
+
+.journey-peek-line {
+    margin: 0.35rem 0 0;
+    font-size: 0.83rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* Journey section head layout (number + text) */
+.journey-sec-head-wrap {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.journey-sec-num {
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 4px;
+    border: 1.5px solid currentColor;
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+    letter-spacing: 0.04em;
+    opacity: 0.75;
+}
+
+.journey-item--1 .journey-sec-num { color: var(--green); }
+.journey-item--2 .journey-sec-num { color: #C9A96E; }
+.journey-item--3 .journey-sec-num { color: #6b4c9a; }
+.journey-item--4 .journey-sec-num { color: var(--accent); }
+
+.journey-sec-sub {
+    font-size: 0.72rem;
+    color: var(--text-tertiary);
+    margin: 0.18rem 0 0;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+}
+
+@media (max-width: 600px) {
+    .journey-track { padding-left: 2.2rem; }
+    .journey-track::before { left: 0.55rem; }
+    .journey-marker { left: -1.8rem; width: 1.2rem; height: 1.2rem; font-size: 0.55rem; }
 }

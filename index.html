@@ -27,20 +27,17 @@ title: "Home"
     <!-- ── HERO BLOCK ── -->
     <section class="glass music-panel home-hero-panel" id="hero">
         <p class="home-panel-eyebrow">Hi, I'm</p>
-        <h2 class="hero__name">Vaishnavi Singh</h2>
-        <p class="hero__tagline">
-            Final year at SMU — Computing &amp; Law with Political Science. I work on AI safety and governance.
-        </p>
-        <div class="hero__cards">
+        <h2 class="hero__name" id="hero-name">Vaishnavi Singh</h2>
+        <div class="hero__cards" id="hero-cards">
             <div class="card-showcase" id="card-showcase"></div>
         </div>
         <div class="blog-soon-badge">
-            <span class="blog-soon-badge__star">✦</span>
+            <span class="blog-soon-badge__star">&#10022;</span>
             Blog coming soon!
         </div>
     </section>
 
-    <!-- ── ABOUT + WORK 2-COL BLOCK GRID (like music page) ── -->
+    <!-- ── ABOUT + WORK 2-COL BLOCK GRID ── -->
     <div class="music-glass-grid music-glass-grid--2col home-grid" style="margin-bottom:1.25rem;">
 
         <div class="glass music-panel">
@@ -50,33 +47,33 @@ title: "Home"
         </div>
 
         <div class="glass music-panel">
-            <h3>Work &amp; Research</h3>
-            <p class="music-subtitle">Current and recent positions</p>
-            <div class="widget-work-item widget-work-item--incoming">
-                <span class="widget-work-item__role">LawAI Fellow · Legal Frontiers</span>
-                <span class="widget-work-item__org">Institute of Law and AI</span>
-                <span class="widget-work-item__date">Jan–May 2027</span>
-            </div>
-            <div class="widget-work-item widget-work-item--incoming">
-                <span class="widget-work-item__role">LFAI Workshop · Cambridge</span>
+            <h3>AI Safety Research Experiences</h3>
+            <p class="music-subtitle">Current and upcoming</p>
+
+            <div class="widget-work-item widget-work-item--incoming widget-work-item--bg-gold">
+                <span class="widget-work-item__role">LFAI Workshop &middot; Cambridge</span>
                 <span class="widget-work-item__org">Institute of Law and AI</span>
                 <span class="widget-work-item__date">June 2026</span>
             </div>
-            <div class="widget-work-item">
-                <span class="widget-work-item__role">AI Governance Intern</span>
-                <span class="widget-work-item__org">Confide Platform</span>
-                <span class="widget-work-item__date">2024 – May 2026</span>
+
+            <div class="widget-work-item widget-work-item--incoming widget-work-item--bg-blue">
+                <span class="widget-work-item__role">Incoming &middot; Winter Fellow &middot; Legal Frontiers</span>
+                <span class="widget-work-item__org">Institute of Law and AI</span>
+                <span class="widget-work-item__date">Jan to May 2027</span>
             </div>
-            <div class="widget-work-item">
-                <span class="widget-work-item__role">AI Safety Fellowship</span>
-                <span class="widget-work-item__org">BASIS Berkeley</span>
-                <span class="widget-work-item__date">2025</span>
-            </div>
-            <div class="widget-work-item">
+
+            <div class="widget-work-item widget-work-item--bg-green">
                 <span class="widget-work-item__role">ML Engineering, ARBOx3</span>
                 <span class="widget-work-item__org">OAISI Oxford</span>
                 <span class="widget-work-item__date">2026</span>
             </div>
+
+            <div class="widget-work-item widget-work-item--bg-purple">
+                <span class="widget-work-item__role">AI Safety Fellowship</span>
+                <span class="widget-work-item__org">BASIS Berkeley</span>
+                <span class="widget-work-item__date">2025</span>
+            </div>
+
             <a class="home-section-link" href="/work.html">All experience →</a>
         </div>
 
@@ -95,13 +92,11 @@ title: "Home"
 
         <div class="glass music-panel">
             <h3>Latest Publication</h3>
-            <p class="music-subtitle">FAST Workshop · AAAI 2026</p>
+            <p class="music-subtitle">FAST Workshop &middot; AAAI 2026</p>
             <div class="widget__title" style="margin-top:0.25rem;">From Object to Other: AI Moral Status</div>
             <a class="home-section-link" href="/assets/papers/from-object-to-other-fast-aaai-2026.pdf" target="_blank" rel="noopener">View PDF →</a>
         </div>
     </div>
-
-
 
 </div><!-- /.home-page-inner -->
 
@@ -110,3 +105,43 @@ title: "Home"
 <script src="{{ '/assets/js/bio-loader.js' | relative_url }}"></script>
 <script src="{{ '/assets/js/home-music-widget.js' | relative_url }}"></script>
 <script src="{{ '/assets/js/scroll-gradient.js' | relative_url }}"></script>
+<script>
+(function () {
+    var nameEl = document.getElementById('hero-name');
+    var cardsEl = document.getElementById('hero-cards');
+    if (!nameEl || !cardsEl) return;
+
+    /* Make name visually clickable */
+    nameEl.classList.add('hero__name--clickable');
+    nameEl.setAttribute('role', 'button');
+    nameEl.setAttribute('tabindex', '0');
+    nameEl.title = 'Click to reveal';
+
+    var revealed = false;
+
+    function revealCards() {
+        if (revealed) return;
+        revealed = true;
+
+        /* Press animation on name */
+        nameEl.classList.add('hero__name--pressed');
+        setTimeout(function () { nameEl.classList.remove('hero__name--pressed'); }, 500);
+
+        /* Animate reveal */
+        cardsEl.classList.add('cards-revealing');
+
+        /* After transition finishes, switch to the fully-revealed state */
+        cardsEl.addEventListener('transitionend', function onEnd(e) {
+            if (e.propertyName !== 'max-height') return;
+            cardsEl.removeEventListener('transitionend', onEnd);
+            cardsEl.classList.remove('cards-revealing');
+            cardsEl.classList.add('cards-revealed');
+        });
+    }
+
+    nameEl.addEventListener('click', revealCards);
+    nameEl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); revealCards(); }
+    });
+})();
+</script>
