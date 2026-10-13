@@ -79,17 +79,8 @@ title: "Home"
 
     </div>
 
-    <!-- ── NOW PLAYING + LATEST PUB (2-col) ── -->
-    <div class="music-glass-grid music-glass-grid--2col" style="margin-bottom:1.25rem;">
-        <div class="glass music-panel">
-            <h3>Now Playing</h3>
-            <p class="music-subtitle">What's in my ears right now</p>
-            <div id="widget-now-playing">
-                <div class="loading-skeleton" style="height:48px;border-radius:6px;"></div>
-            </div>
-            <a class="home-section-link" href="/music.html">Full music dashboard →</a>
-        </div>
-
+    <!-- ── LATEST PUB ── -->
+    <div class="music-glass-grid music-glass-grid--full" style="margin-bottom:1.25rem;">
         <div class="glass music-panel">
             <h3>Latest Publication</h3>
             <p class="music-subtitle">FAST Workshop &middot; AAAI 2026</p>
@@ -103,7 +94,6 @@ title: "Home"
 <script src="{{ '/assets/js/telescopic.js' | relative_url }}"></script>
 <script src="{{ '/assets/js/holo-cards.js' | relative_url }}"></script>
 <script src="{{ '/assets/js/bio-loader.js' | relative_url }}"></script>
-<script src="{{ '/assets/js/home-music-widget.js' | relative_url }}"></script>
 <script src="{{ '/assets/js/scroll-gradient.js' | relative_url }}"></script>
 <script>
 (function () {

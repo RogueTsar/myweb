@@ -10,9 +10,8 @@ live at **[vaishnavi-singh.com](https://vaishnavi-singh.com)**
 
 ## pages
 
-- **Home** — holographic Balatro-style tarot cards (they flip!!), about me, work timeline, now playing widget, latest publication, research interests graph. liquid gradient blobs float behind everything in light and dark mode
+- **Home** — holographic Balatro-style tarot cards (they flip!!), about me, work timeline, latest publication, research interests graph. liquid gradient blobs float behind everything in light and dark mode
 - **Work** — research and professional experience, with tags and descriptions. still filling this out
-- **Music** — full live Spotify dashboard. top artists, top tracks (4 different views: CD carousel, wheel, showcase grid, bar chart), vinyl shelf, playlists with metadata (last played, last updated, top genre, top artist), genres across time, listening personality breakdown with evolution chart, play counts on everything. it's a lot
 - **Blog** — writing on AI safety, governance, and policy. coming sooooon
 
 ---

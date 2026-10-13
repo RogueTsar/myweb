@@ -248,27 +248,4 @@
             if (bars) renderBars(bars, scores, MAX, data.facets || null);
         })
         .catch(function () {});
-
-    fetch('/api/spotify')
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (data) {
-            var el = document.getElementById('about-now-playing');
-            if (!el) return;
-            var lp = data && data.last_played;
-            if (!lp) { el.innerHTML = '<span class="about-currently__val" style="opacity:0.5">Nothing recent</span>'; return; }
-            var status = lp.is_playing ? 'Now playing' : 'Last played';
-            el.innerHTML =
-                '<div class="about-np">' +
-                    (lp.album_art ? '<img class="about-np__art" src="' + escHtml(lp.album_art) + '" alt="">' : '') +
-                    '<div class="about-np__info">' +
-                        '<span class="about-np__track">' + escHtml(lp.track) + '</span>' +
-                        '<span class="about-np__artist">' + escHtml(lp.artist) + '</span>' +
-                    '</div>' +
-                    '<span class="about-np__status' + (lp.is_playing ? ' about-np__status--live' : '') + '">' + status + '</span>' +
-                '</div>';
-        })
-        .catch(function () {
-            var el = document.getElementById('about-now-playing');
-            if (el) el.innerHTML = '';
-        });
 })();
