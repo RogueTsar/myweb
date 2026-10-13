@@ -36,8 +36,7 @@
       { id: 'testimonials', label: 'Testimonials' },
       { id: 'research', label: 'Research Graph' },
       { id: 'card-quotes', label: 'Card Quotes' },
-      { id: 'bio', label: 'Bio Editor' },
-      { id: 'spotify', label: 'Spotify' }
+      { id: 'bio', label: 'Bio Editor' }
     ];
 
     var nav = document.getElementById('sidebar-nav');
@@ -68,7 +67,6 @@
       case 'research': renderResearch(main); break;
       case 'card-quotes': renderCardQuotes(main); break;
       case 'bio': renderBioEditor(main); break;
-      case 'spotify': renderSpotify(main); break;
     }
   }
 
@@ -894,104 +892,6 @@
       html += '<p style="margin-bottom:0.75rem;line-height:1.6">' + rendered + '</p>';
     });
     container.innerHTML = html;
-  }
-
-  /* ──────────────────────────────────────
-     TAB: Spotify
-     ────────────────────────────────────── */
-  function renderSpotify(el) {
-    var html = '<h2>Spotify Integration</h2>';
-
-    // Health check
-    html += '<h3>API Health Check</h3>';
-    html += '<button class="btn btn-primary" id="btn-spotify-check">Check Spotify API</button>';
-    html += '<div id="spotify-status" style="margin-top:12px"></div>';
-
-    // Auto-check toggle
-    var autoCheck = localStorage.getItem('vs-spotify-autocheck') === 'true';
-    html += '<div style="margin-top:12px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer">' +
-      '<input type="checkbox" id="spotify-autocheck"' + (autoCheck ? ' checked' : '') + '> ' +
-      '<span style="font-size:13px">Auto-check every 5 minutes when admin is open</span></label></div>';
-
-    // Fix guide
-    html += '<h3 style="margin-top:24px">If Spotify Is Not Working</h3>';
-    html += '<div class="card" style="font-size:13px;line-height:1.6">';
-    html += '<p><strong>Step 1: Check the API</strong><br>Click "Check Spotify API" above. If it says "Could not load" or shows an error, your refresh token is expired.</p>';
-    html += '<p style="margin-top:8px"><strong>Step 2: Generate a new token</strong><br>Open terminal and run:</p>';
-    html += '<pre style="background:var(--admin-bg);padding:12px;border-radius:6px;margin:8px 0;overflow-x:auto;font-size:12px">cd ~/myweb\nnode scripts/get-spotify-token.js</pre>';
-    html += '<p>It will open Spotify in your browser. Log in and approve. The script prints your new token.</p>';
-    html += '<p style="margin-top:8px"><strong>Step 3: Update Vercel</strong></p>';
-    html += '<ol style="padding-left:20px;margin:4px 0">';
-    html += '<li>Go to <a href="https://vercel.com" target="_blank" style="color:var(--admin-accent)">Vercel Dashboard</a> > your project > Settings > Environment Variables</li>';
-    html += '<li>Delete the old <code>SPOTIFY_REFRESH_TOKEN</code></li>';
-    html += '<li>Add the new one from the script output</li>';
-    html += '<li>Redeploy: push any change to <code>main</code> or click "Redeploy" in Vercel</li>';
-    html += '</ol>';
-    html += '<p style="margin-top:8px"><strong>Step 4: Verify</strong><br>Wait 1 minute, then click "Check Spotify API" again.</p>';
-    html += '</div>';
-
-    // Current API response preview
-    html += '<h3 style="margin-top:24px">Current API Response</h3>';
-    html += '<div id="spotify-raw" style="max-height:400px;overflow:auto;font-size:11px;background:var(--admin-bg);padding:12px;border-radius:6px;border:1px solid var(--admin-border)">Click "Check Spotify API" to load.</div>';
-
-    el.innerHTML = html;
-
-    document.getElementById('btn-spotify-check').onclick = function () { checkSpotify(); };
-    document.getElementById('spotify-autocheck').onchange = function () {
-      localStorage.setItem('vs-spotify-autocheck', this.checked ? 'true' : 'false');
-      if (this.checked) startAutoCheck();
-      else stopAutoCheck();
-    };
-
-    if (autoCheck) startAutoCheck();
-  }
-
-  var spotifyCheckInterval = null;
-
-  function startAutoCheck() {
-    stopAutoCheck();
-    spotifyCheckInterval = setInterval(checkSpotify, 5 * 60 * 1000);
-  }
-
-  function stopAutoCheck() {
-    if (spotifyCheckInterval) clearInterval(spotifyCheckInterval);
-    spotifyCheckInterval = null;
-  }
-
-  function checkSpotify() {
-    var statusEl = document.getElementById('spotify-status');
-    var rawEl = document.getElementById('spotify-raw');
-    if (statusEl) statusEl.innerHTML = '<span style="color:var(--admin-text-dim)">Checking...</span>';
-
-    fetch('/api/spotify')
-      .then(function (res) {
-        if (!res.ok) throw new Error('API returned ' + res.status);
-        return res.json();
-      })
-      .then(function (data) {
-        if (statusEl) {
-          var trackCount = (data.top_tracks || []).length;
-          var artistCount = (data.top_artists || []).length;
-          var playlistCount = (data.playlists || []).length;
-          var lastPlayed = data.last_played ? data.last_played.track + ' by ' + data.last_played.artist : 'None';
-          statusEl.innerHTML =
-            '<span class="badge badge-success">WORKING</span>' +
-            '<div style="margin-top:8px;font-size:13px;color:var(--admin-text-dim)">' +
-              'Top tracks: ' + trackCount + ' | Top artists: ' + artistCount + ' | Playlists: ' + playlistCount +
-              '<br>Last played: ' + esc(lastPlayed) +
-            '</div>';
-        }
-        if (rawEl) rawEl.textContent = JSON.stringify(data, null, 2);
-      })
-      .catch(function (err) {
-        if (statusEl) {
-          statusEl.innerHTML =
-            '<span class="badge badge-danger">NOT WORKING</span>' +
-            '<div style="margin-top:8px;font-size:13px;color:var(--admin-danger)">' + esc(err.message) + '</div>' +
-            '<p style="margin-top:8px;font-size:13px">Follow the fix guide below to regenerate your Spotify token.</p>';
-        }
-        if (rawEl) rawEl.textContent = 'Error: ' + err.message;
-      });
   }
 
 })();
