@@ -1,0 +1,257 @@
+/* Call page: "Can I call Vaishnavi?" — phone-first, reuses the site's glass tokens */
+
+.call {
+    max-width: 520px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.call-status {
+    padding: 1.5rem;
+}
+
+.call-status__row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.call-status__title {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.call-status__sub {
+    margin: 0.6rem 0 0;
+    font-size: 1.05rem;
+    color: var(--text);
+}
+
+.call-status__tz {
+    margin: 0.35rem 0 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.call-status__sub:empty,
+.call-status__tz:empty {
+    display: none;
+}
+
+.call-dot {
+    flex: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--text-tertiary);
+}
+
+.call-dot--free {
+    background: var(--green);
+    box-shadow: 0 0 0 4px rgba(42, 122, 90, 0.25);
+}
+
+.call-dot--busy {
+    background: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-hover);
+}
+
+.call-dot--loading {
+    opacity: 0.4;
+}
+
+/* Buttons */
+
+.call-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.call-btn {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
+    min-height: 48px;
+    padding: 0.7rem 1.2rem;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    color: var(--text);
+    font: inherit;
+    font-weight: 500;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px var(--glass-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.call-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px var(--glass-shadow);
+}
+
+.call-btn:focus-visible,
+.call-slot:focus-visible,
+.call-sheet__select:focus-visible {
+    outline: 3px solid var(--accent-light);
+    outline-offset: 2px;
+}
+
+.call-btn:hover {
+    background: var(--glass-bg);
+    color: var(--text);
+    border-bottom-color: var(--glass-border);
+}
+
+.call-btn--primary,
+.call-btn--primary:hover {
+    flex: 1 1 100%;
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+.call-btn--primary:hover {
+    background: var(--accent-light);
+}
+
+.call-btn--secondary {
+    flex: 1 1 calc(50% - 0.3rem);
+}
+
+.call-btn--disabled {
+    opacity: 0.55;
+    cursor: default;
+    pointer-events: none;
+}
+
+.call-btn--ghost {
+    background: transparent;
+    box-shadow: none;
+    width: 100%;
+}
+
+.call-btn__hint {
+    font-size: 0.78rem;
+    font-weight: 300;
+    opacity: 0.9;
+}
+
+/* Friends view: free windows */
+
+.call-days {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    margin-top: 0.5rem;
+}
+
+.call-day__title {
+    margin: 0 0 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.call-day__slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.call-day__none {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.call-slot {
+    min-height: 44px;
+    padding: 0.5rem 0.9rem;
+    border-radius: 10px;
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.95rem;
+    cursor: pointer;
+    text-align: left;
+}
+
+.call-slot:hover {
+    background: var(--accent-hover);
+}
+
+.call-slot small {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* Time picker sheet */
+
+.call-sheet {
+    width: min(92vw, 420px);
+    padding: 1.4rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    background: var(--bg-subtle);
+    color: var(--text);
+}
+
+.call-sheet::backdrop {
+    background: rgba(0, 0, 0, 0.45);
+}
+
+.call-sheet__form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.call-sheet__title {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.call-sheet__day,
+.call-sheet__preview {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.call-sheet__label {
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.call-sheet__select {
+    min-height: 44px;
+    padding: 0.4rem 0.6rem;
+    border-radius: 10px;
+    border: 1px solid var(--glass-border);
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+}
+
+.call-sheet__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0.4rem 0;
+}

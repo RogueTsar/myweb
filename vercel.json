@@ -3,6 +3,16 @@
     "outputDirectory": "_site",
     "framework": null,
     "rewrites": [
-        { "source": "/api/(.*)", "destination": "/api/$1" }
+        { "source": "/api/(.*)", "destination": "/api/$1" },
+        { "source": "/call", "destination": "/call.html" }
+    ],
+    "headers": [
+        {
+            "source": "/(call|call.html)",
+            "headers": [
+                { "key": "Referrer-Policy", "value": "no-referrer" },
+                { "key": "X-Robots-Tag", "value": "noindex" }
+            ]
+        }
     ]
 }

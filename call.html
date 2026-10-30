@@ -1,0 +1,36 @@
+---
+layout: default
+title: "Call"
+noindex: true
+---
+
+<link rel="stylesheet" href="/assets/css/call.css">
+
+<section class="call" id="call">
+    <div class="glass music-panel call-status" id="call-status" aria-live="polite">
+        <div class="call-status__row">
+            <span class="call-dot call-dot--loading" id="call-dot" aria-hidden="true"></span>
+            <h2 class="call-status__title" id="call-title">Checking&hellip;</h2>
+        </div>
+        <p class="call-status__sub" id="call-sub"></p>
+        <p class="call-status__tz" id="call-tz"></p>
+    </div>
+
+    <div class="call-actions" id="call-actions"></div>
+
+    <div class="call-days" id="call-days" hidden></div>
+</section>
+
+<dialog class="call-sheet" id="call-sheet" aria-labelledby="call-sheet-title">
+    <form method="dialog" class="call-sheet__form">
+        <h3 id="call-sheet-title" class="call-sheet__title">Pick a time</h3>
+        <p class="call-sheet__day" id="call-sheet-day"></p>
+        <label class="call-sheet__label" for="call-sheet-start">Start time</label>
+        <select id="call-sheet-start" class="call-sheet__select"></select>
+        <p class="call-sheet__preview" id="call-sheet-preview"></p>
+        <div class="call-sheet__actions" id="call-sheet-actions"></div>
+        <button class="call-btn call-btn--ghost" value="close">Close</button>
+    </form>
+</dialog>
+
+<script src="/assets/js/call.js"></script>

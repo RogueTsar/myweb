@@ -12,3 +12,5 @@ serve.sh
 node_modules/
 .env
 .vercel
+
+.env*.local

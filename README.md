@@ -72,3 +72,14 @@ note: the Spotify API calls won't work locally (Vercel functions don't run with 
 ---
 
 inspired by david africa's website :')
+
+---
+
+## call page
+
+`/call` shows whether i'm free for a call right now, read live from google calendar free/busy (never titles, guests or locations).
+
+- **public link:** `https://vaishnavi-singh.com/call` — status, next free time, contact buttons
+- **friends link:** `https://vaishnavi-singh.com/call?k=<FRIENDS_KEY>` — also shows free windows for the next 3 days, tappable to propose a time
+
+backend is `api/availability.js`, logic is pure functions in `api/_lib/availability.js` (tests: `npm test`). env vars are in `.env.example`; one-time google setup is in [docs/call-page-setup.md](docs/call-page-setup.md). automation-friendly one-liner: `/api/availability?format=text&k=<FRIENDS_KEY>`.

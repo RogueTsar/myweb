@@ -5,6 +5,14 @@
         "node": "24.x"
     },
     "dependencies": {
-        "@vercel/analytics": "^2.0.1"
+        "@vercel/analytics": "^2.0.1",
+        "google-auth-library": "^11.3.2",
+        "luxon": "^3.7.2"
+    },
+    "devDependencies": {
+        "vitest": "^4.1.12"
+    },
+    "scripts": {
+        "test": "vitest run"
     }
 }
